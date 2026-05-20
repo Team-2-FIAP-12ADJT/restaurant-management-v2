@@ -31,3 +31,15 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Environment ###
+.env
+
+### Liquibase ###
+# Credenciais locais de banco (nunca versionar)
+src/main/resources/liquibase.properties
+
+### IA ###
+# Configurações e chaves de API (nunca versionar)
+src/main/resources/ai.properties
+.claude
