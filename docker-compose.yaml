@@ -13,7 +13,7 @@ services:
     ports:
       - "${SPRING_DATASOURCE_PORT}:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql
       # Se você criar a pasta /config/init-db, pode descomentar a linha abaixo
       # - ./config/init-db:/docker-entrypoint-initdb.d
     healthcheck:
