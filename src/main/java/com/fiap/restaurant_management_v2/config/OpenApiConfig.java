@@ -1,6 +1,6 @@
 package com.fiap.restaurant_management_v2.config;
 
-import com.fiap.restaurant_management_v2.adapter.in.web.ApiPaths;
+import com.fiap.restaurant_management_v2.adapters.controller.ApiPaths;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.models.GroupedOpenApi;

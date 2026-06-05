@@ -1,4 +1,4 @@
-package com.fiap.restaurant_management_v2.adapter.in.web;
+package com.fiap.restaurant_management_v2.adapters.controller;
 
 public final class ApiPaths {
 
