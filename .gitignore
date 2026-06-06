@@ -31,6 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+.zed/
 
 ### Environment ###
 .env
@@ -43,3 +44,4 @@ src/main/resources/liquibase.properties
 # Configurações e chaves de API (nunca versionar)
 src/main/resources/ai.properties
 .claude
+.agents

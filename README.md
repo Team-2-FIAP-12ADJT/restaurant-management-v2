@@ -89,7 +89,20 @@ Output: `target/restaurant_management_v2-*.jar`
 
 ### Add a schema migration
 
-When implementing persistence, add Flyway or Liquibase to `pom.xml` and create migration scripts under `src/main/resources/db/`. Hibernate is set to `ddl-auto: validate` — it will refuse to start if the schema does not match the entities.
+Liquibase is already configured. Add a changeset XML under `src/main/resources/db/changelog/changes/` and include it from `db.changelog-master.xml`. Migrations run automatically on app startup. Hibernate is set to `ddl-auto: validate` — it will refuse to start if the schema does not match the entities.
+
+### Generate a migration diff (`mvn liquibase:diff`)
+
+The Liquibase Maven plugin reads database credentials from `src/main/resources/liquibase.properties`, which is **gitignored** (it holds local credentials). Before running a diff, copy the template and fill it in:
+
+```bash
+cp src/main/resources/liquibase.properties.example src/main/resources/liquibase.properties
+# edit url / username / password to match your local database
+
+./mvnw liquibase:diff
+```
+
+`referenceUrl` points at the Hibernate entities, so the diff compares your live database against the current `@Entity` model.
 
 ---
 

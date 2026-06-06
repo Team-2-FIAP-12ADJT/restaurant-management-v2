@@ -1,0 +1,7 @@
+# Template for the Liquibase Maven plugin (`mvn liquibase:diff`).
+# Copy to `liquibase.properties` (gitignored) and fill before running a diff.
+# Values below are local-dev defaults — adjust to your environment.
+url=jdbc:postgresql://localhost:5432/restaurant_management_v2
+username=__DB_USERNAME__
+password=__DB_PASSWORD__
+referenceUrl=hibernate:spring:com.fiap.restaurant_management_v2?dialect=org.hibernate.dialect.PostgreSQLDialect&hibernate.physical_naming_strategy=org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
