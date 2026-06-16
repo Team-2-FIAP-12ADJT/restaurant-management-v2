@@ -1,6 +1,7 @@
 package com.fiap.restaurant_management_v2.infrastructure.web;
 
 import com.fiap.restaurant_management_v2.application.exception.DuplicateUserException;
+import com.fiap.restaurant_management_v2.application.exception.InvalidFilterException;
 import com.fiap.restaurant_management_v2.domain.exception.InvalidUserException;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +23,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidUserException.class)
     public ProblemDetail handleInvalid(InvalidUserException ex) {
+        return ProblemDetail.forStatusAndDetail(
+            HttpStatus.BAD_REQUEST,
+            ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(InvalidFilterException.class)
+    public ProblemDetail handleInvalidFilter(InvalidFilterException ex) {
         return ProblemDetail.forStatusAndDetail(
             HttpStatus.BAD_REQUEST,
             ex.getMessage()

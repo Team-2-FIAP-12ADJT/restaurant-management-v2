@@ -1,0 +1,17 @@
+{
+  "name": "restaurant_management_v2",
+  "variables": [
+    {
+      "name": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "text",
+      "enabled": true,
+      "secret": false
+    }
+  ],
+  "info": {
+    "type": "bruno-environment",
+    "exportedAt": "2026-06-16T02:28:49.447Z",
+    "exportedUsing": "Bruno/v3.4.2"
+  }
+}
