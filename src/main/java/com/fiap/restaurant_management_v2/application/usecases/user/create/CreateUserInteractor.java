@@ -8,6 +8,7 @@ import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseMode
 import com.fiap.restaurant_management_v2.domain.User;
 
 public class CreateUserInteractor implements CreateUserInputBoundary {
+
     private final UserDsGateway userDsGateway;
     private final PasswordEncoderGateway passwordEncoder;
     private final CreateUserOutputBoundary outputBoundary;
