@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping(ApiPaths.USERS)
@@ -53,8 +52,7 @@ public class UserApi {
 
     @PostMapping
     public ResponseEntity<UserViewModel> create(
-        @Valid @RequestBody CreateUserRequest request,
-        UriComponentsBuilder uriBuilder
+        @Valid @RequestBody CreateUserRequest request
     ) {
         userController.create(
             request.name(),
