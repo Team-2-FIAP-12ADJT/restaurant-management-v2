@@ -29,11 +29,12 @@ public class GetAllUsersInteractor implements GetAllUsersInputBoundary {
         addLike(criteria, "email", request.email());
         addLike(criteria, "login", request.login());
 
-        PageResult<UserDsResponseModel> page = userDsGateway.findAll(
-            new SearchQuery(criteria),
-            request.page(),
-            request.size()
-        );
+        PageResult<UserDsResponseModel> page =
+            userDsGateway.findAll(
+                new SearchQuery(criteria),
+                request.page(),
+                request.size()
+            );
 
         PageResult<UserSummary> summaryPage = new PageResult<>(
             page.content().stream().map(this::toSummary).toList(),

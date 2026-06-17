@@ -20,9 +20,9 @@ public class GetUserByIdInteractor implements GetUserByIdInputBoundary {
     @Override
     public void execute(GetUserByIdRequestModel request) {
         UserDsResponseModel user = userDsGateway
-            .findByIdAndDeletedAtIsNull(request.id())
+            .findById(request.id())
             .orElseThrow(() ->
-                new UserNotFoundException("User not found" + request.id())
+                new UserNotFoundException("User not found: " + request.id())
             );
 
         var response = new GetUserByIdResponseModel(
