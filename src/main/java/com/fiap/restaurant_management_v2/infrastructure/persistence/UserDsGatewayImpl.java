@@ -5,6 +5,7 @@ import com.fiap.restaurant_management_v2.application.gateways.UserDsRequestModel
 import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.search.SearchQuery;
 import com.fiap.restaurant_management_v2.application.pagination.PageResult;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -62,5 +63,14 @@ public class UserDsGatewayImpl implements UserDsGateway {
             page,
             size
         );
+    }
+
+    @Override
+    public Optional<UserDsResponseModel> findByIdAndDeletedAtIsNull(
+        java.util.UUID id
+    ) {
+        return jpaRepository
+            .findByIdAndDeletedAtIsNull(id)
+            .map(UserEntityMapper::toDsResponse);
     }
 }

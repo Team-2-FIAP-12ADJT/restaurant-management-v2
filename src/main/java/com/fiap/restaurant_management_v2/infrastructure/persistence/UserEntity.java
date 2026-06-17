@@ -7,10 +7,14 @@ import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+@Builder
 @Entity
 @Table(name = "users")
 @Getter
@@ -18,6 +22,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserEntity {
+
     @Id
     private UUID id;
 
@@ -34,8 +39,13 @@ public class UserEntity {
     private String password;
 
     @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
     private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at", nullable = true)
+    @UpdateTimestamp
     private Instant updatedAt;
+
+    @Column(name = "deleted_at", nullable = true)
+    private Instant deletedAt;
 }
