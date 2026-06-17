@@ -83,6 +83,48 @@
               "variable": []
             }
           }
+        },
+        {
+          "name": "Busca usuário por ID",
+          "request": {
+            "method": "get",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users?name=teste&page=1&size=20&email=@mail.com",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users?name=teste&page=1&size=20&email=@mail.com"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "teste"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                },
+                {
+                  "key": "email",
+                  "value": "@mail.com"
+                }
+              ],
+              "variable": []
+            }
+          }
         }
       ]
     }

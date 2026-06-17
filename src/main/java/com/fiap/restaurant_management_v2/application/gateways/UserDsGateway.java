@@ -2,6 +2,8 @@ package com.fiap.restaurant_management_v2.application.gateways;
 
 import com.fiap.restaurant_management_v2.application.gateways.search.SearchQuery;
 import com.fiap.restaurant_management_v2.application.pagination.PageResult;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Data source gateway for users. Owned by the application circle, implemented in
@@ -10,6 +12,8 @@ import com.fiap.restaurant_management_v2.application.pagination.PageResult;
  */
 public interface UserDsGateway {
     UserDsResponseModel save(UserDsRequestModel user);
+
+    Optional<UserDsResponseModel> findByIdAndDeletedAtIsNull(UUID id);
 
     boolean existsByEmail(String email);
 
