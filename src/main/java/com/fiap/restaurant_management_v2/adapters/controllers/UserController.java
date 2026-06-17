@@ -2,6 +2,8 @@ package com.fiap.restaurant_management_v2.adapters.controllers;
 
 import com.fiap.restaurant_management_v2.application.usecases.user.create.CreateUserInputBoundary;
 import com.fiap.restaurant_management_v2.application.usecases.user.create.CreateUserRequestModel;
+import com.fiap.restaurant_management_v2.application.usecases.user.delete.DeleteUserByIdInputBoundary;
+import com.fiap.restaurant_management_v2.application.usecases.user.delete.DeleteUserByIdRequestModel;
 import com.fiap.restaurant_management_v2.application.usecases.user.get_all.GetAllUsersInputBoundary;
 import com.fiap.restaurant_management_v2.application.usecases.user.get_all.GetAllUsersRequestModel;
 import com.fiap.restaurant_management_v2.application.usecases.user.get_user_by_id.GetUserByIdInputBoundary;
@@ -18,15 +20,18 @@ public class UserController {
     private final CreateUserInputBoundary createUser;
     private final GetAllUsersInputBoundary getAllUsers;
     private final GetUserByIdInputBoundary getUserById;
+    private final DeleteUserByIdInputBoundary deleteUserById;
 
     public UserController(
         CreateUserInputBoundary createUser,
         GetAllUsersInputBoundary getAllUsers,
-        GetUserByIdInputBoundary getUserById
+        GetUserByIdInputBoundary getUserById,
+        DeleteUserByIdInputBoundary deleteUserById
     ) {
         this.createUser = createUser;
         this.getAllUsers = getAllUsers;
         this.getUserById = getUserById;
+        this.deleteUserById = deleteUserById;
     }
 
     public void create(
@@ -54,5 +59,9 @@ public class UserController {
 
     public void getById(UUID id) {
         getUserById.execute(new GetUserByIdRequestModel(id));
+    }
+
+    public void delete(UUID id) {
+        deleteUserById.execute(new DeleteUserByIdRequestModel(id));
     }
 }

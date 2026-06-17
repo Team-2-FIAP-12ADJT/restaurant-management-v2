@@ -13,7 +13,7 @@ import java.util.UUID;
 public interface UserDsGateway {
     UserDsResponseModel save(UserDsRequestModel user);
 
-    Optional<UserDsResponseModel> findByIdAndDeletedAtIsNull(UUID id);
+    Optional<UserDsResponseModel> findById(UUID id);
 
     boolean existsByEmail(String email);
 
@@ -24,4 +24,6 @@ public interface UserDsGateway {
         int page,
         int size
     );
+
+    void deleteById(UUID id);
 }

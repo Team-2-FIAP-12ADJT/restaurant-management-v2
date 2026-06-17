@@ -5,7 +5,9 @@ import com.fiap.restaurant_management_v2.application.gateways.UserDsRequestModel
 import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.search.SearchQuery;
 import com.fiap.restaurant_management_v2.application.pagination.PageResult;
+import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -46,6 +48,10 @@ public class UserDsGatewayImpl implements UserDsGateway {
             UserFilterFields.ALLOWED
         );
 
+        Specification<UserEntity> notDeleted = (root, q, cb) ->
+            cb.isNull(root.get("deletedAt"));
+        spec = spec.and(notDeleted);
+
         PageRequest pageRequest = PageRequest.of(
             page - 1,
             size,
@@ -66,11 +72,17 @@ public class UserDsGatewayImpl implements UserDsGateway {
     }
 
     @Override
-    public Optional<UserDsResponseModel> findByIdAndDeletedAtIsNull(
-        java.util.UUID id
-    ) {
+    public Optional<UserDsResponseModel> findById(UUID id) {
         return jpaRepository
             .findByIdAndDeletedAtIsNull(id)
             .map(UserEntityMapper::toDsResponse);
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        jpaRepository.findByIdAndDeletedAtIsNull(id).ifPresent(entity -> {
+            entity.setDeletedAt(Instant.now());
+            jpaRepository.save(entity);
+        });
     }
 }
