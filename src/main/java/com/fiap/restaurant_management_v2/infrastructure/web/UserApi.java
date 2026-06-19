@@ -3,6 +3,7 @@ package com.fiap.restaurant_management_v2.infrastructure.web;
 import com.fiap.restaurant_management_v2.adapters.controllers.UserController;
 import com.fiap.restaurant_management_v2.adapters.presenters.CreateUserPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.GetAllUsersPresenter;
+import com.fiap.restaurant_management_v2.adapters.presenters.GetUserByIdPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.PageViewModel;
 import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.UserViewModel;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.CreateUserRequest;
@@ -11,7 +12,9 @@ import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,15 +27,18 @@ public class UserApi {
     private final UserController userController;
     private final CreateUserPresenter createUserPresenter;
     private final GetAllUsersPresenter getAllUsersPresenter;
+    private final GetUserByIdPresenter getUserByIdPresenter;
 
     public UserApi(
         UserController userController,
         CreateUserPresenter createUserPresenter,
-        GetAllUsersPresenter getAllUsersPresenter
+        GetAllUsersPresenter getAllUsersPresenter,
+        GetUserByIdPresenter getUserByIdPresenter
     ) {
         this.userController = userController;
         this.createUserPresenter = createUserPresenter;
         this.getAllUsersPresenter = getAllUsersPresenter;
+        this.getUserByIdPresenter = getUserByIdPresenter;
     }
 
     @GetMapping
@@ -50,6 +56,12 @@ public class UserApi {
         return ResponseEntity.ok(getAllUsersPresenter.getViewModel());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<UserViewModel> getById(@PathVariable String id) {
+        userController.getById(java.util.UUID.fromString(id));
+        return ResponseEntity.ok(getUserByIdPresenter.getViewModel());
+    }
+
     @PostMapping
     public ResponseEntity<UserViewModel> create(
         @Valid @RequestBody CreateUserRequest request
@@ -64,5 +76,11 @@ public class UserApi {
         UserViewModel viewModel = createUserPresenter.getViewModel();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(viewModel);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        userController.delete(java.util.UUID.fromString(id));
+        return ResponseEntity.noContent().build();
     }
 }

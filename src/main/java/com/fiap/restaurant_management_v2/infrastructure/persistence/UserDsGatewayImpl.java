@@ -5,12 +5,10 @@ import com.fiap.restaurant_management_v2.application.gateways.UserDsRequestModel
 import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.search.SearchQuery;
 import com.fiap.restaurant_management_v2.application.pagination.PageResult;
-import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-
 
 public class UserDsGatewayImpl implements UserDsGateway {
 
@@ -34,11 +32,6 @@ public class UserDsGatewayImpl implements UserDsGateway {
     @Override
     public boolean existsByLogin(String login) {
         return jpaRepository.existsByLogin(login);
-    }
-
-    @Override
-    public boolean existsById(UUID id) {
-        return jpaRepository.existsById(id);
     }
 
     @Override

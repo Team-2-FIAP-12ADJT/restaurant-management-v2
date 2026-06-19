@@ -2,13 +2,19 @@ package com.fiap.restaurant_management_v2.infrastructure.config;
 
 import com.fiap.restaurant_management_v2.adapters.controllers.UserController;
 import com.fiap.restaurant_management_v2.adapters.presenters.CreateUserPresenter;
+import com.fiap.restaurant_management_v2.adapters.presenters.DeleteUserByIdPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.GetAllUsersPresenter;
+import com.fiap.restaurant_management_v2.adapters.presenters.GetUserByIdPresenter;
 import com.fiap.restaurant_management_v2.application.gateways.PasswordEncoderGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.usecases.user.create.CreateUserInputBoundary;
 import com.fiap.restaurant_management_v2.application.usecases.user.create.CreateUserInteractor;
+import com.fiap.restaurant_management_v2.application.usecases.user.delete.DeleteUserByIdInputBoundary;
+import com.fiap.restaurant_management_v2.application.usecases.user.delete.DeleteUserByIdInteractor;
 import com.fiap.restaurant_management_v2.application.usecases.user.get_all.GetAllUsersInputBoundary;
 import com.fiap.restaurant_management_v2.application.usecases.user.get_all.GetAllUsersInteractor;
+import com.fiap.restaurant_management_v2.application.usecases.user.get_user_by_id.GetUserByIdInputBoundary;
+import com.fiap.restaurant_management_v2.application.usecases.user.get_user_by_id.GetUserByIdInteractor;
 import com.fiap.restaurant_management_v2.infrastructure.persistence.UserDsGatewayImpl;
 import com.fiap.restaurant_management_v2.infrastructure.persistence.UserJpaRepository;
 import org.springframework.context.annotation.Bean;
@@ -57,13 +63,48 @@ public class UserConfiguration {
     }
 
     @Bean
+    @RequestScope
+    public GetUserByIdPresenter getUserByIdPresenter() {
+        return new GetUserByIdPresenter();
+    }
+
+    @Bean
+    public GetUserByIdInputBoundary getUserByIdInputBoundary(
+        UserDsGateway userDsGateway,
+        GetUserByIdPresenter getUserByIdPresenter
+    ) {
+        return new GetUserByIdInteractor(userDsGateway, getUserByIdPresenter);
+    }
+
+    @Bean
+    @RequestScope
+    public DeleteUserByIdPresenter deleteUserByIdPresenter() {
+        return new DeleteUserByIdPresenter();
+    }
+
+    @Bean
+    public DeleteUserByIdInputBoundary deleteUserByIdInputBoundary(
+        UserDsGateway userDsGateway,
+        DeleteUserByIdPresenter deleteUserByIdPresenter
+    ) {
+        return new DeleteUserByIdInteractor(
+            userDsGateway,
+            deleteUserByIdPresenter
+        );
+    }
+
+    @Bean
     public UserController userController(
         CreateUserInputBoundary createUserInputBoundary,
-        GetAllUsersInputBoundary getAllUsersInputBoundary
+        GetAllUsersInputBoundary getAllUsersInputBoundary,
+        GetUserByIdInputBoundary getUserByIdInputBoundary,
+        DeleteUserByIdInputBoundary deleteUserByIdInputBoundary
     ) {
         return new UserController(
             createUserInputBoundary,
-            getAllUsersInputBoundary
+            getAllUsersInputBoundary,
+            getUserByIdInputBoundary,
+            deleteUserByIdInputBoundary
         );
     }
 }
