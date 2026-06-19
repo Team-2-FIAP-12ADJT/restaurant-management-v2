@@ -4,9 +4,6 @@ services:
     container_name: restaurant_management_v2_db
     restart: always
     environment:
-      # SPRING_DATASOURCE_DATABASE and SPRING_DATASOURCE_URL are intentionally
-      # kept separate: URL allows full flexibility (custom host, port, params).
-      # Both must be kept consistent in .env — see .env.example.
       POSTGRES_DB: ${SPRING_DATASOURCE_DATABASE}
       POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME}
       POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
@@ -38,12 +35,11 @@ services:
     ports:
       - "${APP_PORT}:${APP_PORT}"
     environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      # Sobrescreve a URL para usar o hostname do serviço "db" na rede interna do Docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${SPRING_DATASOURCE_DATABASE}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
-      SPRING_DATASOURCE_PORT: ${SPRING_DATASOURCE_PORT}
-      SPRING_DATASOURCE_DATABASE: ${SPRING_DATASOURCE_DATABASE}
       APP_PORT: ${APP_PORT:-8080}
 
 volumes:
