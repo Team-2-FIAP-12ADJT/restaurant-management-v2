@@ -10,8 +10,8 @@ public class DeleteUserByIdInteractor implements DeleteUserByIdInputBoundary {
     private final DeleteUserByIdOutputBoundary outputBoundary;
 
     public DeleteUserByIdInteractor(
-        UserDsGateway userDsGateway,
-        DeleteUserByIdOutputBoundary outputBoundary
+            UserDsGateway userDsGateway,
+            DeleteUserByIdOutputBoundary outputBoundary
     ) {
         this.userDsGateway = userDsGateway;
         this.outputBoundary = outputBoundary;
@@ -20,12 +20,12 @@ public class DeleteUserByIdInteractor implements DeleteUserByIdInputBoundary {
     @Override
     public void execute(DeleteUserByIdRequestModel request) {
         UserDsResponseModel user = userDsGateway
-            .findByIdAndDeletedAtIsNull(request.id())
-            .orElseThrow(() ->
-                new UserNotFoundException(
-                    "User not found with id: " + request.id()
-                )
-            );
+                .findByIdAndDeletedAtIsNull(request.id())
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with id: " + request.id()
+                        )
+                );
 
         userDsGateway.deleteById(user.id());
         outputBoundary.present();
