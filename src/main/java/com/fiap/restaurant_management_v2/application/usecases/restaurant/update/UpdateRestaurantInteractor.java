@@ -12,7 +12,7 @@ import java.util.UUID;
 public class UpdateRestaurantInteractor implements UpdateRestaurantInputBoundary {
 
     private final RestaurantDsGateway restaurantDsGateway;
-    private final UserDsGateway userDsGateway;
+        private final UserDsGateway userDsGateway;
     private final UpdateRestaurantOutputBoundary outputBoundary;
 
     public UpdateRestaurantInteractor(

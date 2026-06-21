@@ -19,6 +19,8 @@ public interface UserDsGateway {
 
     boolean existsByLogin(String login);
 
+    boolean existsById(UUID id);
+
     PageResult<UserDsResponseModel> findAll(
             SearchQuery query,
             int page,
