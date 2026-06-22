@@ -9,16 +9,16 @@ final class RestaurantEntityMapper {
 
     static RestaurantEntity toEntity(RestaurantDsRequestModel restaurant) {
         Instant now = Instant.now();
-        return new RestaurantEntity(
-            restaurant.id(),
-            restaurant.name(),
-            restaurant.address(),
-            restaurant.cuisineType(),
-            restaurant.openingHours(),
-            restaurant.ownerId(),
-            now,
-            now
-        );
+        return RestaurantEntity.builder()
+            .id(restaurant.id())
+            .name(restaurant.name())
+            .address(restaurant.address())
+            .cuisineType(restaurant.cuisineType())
+            .openingHours(restaurant.openingHours())
+            .owner(UserEntity.builder().id(restaurant.ownerId()).build())
+            .createdAt(now)
+            .updatedAt(now)
+            .build();
     }
 
     static RestaurantDsResponseModel toDsResponse(RestaurantEntity entity) {
@@ -28,7 +28,7 @@ final class RestaurantEntityMapper {
             entity.getAddress(),
             entity.getCuisineType(),
             entity.getOpeningHours(),
-            entity.getOwnerId()
+            entity.getOwner().getId()
         );
     }
 }
