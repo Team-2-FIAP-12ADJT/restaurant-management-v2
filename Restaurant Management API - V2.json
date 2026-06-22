@@ -20,14 +20,8 @@
             "url": {
               "raw": "{{baseUrl}}/api/v1/users",
               "protocol": "",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "users"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users"],
               "query": [],
               "variable": []
             },
@@ -54,31 +48,13 @@
             "url": {
               "raw": "{{baseUrl}}/api/v1/users?name=teste&page=1&size=20&email=@mail.com",
               "protocol": "",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "users?name=teste&page=1&size=20&email=@mail.com"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users?name=teste&page=1&size=20&email=@mail.com"],
               "query": [
-                {
-                  "key": "name",
-                  "value": "teste"
-                },
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "size",
-                  "value": "20"
-                },
-                {
-                  "key": "email",
-                  "value": "@mail.com"
-                }
+                { "key": "name", "value": "teste" },
+                { "key": "page", "value": "1" },
+                { "key": "size", "value": "20" },
+                { "key": "email", "value": "@mail.com" }
               ],
               "variable": []
             }
@@ -122,6 +98,129 @@
                   "value": "@mail.com"
                 }
               ],
+              "variable": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Restaurants",
+      "item": [
+        {
+          "name": "Criação de restaurante",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants",
+              "protocol": "",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants"],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Restaurante do Teste\",\n  \"address\": \"Rua Exemplo, 123\",\n  \"cuisineType\": \"Brasileira\",\n  \"openingHours\": \"Seg-Sex 11:00-23:00, Sab-Dom 10:00-00:00\",\n  \"ownerId\": \"00000000-0000-0000-0000-000000000000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Listagem de restaurantes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants?name=Restaurante&cuisineType=Brasileira&page=1&size=10",
+              "protocol": "",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants"],
+              "query": [
+                { "key": "name", "value": "Restaurante" },
+                { "key": "cuisineType", "value": "Brasileira" },
+                { "key": "page", "value": "1" },
+                { "key": "size", "value": "10" }
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Busca de restaurante por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/00000000-0000-0000-0000-000000000000",
+              "protocol": "",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", "00000000-0000-0000-0000-000000000000"],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Atualização de restaurante",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/00000000-0000-0000-0000-000000000000",
+              "protocol": "",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", "00000000-0000-0000-0000-000000000000"],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Restaurante Atualizado\",\n  \"address\": \"Rua Nova, 456\",\n  \"cuisineType\": \"Italiana\",\n  \"openingHours\": \"Seg-Sab 12:00-22:00\",\n  \"ownerId\": \"00000000-0000-0000-0000-000000000000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Exclusão de restaurante",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/00000000-0000-0000-0000-000000000000",
+              "protocol": "",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", "00000000-0000-0000-0000-000000000000"],
+              "query": [],
               "variable": []
             }
           }

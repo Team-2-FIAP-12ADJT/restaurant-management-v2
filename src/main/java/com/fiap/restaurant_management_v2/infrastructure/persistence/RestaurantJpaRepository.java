@@ -5,16 +5,12 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface UserJpaRepository
+public interface RestaurantJpaRepository
     extends
-        JpaRepository<UserEntity, UUID>,
-        JpaSpecificationExecutor<UserEntity>
-{
-    boolean existsByEmailAndDeletedAtIsNull(String email);
-
-    boolean existsByLoginAndDeletedAtIsNull(String login);
+        JpaRepository<RestaurantEntity, UUID>,
+        JpaSpecificationExecutor<RestaurantEntity> {
 
     boolean existsByIdAndDeletedAtIsNull(UUID id);
 
-    Optional<UserEntity> findByIdAndDeletedAtIsNull(UUID id);
+    Optional<RestaurantEntity> findByIdAndDeletedAtIsNull(UUID id);
 }
