@@ -5,6 +5,8 @@ import com.fiap.restaurant_management_v2.application.gateways.UserDsRequestModel
 import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.search.SearchQuery;
 import com.fiap.restaurant_management_v2.application.pagination.PageResult;
+
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -27,11 +29,6 @@ public class UserDsGatewayImpl implements UserDsGateway {
     }
 
     @Override
-    public Optional<UserDsResponseModel> findById(UUID id) {
-        return jpaRepository.findById(id).map(UserEntityMapper::toDsResponse);
-    }
-
-    @Override
     public boolean existsByEmail(String email) {
         return jpaRepository.existsByEmail(email);
     }
@@ -47,8 +44,18 @@ public class UserDsGatewayImpl implements UserDsGateway {
     }
 
     @Override
+    public Optional<UserDsResponseModel> findById(UUID id) {
+        return jpaRepository
+                .findByIdAndDeletedAtIsNull(id)
+                .map(UserEntityMapper::toDsResponse);
+    }
+
+    @Override
     public void deleteById(UUID id) {
-        jpaRepository.deleteById(id);
+        jpaRepository.findByIdAndDeletedAtIsNull(id).ifPresent(entity -> {
+            entity.setDeletedAt(Instant.now());
+            jpaRepository.save(entity);
+        });
     }
 
     @Override

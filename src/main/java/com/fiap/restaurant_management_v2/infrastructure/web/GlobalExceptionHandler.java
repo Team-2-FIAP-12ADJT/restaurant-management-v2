@@ -2,6 +2,7 @@ package com.fiap.restaurant_management_v2.infrastructure.web;
 
 import com.fiap.restaurant_management_v2.application.exception.DuplicateUserException;
 import com.fiap.restaurant_management_v2.application.exception.InvalidFilterException;
+import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
 import com.fiap.restaurant_management_v2.domain.exception.InvalidUserException;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +35,14 @@ public class GlobalExceptionHandler {
         return ProblemDetail.forStatusAndDetail(
             HttpStatus.BAD_REQUEST,
             ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ProblemDetail handleNotFound(UserNotFoundException ex) {
+        return ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage()
         );
     }
 
