@@ -30,17 +30,17 @@ public class UserDsGatewayImpl implements UserDsGateway {
 
     @Override
     public boolean existsByEmail(String email) {
-        return jpaRepository.existsByEmail(email);
+        return jpaRepository.existsByEmailAndDeletedAtIsNull(email);
     }
 
     @Override
     public boolean existsByLogin(String login) {
-        return jpaRepository.existsByLogin(login);
+        return jpaRepository.existsByLoginAndDeletedAtIsNull(login);
     }
 
     @Override
     public boolean existsById(UUID id) {
-        return jpaRepository.existsById(id);
+        return jpaRepository.existsByIdAndDeletedAtIsNull(id);
     }
 
     @Override
@@ -60,31 +60,36 @@ public class UserDsGatewayImpl implements UserDsGateway {
 
     @Override
     public PageResult<UserDsResponseModel> findAll(
-        SearchQuery query,
-        int page,
-        int size
+            SearchQuery query,
+            int page,
+            int size
     ) {
         Specification<UserEntity> spec = SpecificationBuilder.build(
-            query,
-            UserFilterFields.ALLOWED
+                query,
+                UserFilterFields.ALLOWED
         );
 
+        Specification<UserEntity> notDeleted = (root, q, cb) ->
+                cb.isNull(root.get("deletedAt"));
+        spec = spec.and(notDeleted);
+
         PageRequest pageRequest = PageRequest.of(
-            page - 1,
-            size,
-            Sort.by("name").ascending()
+                page - 1,
+                size,
+                Sort.by("name").ascending()
         );
         Page<UserEntity> resultPage = jpaRepository.findAll(spec, pageRequest);
 
         return new PageResult<>(
-            resultPage
-                .getContent()
-                .stream()
-                .map(UserEntityMapper::toDsResponse)
-                .toList(),
-            resultPage.getTotalElements(),
-            page,
-            size
+                resultPage
+                        .getContent()
+                        .stream()
+                        .map(UserEntityMapper::toDsResponse)
+                        .toList(),
+                resultPage.getTotalElements(),
+                page,
+                size
         );
     }
+
 }

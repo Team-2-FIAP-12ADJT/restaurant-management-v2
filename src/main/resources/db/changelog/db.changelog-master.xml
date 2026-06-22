@@ -7,5 +7,6 @@
 
     <include file="changes/0001-create-users-table.xml" relativeToChangelogFile="true"/>
     <include file="changes/0002-create-restaurants-table.xml" relativeToChangelogFile="true"/>
+    <include file="changes/0003-add-deleted-at-columns.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

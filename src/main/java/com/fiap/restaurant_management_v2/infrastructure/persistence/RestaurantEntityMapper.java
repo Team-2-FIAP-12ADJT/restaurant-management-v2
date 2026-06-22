@@ -7,8 +7,9 @@ import java.time.Instant;
 final class RestaurantEntityMapper {
     private RestaurantEntityMapper() {}
 
-    static RestaurantEntity toEntity(RestaurantDsRequestModel restaurant) {
+    static RestaurantEntity toEntity(RestaurantDsRequestModel restaurant, Instant createdAt) {
         Instant now = Instant.now();
+        boolean isNew = createdAt == null;
         return RestaurantEntity.builder()
             .id(restaurant.id())
             .name(restaurant.name())
@@ -16,7 +17,7 @@ final class RestaurantEntityMapper {
             .cuisineType(restaurant.cuisineType())
             .openingHours(restaurant.openingHours())
             .owner(UserEntity.builder().id(restaurant.ownerId()).build())
-            .createdAt(now)
+            .createdAt(isNew ? now : createdAt)
             .updatedAt(now)
             .build();
     }

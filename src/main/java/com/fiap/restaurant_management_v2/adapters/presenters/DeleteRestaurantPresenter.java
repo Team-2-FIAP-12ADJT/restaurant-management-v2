@@ -5,7 +5,7 @@ import com.fiap.restaurant_management_v2.application.usecases.restaurant.delete.
 
 public class DeleteRestaurantPresenter implements DeleteRestaurantOutputBoundary {
 
-    private Boolean deleted;
+    private Boolean deleted = false;
 
     @Override
     public void present(DeleteRestaurantResponseModel response) {

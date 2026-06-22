@@ -5,6 +5,7 @@ import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsReques
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.search.SearchQuery;
 import com.fiap.restaurant_management_v2.application.pagination.PageResult;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -22,13 +23,21 @@ public class RestaurantDsGatewayImpl implements RestaurantDsGateway {
 
     @Override
     public RestaurantDsResponseModel save(RestaurantDsRequestModel restaurant) {
-        RestaurantEntity saved = jpaRepository.save(RestaurantEntityMapper.toEntity(restaurant));
+        Instant createdAt = jpaRepository
+            .findById(restaurant.id())
+            .map(RestaurantEntity::getCreatedAt)
+            .orElse(null);
+        RestaurantEntity saved = jpaRepository.save(
+            RestaurantEntityMapper.toEntity(restaurant, createdAt)
+        );
         return RestaurantEntityMapper.toDsResponse(saved);
     }
 
     @Override
     public Optional<RestaurantDsResponseModel> findById(UUID id) {
-        return jpaRepository.findById(id).map(RestaurantEntityMapper::toDsResponse);
+        return jpaRepository
+            .findByIdAndDeletedAtIsNull(id)
+            .map(RestaurantEntityMapper::toDsResponse);
     }
 
     @Override
@@ -37,6 +46,10 @@ public class RestaurantDsGatewayImpl implements RestaurantDsGateway {
             query,
             RestaurantFilterFields.ALLOWED
         );
+
+        Specification<RestaurantEntity> notDeleted = (root, q, cb) ->
+            cb.isNull(root.get("deletedAt"));
+        spec = spec.and(notDeleted);
 
         PageRequest pageRequest = PageRequest.of(
             page - 1,
@@ -55,11 +68,14 @@ public class RestaurantDsGatewayImpl implements RestaurantDsGateway {
 
     @Override
     public void deleteById(UUID id) {
-        jpaRepository.deleteById(id);
+        jpaRepository.findByIdAndDeletedAtIsNull(id).ifPresent(entity -> {
+            entity.setDeletedAt(Instant.now());
+            jpaRepository.save(entity);
+        });
     }
 
     @Override
     public boolean existsById(UUID id) {
-        return jpaRepository.existsById(id);
+        return jpaRepository.existsByIdAndDeletedAtIsNull(id);
     }
 }

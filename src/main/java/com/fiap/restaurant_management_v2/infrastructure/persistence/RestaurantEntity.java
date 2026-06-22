@@ -45,6 +45,9 @@ public class RestaurantEntity {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at", nullable = true)
     private Instant updatedAt;
+
+    @Column(name = "deleted_at", nullable = true)
+    private Instant deletedAt;
 }
