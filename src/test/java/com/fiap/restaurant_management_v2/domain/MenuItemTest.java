@@ -176,8 +176,8 @@ class MenuItemTest {
     }
 
     @Test
-    @DisplayName("Igualdade usa apenas o id")
-    void equalityUsesId() {
+    @DisplayName("Itens com o mesmo id são iguais")
+    void considersMenuItemsWithSameIdEqual() {
         UUID id = UUID.randomUUID();
         MenuItem first = MenuItem.restore(
             id,
@@ -197,7 +197,15 @@ class MenuItemTest {
             "/images/b.jpg",
             UUID.randomUUID()
         );
-        MenuItem different = MenuItem.restore(
+
+        assertEquals(first, second);
+        assertEquals(first.hashCode(), second.hashCode());
+    }
+
+    @Test
+    @DisplayName("Itens com ids diferentes não são iguais")
+    void considersMenuItemsWithDifferentIdsNotEqual() {
+        MenuItem first = MenuItem.restore(
             UUID.randomUUID(),
             "Item A",
             "Descricao A",
@@ -206,10 +214,28 @@ class MenuItemTest {
             "/images/a.jpg",
             RESTAURANT_ID
         );
+        MenuItem second = MenuItem.restore(
+            UUID.randomUUID(),
+            "Item B",
+            "Descricao B",
+            VALID_PRICE,
+            false,
+            "/images/b.jpg",
+            RESTAURANT_ID
+        );
 
-        assertEquals(first, second);
-        assertEquals(first.hashCode(), second.hashCode());
-        assertNotEquals(first, different);
+        assertNotEquals(first, second);
+    }
+
+    @Test
+    @DisplayName("Igualdade trata a mesma referência e outros tipos")
+    void handlesSameReferenceAndOtherTypes() {
+        MenuItem menuItem = createValidMenuItem(false);
+        Object sameReference = menuItem;
+        Object differentType = new Object();
+
+        assertEquals(menuItem, sameReference);
+        assertNotEquals(menuItem, differentType);
     }
 
     private static MenuItem createValidMenuItem(boolean onlyLocal) {
