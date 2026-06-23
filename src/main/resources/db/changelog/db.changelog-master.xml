@@ -34,5 +34,9 @@
         file="changes/0006-create-unique-active-user-type-index.xml"
         relativeToChangelogFile="true"
     />
+    <include
+        file="changes/0007-create-menu-items.xml"
+        relativeToChangelogFile="true"
+    />
 
 </databaseChangeLog>
