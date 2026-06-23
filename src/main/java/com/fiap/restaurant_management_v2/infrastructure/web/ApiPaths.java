@@ -8,4 +8,6 @@ public final class ApiPaths {
     public static final String USERS = V1 + "/users";
 
     public static final String RESTAURANTS = V1 + "/restaurants";
+
+    public static final String MENU_ITEMS = V1 + "/menu-items";
 }
