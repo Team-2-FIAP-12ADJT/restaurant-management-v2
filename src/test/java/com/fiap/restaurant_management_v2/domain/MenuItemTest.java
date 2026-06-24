@@ -112,6 +112,44 @@ class MenuItemTest {
     }
 
     @Test
+    @DisplayName("Proíbe campos de texto maiores que os limites")
+    void rejectsTextFieldsThatExceedLimits() {
+        assertThrows(
+            InvalidMenuItemException.class,
+            () -> MenuItem.create(
+                "N".repeat(MenuItem.MAX_NAME_LENGTH + 1),
+                "Descricao",
+                VALID_PRICE,
+                false,
+                "/images/item.jpg",
+                RESTAURANT_ID
+            )
+        );
+        assertThrows(
+            InvalidMenuItemException.class,
+            () -> MenuItem.create(
+                "Item",
+                "D".repeat(MenuItem.MAX_DESCRIPTION_LENGTH + 1),
+                VALID_PRICE,
+                false,
+                "/images/item.jpg",
+                RESTAURANT_ID
+            )
+        );
+        assertThrows(
+            InvalidMenuItemException.class,
+            () -> MenuItem.create(
+                "Item",
+                "Descricao",
+                VALID_PRICE,
+                false,
+                "P".repeat(MenuItem.MAX_PHOTO_PATH_LENGTH + 1),
+                RESTAURANT_ID
+            )
+        );
+    }
+
+    @Test
     @DisplayName("Proíbe restaurantId nulo")
     void rejectsNullRestaurantId() {
         assertThrows(
