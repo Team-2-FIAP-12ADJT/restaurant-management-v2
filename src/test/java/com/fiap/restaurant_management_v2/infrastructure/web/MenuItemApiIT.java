@@ -1,6 +1,7 @@
 package com.fiap.restaurant_management_v2.infrastructure.web;
 
 import com.fiap.restaurant_management_v2.IntegrationTestBase;
+import com.fiap.restaurant_management_v2.domain.MenuItem;
 import com.fiap.restaurant_management_v2.infrastructure.persistence.MenuItemEntity;
 import com.fiap.restaurant_management_v2.infrastructure.persistence.MenuItemJpaRepository;
 import com.fiap.restaurant_management_v2.infrastructure.persistence.RestaurantEntity;
@@ -141,6 +142,23 @@ class MenuItemApiIT extends IntegrationTestBase {
         mockMvc.perform(get(ApiPaths.MENU_ITEMS + "/" + id))
             .andExpect(status().isNotFound());
 
+        mockMvc.perform(get(ApiPaths.MENU_ITEMS))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.totalElements").value(0))
+            .andExpect(jsonPath("$.content").isEmpty());
+
+        mockMvc
+            .perform(
+                get(
+                    ApiPaths.MENU_ITEMS
+                        + "/restaurant/"
+                        + restaurantId
+                )
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.totalElements").value(0))
+            .andExpect(jsonPath("$.content").isEmpty());
+
         MenuItemEntity deleted = menuItemJpaRepository.findById(id).orElseThrow();
         assertNotNull(deleted.getDeletedAt());
     }
@@ -162,6 +180,54 @@ class MenuItemApiIT extends IntegrationTestBase {
         mockMvc
             .perform(
                 post(ApiPaths.MENU_ITEMS)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body)
+            )
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Campos maiores que os limites retornam 400")
+    void rejectsOversizedFields() throws Exception {
+        MvcResult createResult = mockMvc
+            .perform(
+                post(ApiPaths.MENU_ITEMS)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(createBody(restaurantId))
+            )
+            .andExpect(status().isCreated())
+            .andReturn();
+        UUID id = UUID.fromString(
+            JsonPath.read(createResult.getResponse().getContentAsString(), "$.id")
+        );
+
+        String body = """
+            {
+              "name": "%s",
+              "description": "%s",
+              "price": 39.90,
+              "onlyLocal": true,
+              "photoPath": "%s",
+              "restaurantId": "%s"
+            }
+            """.formatted(
+                "N".repeat(MenuItem.MAX_NAME_LENGTH + 1),
+                "D".repeat(MenuItem.MAX_DESCRIPTION_LENGTH + 1),
+                "P".repeat(MenuItem.MAX_PHOTO_PATH_LENGTH + 1),
+                restaurantId
+            );
+
+        mockMvc
+            .perform(
+                post(ApiPaths.MENU_ITEMS)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body)
+            )
+            .andExpect(status().isBadRequest());
+
+        mockMvc
+            .perform(
+                put(ApiPaths.MENU_ITEMS + "/" + id)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(body)
             )

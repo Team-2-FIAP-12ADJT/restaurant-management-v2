@@ -7,6 +7,10 @@ import java.util.UUID;
 
 public final class MenuItem {
 
+    public static final int MAX_NAME_LENGTH = 255;
+    public static final int MAX_DESCRIPTION_LENGTH = 1000;
+    public static final int MAX_PHOTO_PATH_LENGTH = 500;
+
     private final UUID id;
     private final String name;
     private final String description;
@@ -78,14 +82,35 @@ public final class MenuItem {
         if (isBlank(name)) {
             throw new InvalidMenuItemException("Nome do item do cardápio é obrigatório");
         }
+        if (name.length() > MAX_NAME_LENGTH) {
+            throw new InvalidMenuItemException(
+                "Nome do item do cardápio deve ter no máximo "
+                    + MAX_NAME_LENGTH
+                    + " caracteres"
+            );
+        }
         if (isBlank(description)) {
             throw new InvalidMenuItemException("Descrição do item do cardápio é obrigatória");
+        }
+        if (description.length() > MAX_DESCRIPTION_LENGTH) {
+            throw new InvalidMenuItemException(
+                "Descrição do item do cardápio deve ter no máximo "
+                    + MAX_DESCRIPTION_LENGTH
+                    + " caracteres"
+            );
         }
         if (price == null || price.signum() <= 0) {
             throw new InvalidMenuItemException("Preço do item do cardápio deve ser maior que zero");
         }
         if (isBlank(photoPath)) {
             throw new InvalidMenuItemException("Caminho da foto do item do cardápio é obrigatório");
+        }
+        if (photoPath.length() > MAX_PHOTO_PATH_LENGTH) {
+            throw new InvalidMenuItemException(
+                "Caminho da foto do item do cardápio deve ter no máximo "
+                    + MAX_PHOTO_PATH_LENGTH
+                    + " caracteres"
+            );
         }
         if (restaurantId == null) {
             throw new InvalidMenuItemException("Restaurante do item do cardápio é obrigatório");
