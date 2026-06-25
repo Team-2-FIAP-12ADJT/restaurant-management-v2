@@ -1,5 +1,6 @@
 package com.fiap.restaurant_management_v2.infrastructure.persistence;
 
+import com.fiap.restaurant_management_v2.application.gateways.UserBindDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
@@ -79,9 +80,32 @@ public class UserDsGatewayImpl implements UserDsGateway {
     }
 
     @Override
+    public Optional<UserBindDsResponseModel> findAllById(UUID id) {
+        return jpaRepository
+                .findByIdAndDeletedAtIsNull(id)
+                .map(UserEntityMapper::toBindDsResponse);
+    }
+
+    @Override
     public void deleteById(UUID id) {
         jpaRepository.findByIdAndDeletedAtIsNull(id).ifPresent(entity -> {
             entity.setDeletedAt(Instant.now());
+            jpaRepository.save(entity);
+        });
+    }
+
+    @Override
+    public void bindUserType(UUID userId, UUID typeId) {
+        jpaRepository.findByIdAndDeletedAtIsNull(userId).ifPresent(entity -> {
+            entity.setUserTypeEntity(UserTypeEntity.builder().id(typeId).build());
+            jpaRepository.save(entity);
+        });
+    }
+
+    @Override
+    public void unbindUserType(UUID typeId) {
+        jpaRepository.findAllByUserTypeEntityId(typeId).forEach(entity -> {
+            entity.setUserTypeEntity(null);
             jpaRepository.save(entity);
         });
     }

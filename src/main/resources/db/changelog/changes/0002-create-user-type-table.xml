@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+>
+    <changeSet id="0002-create-user-type-table" author="deivis">
+        <createTable tableName="user_type">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="user_type" type="VARCHAR(50)">
+                <constraints nullable="false" />
+            </column>
+            <column name="created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false" />
+            </column>
+            <column name="updated_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="true" />
+            </column>
+            <column name="deleted_at" type="TIMESTAMP WITH TIME ZONE" />
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

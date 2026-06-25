@@ -1,0 +1,69 @@
+package com.fiap.restaurant_management_v2.application.usecases.usertype.delete;
+
+import com.fiap.restaurant_management_v2.application.exception.UserTypeNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
+import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsGateway;
+import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsResponseModel;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class DeleteUserTypeByIdInteractorTest {
+
+    @Mock
+    private UserTypeDsGateway userTypeDsGateway;
+
+    @Mock
+    private UserDsGateway userDsGateway;
+
+    private CapturingPresenter presenter;
+    private DeleteUserTypeByIdInteractor interactor;
+
+    @BeforeEach
+    void setUp() {
+        presenter = new CapturingPresenter();
+        interactor = new DeleteUserTypeByIdInteractor(userTypeDsGateway, userDsGateway, presenter);
+    }
+
+    @Test
+    @DisplayName("Exclui tipo com sucesso e desvincula dos usuários")
+    void deletesUserType() {
+        var id = UUID.randomUUID();
+        var request = new DeleteUserTypeByIdRequestModel(id);
+        when(userTypeDsGateway.findById(id))
+                .thenReturn(Optional.of(new UserTypeDsResponseModel(id, "admin")));
+
+        interactor.execute(request);
+
+        verify(userDsGateway).unbindUserType(id);
+        verify(userTypeDsGateway).deleteById(id);
+    }
+
+    @Test
+    @DisplayName("Tipo não encontrado lança UserTypeNotFoundException")
+    void notFound() {
+        var id = UUID.randomUUID();
+        var request = new DeleteUserTypeByIdRequestModel(id);
+        when(userTypeDsGateway.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(UserTypeNotFoundException.class, () -> interactor.execute(request));
+        verify(userDsGateway, never()).unbindUserType(any());
+        verify(userTypeDsGateway, never()).deleteById(any());
+    }
+
+    private static final class CapturingPresenter implements DeleteUserTypeByIdOutputBoundary {
+        @Override
+        public void present() {
+        }
+    }
+}
