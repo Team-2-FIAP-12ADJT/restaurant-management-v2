@@ -8,6 +8,8 @@
     <include file="changes/0001-create-users-table.xml" relativeToChangelogFile="true"/>
     <include file="changes/0002-create-user-type-table.xml" relativeToChangelogFile="true"/>
     <include file="changes/0003-add-user-type-fk-to-users.xml" relativeToChangelogFile="true"/>
+    <include file="changes/0002-create-restaurants-table.xml" relativeToChangelogFile="true"/>
+    <include file="changes/0003-add-deleted-at-columns.xml" relativeToChangelogFile="true"/>
 
     <include file="seeds/0001-seed-user-types.xml" relativeToChangelogFile="true"/>
 

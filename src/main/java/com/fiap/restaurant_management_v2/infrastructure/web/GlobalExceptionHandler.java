@@ -1,21 +1,25 @@
 package com.fiap.restaurant_management_v2.infrastructure.web;
 
-import com.fiap.restaurant_management_v2.application.exception.*;
+import com.fiap.restaurant_management_v2.application.exception.DuplicateUserException;
+import com.fiap.restaurant_management_v2.application.exception.DuplicateUserTypeException;
+import com.fiap.restaurant_management_v2.application.exception.InvalidFilterException;
+import com.fiap.restaurant_management_v2.application.exception.RestaurantNotFoundException;
+import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
+import com.fiap.restaurant_management_v2.application.exception.UserTypeNotFoundException;
+import com.fiap.restaurant_management_v2.domain.exception.InvalidRestaurantException;
 import com.fiap.restaurant_management_v2.domain.exception.InvalidUserException;
 import com.fiap.restaurant_management_v2.domain.exception.InvalidUserTypeException;
 import com.fiap.restaurant_management_v2.domain.exception.InvalidUserTypeUuidException;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
     @ExceptionHandler(DuplicateUserException.class)
     public ProblemDetail handleDuplicate(DuplicateUserException ex) {
         return ProblemDetail.forStatusAndDetail(
@@ -49,6 +53,14 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(InvalidRestaurantException.class)
+    public ProblemDetail handleRestaurantInvalid(InvalidRestaurantException ex) {
+        return ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage()
+        );
+    }
+
     @ExceptionHandler(InvalidUserTypeUuidException.class)
     public ProblemDetail handleInvalid(InvalidUserTypeUuidException ex) {
         return ProblemDetail.forStatusAndDetail(
@@ -56,8 +68,6 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
     }
-
-
 
     @ExceptionHandler(InvalidFilterException.class)
     public ProblemDetail handleInvalidFilter(InvalidFilterException ex) {
@@ -70,8 +80,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     public ProblemDetail handleNotFound(UserNotFoundException ex) {
         return ProblemDetail.forStatusAndDetail(
-            HttpStatus.NOT_FOUND,
-            ex.getMessage()
+                HttpStatus.NOT_FOUND,
+                ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(RestaurantNotFoundException.class)
+    public ProblemDetail restaurantNotFound(RestaurantNotFoundException ex) {
+        return ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage()
         );
     }
 

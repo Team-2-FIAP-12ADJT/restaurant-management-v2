@@ -10,8 +10,8 @@ public class DeleteUserByIdInteractor implements DeleteUserByIdInputBoundary {
     private final DeleteUserByIdOutputBoundary outputBoundary;
 
     public DeleteUserByIdInteractor(
-        UserDsGateway userDsGateway,
-        DeleteUserByIdOutputBoundary outputBoundary
+            UserDsGateway userDsGateway,
+            DeleteUserByIdOutputBoundary outputBoundary
     ) {
         this.userDsGateway = userDsGateway;
         this.outputBoundary = outputBoundary;

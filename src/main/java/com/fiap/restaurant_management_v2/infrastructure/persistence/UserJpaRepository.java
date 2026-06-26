@@ -11,9 +11,11 @@ public interface UserJpaRepository
         JpaRepository<UserEntity, UUID>,
         JpaSpecificationExecutor<UserEntity>
 {
-    boolean existsByEmail(String email);
+    boolean existsByEmailAndDeletedAtIsNull(String email);
 
-    boolean existsByLogin(String login);
+    boolean existsByLoginAndDeletedAtIsNull(String login);
+
+    boolean existsByIdAndDeletedAtIsNull(UUID id);
 
     Optional<UserEntity> findByIdAndDeletedAtIsNull(UUID id);
 
