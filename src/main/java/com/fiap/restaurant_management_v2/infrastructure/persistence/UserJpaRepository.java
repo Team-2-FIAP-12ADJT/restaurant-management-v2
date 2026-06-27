@@ -21,4 +21,5 @@ public interface UserJpaRepository
 
     List<UserEntity> findAllByUserTypeEntityId(UUID typeId);
 
+    List<UserEntity> findAllByUserTypeEntityIdAndDeletedAtIsNull(UUID typeId);
 }

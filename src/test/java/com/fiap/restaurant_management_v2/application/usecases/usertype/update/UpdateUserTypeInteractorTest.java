@@ -1,5 +1,6 @@
 package com.fiap.restaurant_management_v2.application.usecases.usertype.update;
 
+import com.fiap.restaurant_management_v2.application.exception.DuplicateUserTypeException;
 import com.fiap.restaurant_management_v2.application.exception.UserTypeNotFoundException;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsRequestModel;
@@ -54,6 +55,42 @@ class UpdateUserTypeInteractorTest {
         assertEquals("manager", captor.getValue().userType());
         assertNotNull(presenter.response);
         assertEquals("manager", presenter.response.userType());
+    }
+
+    @Test
+    @DisplayName("Atualiza mantendo o mesmo nome sem validar duplicidade")
+    void updatesWithSameCurrentName() {
+        var id = UUID.randomUUID();
+        var request = new UpdateUserTypeRequestModel(id, "admin");
+        when(userTypeDsGateway.findById(id))
+                .thenReturn(Optional.of(new UserTypeDsResponseModel(id, "admin")));
+        when(userTypeDsGateway.save(any(UserTypeDsRequestModel.class)))
+                .thenAnswer(call -> {
+                    UserTypeDsRequestModel ds = call.getArgument(0);
+                    return new UserTypeDsResponseModel(ds.id(), ds.userType());
+                });
+
+        interactor.execute(request);
+
+        verify(userTypeDsGateway, never()).existsByUserType(any());
+        verify(userTypeDsGateway).save(any(UserTypeDsRequestModel.class));
+        assertNotNull(presenter.response);
+        assertEquals("admin", presenter.response.userType());
+    }
+
+    @Test
+    @DisplayName("Atualização para nome ativo duplicado lança DuplicateUserTypeException")
+    void rejectsDuplicateNameOnUpdate() {
+        var id = UUID.randomUUID();
+        var request = new UpdateUserTypeRequestModel(id, "manager");
+        when(userTypeDsGateway.findById(id))
+                .thenReturn(Optional.of(new UserTypeDsResponseModel(id, "admin")));
+        when(userTypeDsGateway.existsByUserType("manager")).thenReturn(true);
+
+        assertThrows(DuplicateUserTypeException.class, () -> interactor.execute(request));
+
+        verify(userTypeDsGateway, never()).save(any());
+        assertNull(presenter.response);
     }
 
     @Test

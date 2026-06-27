@@ -1,10 +1,9 @@
 package com.fiap.restaurant_management_v2.infrastructure.persistence;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 public interface UserTypeJpaRepository
     extends
@@ -14,6 +13,8 @@ public interface UserTypeJpaRepository
     boolean existsByUserType(String userType);
 
     Optional<UserTypeEntity> findByIdAndDeletedAtIsNull(UUID id);
+
+    boolean existsByUserTypeAndDeletedAtIsNull(String userType);
     /*
     boolean existsByEmail(String email);
 
