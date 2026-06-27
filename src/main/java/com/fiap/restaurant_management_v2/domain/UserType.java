@@ -53,9 +53,6 @@ public final class UserType {
     }
 
     public UserType changeType(String newUserType) {
-        if (newUserType == null || newUserType.isBlank()) {
-            throw new InvalidUserTypeException("O tipo de usuário não pode ser vazio.");
-        }
         var update =  new UserType(this.id, newUserType);
         update.validate();
         return  update ;

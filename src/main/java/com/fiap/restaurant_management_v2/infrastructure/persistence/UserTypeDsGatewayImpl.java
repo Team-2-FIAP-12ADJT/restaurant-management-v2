@@ -40,7 +40,7 @@ public class UserTypeDsGatewayImpl implements UserTypeDsGateway {
     ) {
         Specification<UserTypeEntity> spec = SpecificationBuilder.build(
             query,
-            UserFilterFields.ALLOWED
+            UserTypeFilterFields.ALLOWED
         );
 
         Specification<UserTypeEntity> notDeleted = (root, q, cb) ->

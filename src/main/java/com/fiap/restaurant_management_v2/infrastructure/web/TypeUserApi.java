@@ -6,7 +6,6 @@ import com.fiap.restaurant_management_v2.adapters.presenters.GetAllUsersTypePres
 import com.fiap.restaurant_management_v2.adapters.presenters.GetUserTypeByIdPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.UpdateUserTypePresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.PageViewModel;
-import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.UserBindViewModel;
 import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.UserTypeViewModel;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.BindUserTypeRequest;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.CreateUserTypeRequest;
@@ -78,7 +77,7 @@ public class TypeUserApi {
 
 
     @PostMapping("/bind")
-    public ResponseEntity<UserBindViewModel> bindeUser(
+    public ResponseEntity<Void> bind(
             @Valid @RequestBody BindUserTypeRequest request
     ){
         userTypeController.bind(request.userId() , request.typeId());

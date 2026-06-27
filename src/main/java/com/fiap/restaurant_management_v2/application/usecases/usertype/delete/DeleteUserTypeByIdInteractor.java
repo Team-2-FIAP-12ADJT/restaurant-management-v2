@@ -1,6 +1,7 @@
 package com.fiap.restaurant_management_v2.application.usecases.usertype.delete;
 
 import com.fiap.restaurant_management_v2.application.exception.UserTypeNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsResponseModel;
@@ -9,15 +10,18 @@ public class DeleteUserTypeByIdInteractor implements DeleteUserTypeByIdInputBoun
 
     private final UserTypeDsGateway userTypeDsGateway;
     private final UserDsGateway userDsGateway;
+    private final TransactionalExecutor transactionalExecutor;
     private final DeleteUserTypeByIdOutputBoundary outputBoundary;
 
     public DeleteUserTypeByIdInteractor(
             UserTypeDsGateway userTypeDsGateway,
             UserDsGateway userDsGateway,
+            TransactionalExecutor transactionalExecutor,
             DeleteUserTypeByIdOutputBoundary outputBoundary
     ) {
         this.userTypeDsGateway = userTypeDsGateway;
         this.userDsGateway = userDsGateway;
+        this.transactionalExecutor = transactionalExecutor;
         this.outputBoundary = outputBoundary;
     }
 
@@ -31,8 +35,10 @@ public class DeleteUserTypeByIdInteractor implements DeleteUserTypeByIdInputBoun
                         )
                 );
 
-        userDsGateway.unbindUserType(userType.id());
-        userTypeDsGateway.deleteById(userType.id());
+        transactionalExecutor.execute(() -> {
+            userDsGateway.unbindUserType(userType.id());
+            userTypeDsGateway.deleteById(userType.id());
+        });
         outputBoundary.present();
     }
 }

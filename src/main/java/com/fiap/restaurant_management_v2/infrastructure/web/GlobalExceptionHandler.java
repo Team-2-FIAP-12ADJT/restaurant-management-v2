@@ -37,6 +37,14 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ProblemDetail handleDataIntegrityViolation() {
+        return ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                "Violacao de integridade: registro duplicado ou referencia invalida"
+        );
+    }
+
     @ExceptionHandler(InvalidUserException.class)
     public ProblemDetail handleInvalid(InvalidUserException ex) {
         return ProblemDetail.forStatusAndDetail(

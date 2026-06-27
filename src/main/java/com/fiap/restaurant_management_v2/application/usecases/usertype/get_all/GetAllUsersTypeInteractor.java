@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-//alterar
 public class GetAllUsersTypeInteractor implements GetAllUsersTypeInputBoundary {
 
     private final GetAllUsersTypeOutputBoundary outputBoundary;
@@ -52,17 +51,4 @@ public class GetAllUsersTypeInteractor implements GetAllUsersTypeInputBoundary {
             userType.userType()
         );
     }
-
-    /*
-    private static void addLike(
-        List<FilterCriteria> criteria,
-        String field,
-        String value
-    ) {
-        if (value != null && !value.isBlank()) {
-            criteria.add(new FilterCriteria(field, FilterOperator.LIKE, value));
-        }
-    }
-
-     */
 }

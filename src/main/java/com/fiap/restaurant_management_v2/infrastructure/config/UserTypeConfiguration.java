@@ -6,6 +6,7 @@ import com.fiap.restaurant_management_v2.adapters.presenters.DeleteUserTypeByIdP
 import com.fiap.restaurant_management_v2.adapters.presenters.GetAllUsersTypePresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.GetUserTypeByIdPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.UpdateUserTypePresenter;
+import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsGateway;
 import com.fiap.restaurant_management_v2.application.usecases.usertype.bind_user.BindUserTypeToUserInputBoundary;
@@ -108,9 +109,15 @@ public class UserTypeConfiguration {
     public DeleteUserTypeByIdInputBoundary deleteUserTypeByIdInputBoundary(
             UserTypeDsGateway userTypeDsGateway,
             UserDsGateway userDsGateway,
+            TransactionalExecutor transactionalExecutor,
             DeleteUserTypeByIdOutputBoundary deleteUserTypeByIdPresenter
     ) {
-        return new DeleteUserTypeByIdInteractor(userTypeDsGateway, userDsGateway, deleteUserTypeByIdPresenter);
+        return new DeleteUserTypeByIdInteractor(
+                userTypeDsGateway,
+                userDsGateway,
+                transactionalExecutor,
+                deleteUserTypeByIdPresenter
+        );
     }
 
     @Bean

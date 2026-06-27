@@ -10,17 +10,7 @@ public interface UserTypeJpaRepository
         JpaRepository<UserTypeEntity, UUID>,
         JpaSpecificationExecutor<UserTypeEntity>
 {
-    boolean existsByUserType(String userType);
-
     Optional<UserTypeEntity> findByIdAndDeletedAtIsNull(UUID id);
 
     boolean existsByUserTypeAndDeletedAtIsNull(String userType);
-    /*
-    boolean existsByEmail(String email);
-
-    boolean existsByLogin(String login);
-
-    Optional<UserEntity> findByIdAndDeletedAtIsNull(UUID id);
-
-     */
 }

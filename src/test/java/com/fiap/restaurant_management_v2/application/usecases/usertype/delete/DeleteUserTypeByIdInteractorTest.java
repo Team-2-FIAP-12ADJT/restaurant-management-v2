@@ -1,6 +1,7 @@
 package com.fiap.restaurant_management_v2.application.usecases.usertype.delete;
 
 import com.fiap.restaurant_management_v2.application.exception.UserTypeNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsResponseModel;
@@ -26,13 +27,21 @@ class DeleteUserTypeByIdInteractorTest {
     @Mock
     private UserDsGateway userDsGateway;
 
+    @Mock
+    private TransactionalExecutor transactionalExecutor;
+
     private CapturingPresenter presenter;
     private DeleteUserTypeByIdInteractor interactor;
 
     @BeforeEach
     void setUp() {
         presenter = new CapturingPresenter();
-        interactor = new DeleteUserTypeByIdInteractor(userTypeDsGateway, userDsGateway, presenter);
+        interactor = new DeleteUserTypeByIdInteractor(
+                userTypeDsGateway,
+                userDsGateway,
+                transactionalExecutor,
+                presenter
+        );
     }
 
     @Test
@@ -42,9 +51,14 @@ class DeleteUserTypeByIdInteractorTest {
         var request = new DeleteUserTypeByIdRequestModel(id);
         when(userTypeDsGateway.findById(id))
                 .thenReturn(Optional.of(new UserTypeDsResponseModel(id, "admin")));
+        doAnswer(invocation -> {
+            invocation.getArgument(0, Runnable.class).run();
+            return null;
+        }).when(transactionalExecutor).execute(any(Runnable.class));
 
         interactor.execute(request);
 
+        verify(transactionalExecutor).execute(any(Runnable.class));
         verify(userDsGateway).unbindUserType(id);
         verify(userTypeDsGateway).deleteById(id);
     }
@@ -57,6 +71,7 @@ class DeleteUserTypeByIdInteractorTest {
         when(userTypeDsGateway.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(UserTypeNotFoundException.class, () -> interactor.execute(request));
+        verify(transactionalExecutor, never()).execute(any(Runnable.class));
         verify(userDsGateway, never()).unbindUserType(any());
         verify(userTypeDsGateway, never()).deleteById(any());
     }

@@ -19,7 +19,5 @@ public interface UserJpaRepository
 
     Optional<UserEntity> findByIdAndDeletedAtIsNull(UUID id);
 
-    List<UserEntity> findAllByUserTypeEntityId(UUID typeId);
-
     List<UserEntity> findAllByUserTypeEntityIdAndDeletedAtIsNull(UUID typeId);
 }
