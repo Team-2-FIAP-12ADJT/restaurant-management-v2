@@ -20,12 +20,12 @@ public class DeleteUserByIdInteractor implements DeleteUserByIdInputBoundary {
     @Override
     public void execute(DeleteUserByIdRequestModel request) {
         UserDsResponseModel user = userDsGateway
-                .findById(request.id())
-                .orElseThrow(() ->
-                        new UserNotFoundException(
-                                "User not found with id: " + request.id()
-                        )
-                );
+            .findById(request.id())
+            .orElseThrow(() ->
+                new UserNotFoundException(
+                    "User not found with id: " + request.id()
+                )
+            );
 
         userDsGateway.deleteById(user.id());
         outputBoundary.present();

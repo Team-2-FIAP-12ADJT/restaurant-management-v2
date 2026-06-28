@@ -1,9 +1,7 @@
 package com.fiap.restaurant_management_v2.infrastructure.persistence;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.Instant;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -37,6 +35,10 @@ public class UserEntity {
 
     @Column(nullable = false)
     private String password;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_type_id")
+    private UserTypeEntity userTypeEntity ;
 
     @Column(name = "created_at", nullable = false)
     @CreationTimestamp
