@@ -1,5 +1,6 @@
 package com.fiap.restaurant_management_v2.infrastructure.persistence;
 
+import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
 import com.fiap.restaurant_management_v2.application.gateways.UserBindDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsRequestModel;
@@ -29,6 +30,38 @@ public class UserDsGatewayImpl implements UserDsGateway {
     }
 
     @Override
+    public UserDsResponseModel update(
+        UUID id,
+        String name,
+        String email,
+        String login,
+        String taxIdentifier
+    ) {
+        UserEntity entity = jpaRepository
+            .findByIdAndDeletedAtIsNull(id)
+            .orElseThrow(() ->
+                new UserNotFoundException("User not found with id: " + id)
+            );
+        entity.setName(name);
+        entity.setEmail(email);
+        entity.setLogin(login);
+        entity.setTaxIdentifier(taxIdentifier);
+        return UserEntityMapper.toDsResponse(jpaRepository.save(entity));
+    }
+
+    @Override
+    public boolean existsById(UUID id) {
+        return jpaRepository.existsByIdAndDeletedAtIsNull(id);
+    }
+
+    @Override
+    public boolean existsByTaxIdentifier(String taxIdentifier) {
+        return jpaRepository.existsByTaxIdentifierAndDeletedAtIsNull(
+            taxIdentifier
+        );
+    }
+
+    @Override
     public boolean existsByEmail(String email) {
         return jpaRepository.existsByEmailAndDeletedAtIsNull(email);
     }
@@ -39,8 +72,24 @@ public class UserDsGatewayImpl implements UserDsGateway {
     }
 
     @Override
-    public boolean existsById(UUID id) {
-        return jpaRepository.existsByIdAndDeletedAtIsNull(id);
+    public boolean existsByEmailExcludingId(String email, UUID id) {
+        return jpaRepository.existsByEmailAndDeletedAtIsNullAndIdNot(email, id);
+    }
+
+    @Override
+    public boolean existsByLoginExcludingId(String login, UUID id) {
+        return jpaRepository.existsByLoginAndDeletedAtIsNullAndIdNot(login, id);
+    }
+
+    @Override
+    public boolean existsByTaxIdentifierExcludingId(
+        String taxIdentifier,
+        UUID id
+    ) {
+        return jpaRepository.existsByTaxIdentifierAndDeletedAtIsNullAndIdNot(
+            taxIdentifier,
+            id
+        );
     }
 
     @Override

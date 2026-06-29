@@ -9,10 +9,12 @@ import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.domain.Restaurant;
 import java.util.UUID;
 
-public class UpdateRestaurantInteractor implements UpdateRestaurantInputBoundary {
+public class UpdateRestaurantInteractor
+    implements UpdateRestaurantInputBoundary
+{
 
     private final RestaurantDsGateway restaurantDsGateway;
-        private final UserDsGateway userDsGateway;
+    private final UserDsGateway userDsGateway;
     private final UpdateRestaurantOutputBoundary outputBoundary;
 
     public UpdateRestaurantInteractor(
@@ -31,11 +33,15 @@ public class UpdateRestaurantInteractor implements UpdateRestaurantInputBoundary
         UUID ownerId = request.ownerId();
 
         if (!restaurantDsGateway.existsById(id)) {
-            throw new RestaurantNotFoundException("Restaurante não encontrado: " + id);
+            throw new RestaurantNotFoundException(
+                "Restaurante não encontrado: " + id
+            );
         }
 
         if (!userDsGateway.existsById(ownerId)) {
-            throw new DuplicateUserException("Usuário dono do restaurante não encontrado");
+            throw new DuplicateUserException(
+                "Usuário dono do restaurante não encontrado"
+            );
         }
 
         Restaurant restaurant = Restaurant.create(

@@ -23,6 +23,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class RestaurantEntity {
+
     @Id
     private UUID id;
 
@@ -31,6 +32,9 @@ public class RestaurantEntity {
 
     @Column(nullable = false)
     private String address;
+
+    @Column(name = "tax_identifier", nullable = false, unique = true)
+    private String taxIdentifier;
 
     @Column(name = "cuisine_type", nullable = false)
     private String cuisineType;

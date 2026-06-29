@@ -13,10 +13,25 @@ import java.util.UUID;
 public interface UserDsGateway {
     UserDsResponseModel save(UserDsRequestModel user);
 
+    UserDsResponseModel update(
+        UUID id,
+        String name,
+        String email,
+        String login,
+        String taxIdentifier
+    );
+
     Optional<UserDsResponseModel> findById(UUID id);
 
     Optional<UserBindDsResponseModel> findAllById(UUID id);
 
+    boolean existsByTaxIdentifierExcludingId(String taxIdentifier, UUID id);
+
+    boolean existsByEmailExcludingId(String email, UUID id);
+
+    boolean existsByLoginExcludingId(String login, UUID id);
+
+    boolean existsByTaxIdentifier(String taxIdentifier);
 
     boolean existsByEmail(String email);
 
@@ -25,9 +40,9 @@ public interface UserDsGateway {
     boolean existsById(UUID id);
 
     PageResult<UserDsResponseModel> findAll(
-            SearchQuery query,
-            int page,
-            int size
+        SearchQuery query,
+        int page,
+        int size
     );
 
     void deleteById(UUID id);

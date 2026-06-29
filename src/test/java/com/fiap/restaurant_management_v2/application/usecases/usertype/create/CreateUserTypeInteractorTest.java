@@ -1,5 +1,9 @@
 package com.fiap.restaurant_management_v2.application.usecases.usertype.create;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import com.fiap.restaurant_management_v2.application.exception.DuplicateUserTypeException;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsRequestModel;
@@ -10,12 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CreateUserTypeInteractorTest {
@@ -37,11 +35,12 @@ class CreateUserTypeInteractorTest {
     void createsUserType() {
         var request = new CreateUserTypeRequestModel("admin");
         when(userTypeDsGateway.existsByUserType("admin")).thenReturn(false);
-        when(userTypeDsGateway.save(any(UserTypeDsRequestModel.class)))
-                .thenAnswer(call -> {
-                    UserTypeDsRequestModel ds = call.getArgument(0);
-                    return new UserTypeDsResponseModel(ds.id(), ds.userType());
-                });
+        when(
+            userTypeDsGateway.save(any(UserTypeDsRequestModel.class))
+        ).thenAnswer(call -> {
+            UserTypeDsRequestModel ds = call.getArgument(0);
+            return new UserTypeDsResponseModel(ds.id(), ds.userType());
+        });
 
         interactor.execute(request);
 
@@ -57,12 +56,17 @@ class CreateUserTypeInteractorTest {
         var request = new CreateUserTypeRequestModel("admin");
         when(userTypeDsGateway.existsByUserType("admin")).thenReturn(true);
 
-        assertThrows(DuplicateUserTypeException.class, () -> interactor.execute(request));
+        assertThrows(DuplicateUserTypeException.class, () ->
+            interactor.execute(request)
+        );
         verify(userTypeDsGateway, never()).save(any());
         assertNull(presenter.response);
     }
 
-    private static final class CapturingPresenter implements CreateUserTypeOutputBoundary {
+    private static final class CapturingPresenter
+        implements CreateUserTypeOutputBoundary
+    {
+
         private CreateUserTypeResponseModel response;
 
         @Override

@@ -17,7 +17,18 @@ public interface UserJpaRepository
 
     boolean existsByIdAndDeletedAtIsNull(UUID id);
 
+    boolean existsByEmailAndDeletedAtIsNullAndIdNot(String email, UUID id);
+
+    boolean existsByLoginAndDeletedAtIsNullAndIdNot(String login, UUID id);
+
+    boolean existsByTaxIdentifierAndDeletedAtIsNullAndIdNot(
+        String taxIdentifier,
+        UUID id
+    );
+
     Optional<UserEntity> findByIdAndDeletedAtIsNull(UUID id);
+
+    boolean existsByTaxIdentifierAndDeletedAtIsNull(String taxIdentifier);
 
     List<UserEntity> findAllByUserTypeEntityIdAndDeletedAtIsNull(UUID typeId);
 }

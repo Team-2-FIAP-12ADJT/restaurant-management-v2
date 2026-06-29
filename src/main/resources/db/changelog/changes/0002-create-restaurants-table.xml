@@ -19,6 +19,11 @@
             <column name="cuisine_type" type="VARCHAR(100)">
                 <constraints nullable="false"/>
             </column>
+            <column name="tax_identifier" type="VARCHAR(255)">
+                <constraints nullable="false"
+                             unique="true"
+                             uniqueConstraintName="uk_restaurants_tax_identifier"/>
+            </column>
             <column name="opening_hours" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>

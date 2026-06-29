@@ -34,6 +34,7 @@
 		<springdoc-openapi.version>3.0.2</springdoc-openapi.version>
 		<liquibase.version>5.0.2</liquibase.version>
 		<liquibase-maven-plugin.version>5.0.2</liquibase-maven-plugin.version>
+		<liquibase-hibernate7.version>5.0.3</liquibase-hibernate7.version>
 		<jakarta-validation.version>3.1.1</jakarta-validation.version>
 		<postgresql.version>42.7.10</postgresql.version>
 		<jacoco.version>0.8.14</jacoco.version>
@@ -201,11 +202,11 @@
 							</exclusion>
 						</exclusions>
 					</dependency>
-					<!-- NOTE: Spring Boot 4.x uses Hibernate 7 — upgrade to liquibase-hibernate7 if diff fails -->
+					<!-- Spring Boot 4.x uses Hibernate 7 (JPA 3.2) — hibernate6 ext pulls JPA 3.1, missing jakarta.persistence.PersistenceConfiguration -->
 					<dependency>
 						<groupId>org.liquibase.ext</groupId>
-						<artifactId>liquibase-hibernate6</artifactId>
-						<version>${liquibase-maven-plugin.version}</version>
+						<artifactId>liquibase-hibernate7</artifactId>
+						<version>${liquibase-hibernate7.version}</version>
 					</dependency>
 					<dependency>
 						<groupId>org.springframework.boot</groupId>

@@ -8,5 +8,6 @@ public record UserDsRequestModel(
     String name,
     String email,
     String login,
+    String taxIdentifier,
     String password
 ) {}

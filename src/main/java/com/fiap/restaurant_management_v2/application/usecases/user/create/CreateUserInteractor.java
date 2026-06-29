@@ -31,12 +31,16 @@ public class CreateUserInteractor implements CreateUserInputBoundary {
         if (userDsGateway.existsByLogin(request.login())) {
             throw new DuplicateUserException("Login já cadastrado");
         }
+        if (userDsGateway.existsByTaxIdentifier(request.taxIdentifier())) {
+            throw new DuplicateUserException("CPF já cadastrado");
+        }
 
         String encodedPassword = passwordEncoder.encode(request.password());
         User user = User.create(
             request.name(),
             request.email(),
             request.login(),
+            request.taxIdentifier(),
             encodedPassword
         );
 
@@ -46,6 +50,7 @@ public class CreateUserInteractor implements CreateUserInputBoundary {
                 user.getName(),
                 user.getEmail(),
                 user.getLogin(),
+                user.getTaxIdentifier(),
                 user.getPassword()
             )
         );
@@ -55,7 +60,8 @@ public class CreateUserInteractor implements CreateUserInputBoundary {
                 saved.id(),
                 saved.name(),
                 saved.email(),
-                saved.login()
+                saved.login(),
+                saved.taxIdentifier()
             )
         );
     }

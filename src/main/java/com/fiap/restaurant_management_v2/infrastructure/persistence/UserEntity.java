@@ -1,7 +1,6 @@
 package com.fiap.restaurant_management_v2.infrastructure.persistence;
 
 import jakarta.persistence.*;
-
 import java.time.Instant;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -33,12 +32,15 @@ public class UserEntity {
     @Column(nullable = false, unique = true)
     private String login;
 
+    @Column(name = "tax_identifier", nullable = false, unique = true)
+    private String taxIdentifier;
+
     @Column(nullable = false)
     private String password;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_type_id")
-    private UserTypeEntity userTypeEntity ;
+    private UserTypeEntity userTypeEntity;
 
     @Column(name = "created_at", nullable = false)
     @CreationTimestamp

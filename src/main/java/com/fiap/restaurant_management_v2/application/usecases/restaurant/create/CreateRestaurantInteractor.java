@@ -1,6 +1,6 @@
 package com.fiap.restaurant_management_v2.application.usecases.restaurant.create;
 
-import com.fiap.restaurant_management_v2.application.exception.DuplicateUserException;
+import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsResponseModel;
@@ -8,7 +8,9 @@ import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.domain.Restaurant;
 import java.util.UUID;
 
-public class CreateRestaurantInteractor implements CreateRestaurantInputBoundary {
+public class CreateRestaurantInteractor
+    implements CreateRestaurantInputBoundary
+{
 
     private final RestaurantDsGateway restaurantDsGateway;
     private final UserDsGateway userDsGateway;
@@ -29,7 +31,9 @@ public class CreateRestaurantInteractor implements CreateRestaurantInputBoundary
         UUID ownerId = request.ownerId();
 
         if (!userDsGateway.existsById(ownerId)) {
-            throw new DuplicateUserException("Usuário dono do restaurante não encontrado");
+            throw new UserNotFoundException(
+                "Usuário dono do restaurante não encontrado"
+            );
         }
 
         Restaurant restaurant = Restaurant.create(

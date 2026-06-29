@@ -2,7 +2,6 @@ package com.fiap.restaurant_management_v2.infrastructure.web;
 
 import com.fiap.restaurant_management_v2.adapters.controllers.RestaurantController;
 import com.fiap.restaurant_management_v2.adapters.presenters.CreateRestaurantPresenter;
-import com.fiap.restaurant_management_v2.adapters.presenters.DeleteRestaurantPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.GetAllRestaurantsPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.GetRestaurantByIdPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.UpdateRestaurantPresenter;
@@ -34,22 +33,19 @@ public class RestaurantApi {
     private final GetAllRestaurantsPresenter getAllRestaurantsPresenter;
     private final GetRestaurantByIdPresenter getRestaurantByIdPresenter;
     private final UpdateRestaurantPresenter updateRestaurantPresenter;
-    private final DeleteRestaurantPresenter deleteRestaurantPresenter;
 
     public RestaurantApi(
         RestaurantController restaurantController,
         CreateRestaurantPresenter createRestaurantPresenter,
         GetAllRestaurantsPresenter getAllRestaurantsPresenter,
         GetRestaurantByIdPresenter getRestaurantByIdPresenter,
-        UpdateRestaurantPresenter updateRestaurantPresenter,
-        DeleteRestaurantPresenter deleteRestaurantPresenter
+        UpdateRestaurantPresenter updateRestaurantPresenter
     ) {
         this.restaurantController = restaurantController;
         this.createRestaurantPresenter = createRestaurantPresenter;
         this.getAllRestaurantsPresenter = getAllRestaurantsPresenter;
         this.getRestaurantByIdPresenter = getRestaurantByIdPresenter;
         this.updateRestaurantPresenter = updateRestaurantPresenter;
-        this.deleteRestaurantPresenter = deleteRestaurantPresenter;
     }
 
     @PostMapping
@@ -64,8 +60,9 @@ public class RestaurantApi {
             request.ownerId()
         );
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-            .body(createRestaurantPresenter.getViewModel());
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            createRestaurantPresenter.getViewModel()
+        );
     }
 
     @GetMapping

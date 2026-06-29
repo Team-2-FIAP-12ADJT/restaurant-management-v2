@@ -1,5 +1,10 @@
 package com.fiap.restaurant_management_v2.application.usecases.restaurant.delete;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.fiap.restaurant_management_v2.application.exception.RestaurantNotFoundException;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import java.util.UUID;
@@ -9,11 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class DeleteRestaurantInteractorTest {
@@ -27,7 +27,10 @@ class DeleteRestaurantInteractorTest {
     @BeforeEach
     void setUp() {
         presenter = new CapturingPresenter();
-        interactor = new DeleteRestaurantInteractor(restaurantDsGateway, presenter);
+        interactor = new DeleteRestaurantInteractor(
+            restaurantDsGateway,
+            presenter
+        );
     }
 
     @Test
@@ -50,11 +53,15 @@ class DeleteRestaurantInteractorTest {
 
         when(restaurantDsGateway.existsById(id)).thenReturn(false);
 
-        assertThrows(RestaurantNotFoundException.class,
-            () -> interactor.execute(new DeleteRestaurantRequestModel(id)));
+        assertThrows(RestaurantNotFoundException.class, () ->
+            interactor.execute(new DeleteRestaurantRequestModel(id))
+        );
     }
 
-    private static final class CapturingPresenter implements DeleteRestaurantOutputBoundary {
+    private static final class CapturingPresenter
+        implements DeleteRestaurantOutputBoundary
+    {
+
         private boolean deleted;
 
         @Override

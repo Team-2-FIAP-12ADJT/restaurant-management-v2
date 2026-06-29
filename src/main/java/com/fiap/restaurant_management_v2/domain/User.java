@@ -11,14 +11,20 @@ import java.util.regex.Pattern;
  * and {@link #restore} to rehydrate from a trusted source.
  */
 public final class User {
+
     private static final Pattern EMAIL = Pattern.compile(
         "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+    );
+
+    private static final Pattern TAX_IDENTIFIER_PATTERN = Pattern.compile(
+        "^\\d{11}$"
     );
 
     private final UUID id;
     private final String name;
     private final String email;
     private final String login;
+    private final String taxIdentifier;
     private final String password;
 
     private User(
@@ -26,12 +32,14 @@ public final class User {
         String name,
         String email,
         String login,
+        String taxIdentifier,
         String password
     ) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.login = login;
+        this.taxIdentifier = taxIdentifier;
         this.password = password;
     }
 
@@ -44,9 +52,17 @@ public final class User {
         String name,
         String email,
         String login,
+        String taxIdentifier,
         String password
     ) {
-        User user = new User(UUID.randomUUID(), name, email, login, password);
+        User user = new User(
+            UUID.randomUUID(),
+            name,
+            email,
+            login,
+            taxIdentifier,
+            password
+        );
         user.validate();
         return user;
     }
@@ -57,6 +73,7 @@ public final class User {
         String name,
         String email,
         String login,
+        String taxIdentifier,
         String password
     ) {
         return new User(
@@ -64,39 +81,64 @@ public final class User {
             name,
             email,
             login,
+            taxIdentifier,
             password
         );
     }
 
     public static User bind(
-            UUID id,
-            String name,
-            String email,
-            String login,
-            String password
+        UUID id,
+        String name,
+        String email,
+        String login,
+        String taxIdentifier,
+        String password
     ) {
         return new User(
-                Objects.requireNonNull(id, "id"),
-                name,
-                email,
-                login,
-                password
+            Objects.requireNonNull(id, "id"),
+            name,
+            email,
+            login,
+            taxIdentifier,
+            password
         );
     }
 
-
-    private void validate() {
+    /**
+     * Validates the mutable detail fields (name, email, login) without requiring a
+     * password — used by the update use case, where the password is preserved and
+     * never re-supplied. Same invariants as {@link #validate()} minus the password.
+     *
+     * @throws InvalidUserException if any invariant is violated
+     */
+    public static void validateDetails(
+        String name,
+        String email,
+        String login,
+        String taxIdentifier
+    ) {
         if (isBlank(name)) {
             throw new InvalidUserException("Nome inválido");
         }
         if (isBlank(login)) {
             throw new InvalidUserException("Login inválido");
         }
-        if (isBlank(password)) {
-            throw new InvalidUserException("Senha inválida");
-        }
         if (email == null || !EMAIL.matcher(email).matches()) {
             throw new InvalidUserException("Email inválido");
+        }
+
+        if (
+            isBlank(taxIdentifier) ||
+            !TAX_IDENTIFIER_PATTERN.matcher(taxIdentifier).matches()
+        ) {
+            throw new InvalidUserException("CPF inválido");
+        }
+    }
+
+    private void validate() {
+        validateDetails(name, email, login, taxIdentifier);
+        if (isBlank(password)) {
+            throw new InvalidUserException("Senha inválida");
         }
     }
 
@@ -122,6 +164,10 @@ public final class User {
 
     public String getPassword() {
         return password;
+    }
+
+    public String getTaxIdentifier() {
+        return taxIdentifier;
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.fiap.restaurant_management_v2.application.usecases.restaurant.create;
 
-import com.fiap.restaurant_management_v2.application.exception.DuplicateUserException;
+import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsResponseModel;
@@ -72,7 +72,7 @@ class CreateRestaurantInteractorTest {
 
         when(userDsGateway.existsById(ownerId)).thenReturn(false);
 
-        assertThrows(DuplicateUserException.class, () -> interactor.execute(request));
+        assertThrows(UserNotFoundException.class, () -> interactor.execute(request));
         verify(restaurantDsGateway, never()).save(any());
         assertNull(presenter.response);
     }

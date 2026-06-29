@@ -28,6 +28,7 @@ public class GetAllUsersInteractor implements GetAllUsersInputBoundary {
         addLike(criteria, "name", request.name());
         addLike(criteria, "email", request.email());
         addLike(criteria, "login", request.login());
+        addTaxFilter(criteria, request.taxIdentifier());
 
         PageResult<UserDsResponseModel> page =
             userDsGateway.findAll(
@@ -51,7 +52,8 @@ public class GetAllUsersInteractor implements GetAllUsersInputBoundary {
             user.id(),
             user.name(),
             user.email(),
-            user.login()
+            user.login(),
+            user.taxIdentifier()
         );
     }
 
@@ -63,5 +65,31 @@ public class GetAllUsersInteractor implements GetAllUsersInputBoundary {
         if (value != null && !value.isBlank()) {
             criteria.add(new FilterCriteria(field, FilterOperator.LIKE, value));
         }
+    }
+
+    // Sentinela impossível: CPF é armazenado como 11 dígitos crus, então um needle
+    // com letras/hífen e SEM wildcard LIKE (%, _) nunca casa. Evita devolver a lista
+    // inteira quando o filtro vem sem dígito (ex. "abc", "%", "_").
+    private static final String IMPOSSIBLE_TAX_MATCH = "NON-CPF";
+
+    // CPF é armazenado cru (11 dígitos). Normaliza o filtro (tira máscara) para
+    // casar. Se o cliente informou algo não-blank mas SEM dígito, troca por uma
+    // sentinela impossível: nenhum CPF casa => lista vazia, em vez de descartar o
+    // filtro silenciosamente (devolveria tudo) ou injetar wildcard cru (casaria tudo).
+    private static void addTaxFilter(
+        List<FilterCriteria> criteria,
+        String value
+    ) {
+        if (value == null || value.isBlank()) {
+            return;
+        }
+        String digits = value.replaceAll("\\D", "");
+        criteria.add(
+            new FilterCriteria(
+                "taxIdentifier",
+                FilterOperator.LIKE,
+                digits.isEmpty() ? IMPOSSIBLE_TAX_MATCH : digits
+            )
+        );
     }
 }
