@@ -39,7 +39,7 @@ public class MenuItemEntity {
     @Column(name = "only_local", nullable = false)
     private boolean onlyLocal;
 
-    @Column(name = "foto_path", nullable = false, length = 500)
+    @Column(name = "photo_path", nullable = false, length = 500)
     private String photoPath;
 
     @ManyToOne(fetch = FetchType.LAZY)

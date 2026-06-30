@@ -68,6 +68,23 @@ public final class User {
         );
     }
 
+    public static User bind(
+            UUID id,
+            String name,
+            String email,
+            String login,
+            String password
+    ) {
+        return new User(
+                Objects.requireNonNull(id, "id"),
+                name,
+                email,
+                login,
+                password
+        );
+    }
+
+
     private void validate() {
         if (isBlank(name)) {
             throw new InvalidUserException("Nome inválido");

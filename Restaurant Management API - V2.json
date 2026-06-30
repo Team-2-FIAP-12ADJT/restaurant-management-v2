@@ -20,14 +20,20 @@
             "url": {
               "raw": "{{baseUrl}}/api/v1/users",
               "protocol": "",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "users"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ],
               "query": [],
               "variable": []
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"teste\",\n  \"email\": \"teste@mail.com\",\n  \"login\": \"teste.login\",\n  \"password\": \"123456\"\n}",
+              "raw": "{\n  \"name\": \"Marcos Roberto\",\n  \"email\": \"marq@mail.com\",\n  \"login\": \"marcoveio\",\n  \"password\": \"123456\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -39,22 +45,40 @@
         {
           "name": "Listagem de usuários",
           "request": {
-            "method": "get",
+            "method": "GET",
             "header": [],
             "auth": {
               "type": "noauth"
             },
             "description": "",
             "url": {
-              "raw": "{{baseUrl}}/api/v1/users?name=teste&page=1&size=20&email=@mail.com",
+              "raw": "{{baseUrl}}/api/v1/users?name=Deivis&page=1&size=20&email=@mail.com",
               "protocol": "",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "users?name=teste&page=1&size=20&email=@mail.com"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users?name=Deivis&page=1&size=20&email=@mail.com"
+              ],
               "query": [
-                { "key": "name", "value": "teste" },
-                { "key": "page", "value": "1" },
-                { "key": "size", "value": "20" },
-                { "key": "email", "value": "@mail.com" }
+                {
+                  "key": "name",
+                  "value": "Deivis"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                },
+                {
+                  "key": "email",
+                  "value": "@mail.com"
+                }
               ],
               "variable": []
             }
@@ -63,14 +87,14 @@
         {
           "name": "Busca usuário por ID",
           "request": {
-            "method": "get",
+            "method": "GET",
             "header": [],
             "auth": {
               "type": "noauth"
             },
             "description": "",
             "url": {
-              "raw": "{{baseUrl}}/api/v1/users?name=teste&page=1&size=20&email=@mail.com",
+              "raw": "{{baseUrl}}/api/v1/users?name=Deivis Pereira&page=1&size=20&email=@mail.com",
               "protocol": "",
               "host": [
                 "{{baseUrl}}"
@@ -78,12 +102,12 @@
               "path": [
                 "api",
                 "v1",
-                "users?name=teste&page=1&size=20&email=@mail.com"
+                "users?name=Deivis Pereira&page=1&size=20&email=@mail.com"
               ],
               "query": [
                 {
                   "key": "name",
-                  "value": "teste"
+                  "value": "Deivis Pereira"
                 },
                 {
                   "key": "page",
@@ -105,6 +129,234 @@
       ]
     },
     {
+      "name": "UserType",
+      "item": [
+        {
+          "name": "Criação de  tipo de usuário",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users-type",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users-type"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userType\": \"Sócio\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Alteraçãode  tipo de usuário",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users-type/28be571e-3501-4412-be62-2e46bf4b4144",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users-type",
+                "28be571e-3501-4412-be62-2e46bf4b4144"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userType\": \"Sócio edit 2\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Lista todos tipos de usuário",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users-type?page=1&size=20",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users-type?page=1&size=20"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Lista tipos de usuário por ID",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users-type/28be571e-3501-4412-be62-2e46bf4b4144",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users-type",
+                "28be571e-3501-4412-be62-2e46bf4b4144"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Deleta tipos de usuário por ID",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users-type/28be571e-3501-4412-be62-2e46bf4b4144",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users-type",
+                "28be571e-3501-4412-be62-2e46bf4b4144"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Vincula  usuário a um tipo de usuário",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users-type/bind",
+              "protocol": "",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users-type",
+                "bind"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"e4f4f4b5-96dd-470b-9cc6-b9e6b5a7afdf\",\n  \"typeId\": \"28be571e-3501-4412-be62-2e46bf4b4144\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "Restaurants",
       "item": [
         {
@@ -119,8 +371,14 @@
             "url": {
               "raw": "{{baseUrl}}/api/v1/restaurants",
               "protocol": "",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "restaurants"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "restaurants"
+              ],
               "query": [],
               "variable": []
             },
@@ -147,13 +405,31 @@
             "url": {
               "raw": "{{baseUrl}}/api/v1/restaurants?name=Restaurante&cuisineType=Brasileira&page=1&size=10",
               "protocol": "",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "restaurants"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "restaurants"
+              ],
               "query": [
-                { "key": "name", "value": "Restaurante" },
-                { "key": "cuisineType", "value": "Brasileira" },
-                { "key": "page", "value": "1" },
-                { "key": "size", "value": "10" }
+                {
+                  "key": "name",
+                  "value": "Restaurante"
+                },
+                {
+                  "key": "cuisineType",
+                  "value": "Brasileira"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
               ],
               "variable": []
             }
@@ -171,8 +447,15 @@
             "url": {
               "raw": "{{baseUrl}}/api/v1/restaurants/00000000-0000-0000-0000-000000000000",
               "protocol": "",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "restaurants", "00000000-0000-0000-0000-000000000000"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "restaurants",
+                "00000000-0000-0000-0000-000000000000"
+              ],
               "query": [],
               "variable": []
             }
@@ -190,8 +473,15 @@
             "url": {
               "raw": "{{baseUrl}}/api/v1/restaurants/00000000-0000-0000-0000-000000000000",
               "protocol": "",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "restaurants", "00000000-0000-0000-0000-000000000000"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "restaurants",
+                "00000000-0000-0000-0000-000000000000"
+              ],
               "query": [],
               "variable": []
             },
@@ -218,8 +508,15 @@
             "url": {
               "raw": "{{baseUrl}}/api/v1/restaurants/00000000-0000-0000-0000-000000000000",
               "protocol": "",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "restaurants", "00000000-0000-0000-0000-000000000000"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "restaurants",
+                "00000000-0000-0000-0000-000000000000"
+              ],
               "query": [],
               "variable": []
             }

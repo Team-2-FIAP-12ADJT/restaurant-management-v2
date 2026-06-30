@@ -15,6 +15,9 @@ public interface UserDsGateway {
 
     Optional<UserDsResponseModel> findById(UUID id);
 
+    Optional<UserBindDsResponseModel> findAllById(UUID id);
+
+
     boolean existsByEmail(String email);
 
     boolean existsByLogin(String login);
@@ -28,4 +31,8 @@ public interface UserDsGateway {
     );
 
     void deleteById(UUID id);
+
+    void bindUserType(UUID userId, UUID typeId);
+
+    void unbindUserType(UUID typeId);
 }

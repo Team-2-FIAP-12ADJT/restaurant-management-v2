@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+>
+    <changeSet id="0003-seed-user-type-table" author="deivis">
+        <comment>Carga inicial de tipos de usuários na tabela user_type</comment>
+        <insert tableName="user_type">
+            <column name="id" value="ad854890-a521-46bb-9323-9ee4f03930cb"/>
+            <column name="user_type" value="Dono"/>
+            <column name="created_at" valueComputed="NOW()"/>
+            <column name="updated_at" valueComputed="NOW()"/>
+        </insert>
+
+        <insert tableName="user_type">
+            <column name="id" value="bc652941-b632-47cc-8414-0ff5f14841da"/>
+            <column name="user_type" value="Cliente"/>
+            <column name="created_at" valueComputed="NOW()"/>
+            <column name="updated_at" valueComputed="NOW()"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

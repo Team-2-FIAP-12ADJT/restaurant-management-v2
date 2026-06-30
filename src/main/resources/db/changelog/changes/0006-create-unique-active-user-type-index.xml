@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+>
+
+    <changeSet id="0006-create-unique-active-user-type-index" author="deivis">
+        <sql>
+            CREATE UNIQUE INDEX IF NOT EXISTS ux_user_type_active_name
+            ON user_type (user_type)
+            WHERE deleted_at IS NULL;
+        </sql>
+        <rollback>
+            <sql>
+                DROP INDEX IF EXISTS ux_user_type_active_name;
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

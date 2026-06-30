@@ -201,37 +201,44 @@ class MenuItemApiIT extends IntegrationTestBase {
             JsonPath.read(createResult.getResponse().getContentAsString(), "$.id")
         );
 
-        String body = """
-            {
-              "name": "%s",
-              "description": "%s",
-              "price": 39.90,
-              "onlyLocal": true,
-              "photoPath": "%s",
-              "restaurantId": "%s"
-            }
-            """.formatted(
+        String[] invalidBodies = {
+            menuItemBody(
                 "N".repeat(MenuItem.MAX_NAME_LENGTH + 1),
+                "Descrição válida",
+                "/images/item.jpg",
+                restaurantId
+            ),
+            menuItemBody(
+                "Item válido",
                 "D".repeat(MenuItem.MAX_DESCRIPTION_LENGTH + 1),
+                "/images/item.jpg",
+                restaurantId
+            ),
+            menuItemBody(
+                "Item válido",
+                "Descrição válida",
                 "P".repeat(MenuItem.MAX_PHOTO_PATH_LENGTH + 1),
                 restaurantId
-            );
-
-        mockMvc
-            .perform(
-                post(ApiPaths.MENU_ITEMS)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(body)
             )
-            .andExpect(status().isBadRequest());
+        };
 
-        mockMvc
-            .perform(
-                put(ApiPaths.MENU_ITEMS + "/" + id)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(body)
-            )
-            .andExpect(status().isBadRequest());
+        for (String body : invalidBodies) {
+            mockMvc
+                .perform(
+                    post(ApiPaths.MENU_ITEMS)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body)
+                )
+                .andExpect(status().isBadRequest());
+
+            mockMvc
+                .perform(
+                    put(ApiPaths.MENU_ITEMS + "/" + id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body)
+                )
+                .andExpect(status().isBadRequest());
+        }
     }
 
     @Test
@@ -270,5 +277,23 @@ class MenuItemApiIT extends IntegrationTestBase {
               "restaurantId": "%s"
             }
             """.formatted(restaurantId);
+    }
+
+    private static String menuItemBody(
+        String name,
+        String description,
+        String photoPath,
+        UUID restaurantId
+    ) {
+        return """
+            {
+              "name": "%s",
+              "description": "%s",
+              "price": 39.90,
+              "onlyLocal": true,
+              "photoPath": "%s",
+              "restaurantId": "%s"
+            }
+            """.formatted(name, description, photoPath, restaurantId);
     }
 }

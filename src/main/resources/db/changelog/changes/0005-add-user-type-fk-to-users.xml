@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+>
+
+    <changeSet id="0005-add-user-type-fk-to-users" author="deivis">
+        <comment
+        >Adicionando a coluna user_type_id na tabela users como chave estrangeira</comment>
+
+        <addColumn tableName="users">
+            <column name="user_type_id" type="UUID">
+                <constraints
+                    nullable="true"
+                    foreignKeyName="fk_users_user_type"
+                    referencedTableName="user_type"
+                    referencedColumnNames="id"
+                />
+            </column>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>
