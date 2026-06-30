@@ -9,4 +9,6 @@ public final class ApiPaths {
     public static final String USERS_TYPE = V1 + "/users-type";
 
     public static final String RESTAURANTS = V1 + "/restaurants";
+
+    public static final String MENU_ITEMS = V1 + "/menu-items";
 }

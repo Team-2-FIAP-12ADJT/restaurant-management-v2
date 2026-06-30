@@ -3,9 +3,11 @@ package com.fiap.restaurant_management_v2.infrastructure.web;
 import com.fiap.restaurant_management_v2.application.exception.DuplicateUserException;
 import com.fiap.restaurant_management_v2.application.exception.DuplicateUserTypeException;
 import com.fiap.restaurant_management_v2.application.exception.InvalidFilterException;
+import com.fiap.restaurant_management_v2.application.exception.MenuItemNotFoundException;
 import com.fiap.restaurant_management_v2.application.exception.RestaurantNotFoundException;
 import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
 import com.fiap.restaurant_management_v2.application.exception.UserTypeNotFoundException;
+import com.fiap.restaurant_management_v2.domain.exception.InvalidMenuItemException;
 import com.fiap.restaurant_management_v2.domain.exception.InvalidRestaurantException;
 import com.fiap.restaurant_management_v2.domain.exception.InvalidUserException;
 import com.fiap.restaurant_management_v2.domain.exception.InvalidUserTypeException;
@@ -98,6 +100,22 @@ public class GlobalExceptionHandler {
         return ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND,
                 ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(MenuItemNotFoundException.class)
+    public ProblemDetail menuItemNotFound(MenuItemNotFoundException ex) {
+        return ProblemDetail.forStatusAndDetail(
+            HttpStatus.NOT_FOUND,
+            ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(InvalidMenuItemException.class)
+    public ProblemDetail handleMenuItemInvalid(InvalidMenuItemException ex) {
+        return ProblemDetail.forStatusAndDetail(
+            HttpStatus.BAD_REQUEST,
+            ex.getMessage()
         );
     }
 
