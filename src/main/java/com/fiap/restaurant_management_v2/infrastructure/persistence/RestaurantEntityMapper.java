@@ -5,15 +5,20 @@ import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsRespon
 import java.time.Instant;
 
 final class RestaurantEntityMapper {
+
     private RestaurantEntityMapper() {}
 
-    static RestaurantEntity toEntity(RestaurantDsRequestModel restaurant, Instant createdAt) {
+    static RestaurantEntity toEntity(
+        RestaurantDsRequestModel restaurant,
+        Instant createdAt
+    ) {
         Instant now = Instant.now();
         boolean isNew = createdAt == null;
         return RestaurantEntity.builder()
             .id(restaurant.id())
             .name(restaurant.name())
             .address(restaurant.address())
+            .taxIdentifier(restaurant.taxIdentifier())
             .cuisineType(restaurant.cuisineType())
             .openingHours(restaurant.openingHours())
             .owner(UserEntity.builder().id(restaurant.ownerId()).build())
@@ -27,6 +32,7 @@ final class RestaurantEntityMapper {
             entity.getId(),
             entity.getName(),
             entity.getAddress(),
+            entity.getTaxIdentifier(),
             entity.getCuisineType(),
             entity.getOpeningHours(),
             entity.getOwner().getId()

@@ -19,7 +19,7 @@
             <column name="cuisine_type" type="VARCHAR(100)">
                 <constraints nullable="false"/>
             </column>
-            <column name="tax_identifier" type="VARCHAR(255)">
+            <column name="tax_identifier" type="VARCHAR(14)">
                 <constraints nullable="false"
                              unique="true"
                              uniqueConstraintName="uk_restaurants_tax_identifier"/>
