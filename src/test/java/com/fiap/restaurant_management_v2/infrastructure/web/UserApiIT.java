@@ -168,6 +168,40 @@ class UserApiIT extends IntegrationTestBase {
 
     @Test
     @DisplayName(
+        "POST sem taxIdentifier retorna 400 com erro por campo (não genérico)"
+    )
+    void rejectsMissingTaxIdentifierWithFieldError() throws Exception {
+        mockMvc
+            .perform(
+                post(ApiPaths.USERS)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        "{\"name\":\"Marcos\",\"email\":\"marq@mail.com\",\"login\":\"marcoveio\",\"password\":\"123456\"}"
+                    )
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.detail").value("Falha de validação"))
+            .andExpect(jsonPath("$.errors.taxIdentifier").exists());
+    }
+
+    @Test
+    @DisplayName("POST com CPF em formato inválido retorna 400 com erro por campo")
+    void rejectsMalformedTaxIdentifierWithFieldError() throws Exception {
+        mockMvc
+            .perform(
+                post(ApiPaths.USERS)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        "{\"name\":\"Marcos\",\"email\":\"marq@mail.com\",\"login\":\"marcoveio\",\"taxIdentifier\":\"123\",\"password\":\"123456\"}"
+                    )
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.detail").value("Falha de validação"))
+            .andExpect(jsonPath("$.errors.taxIdentifier").exists());
+    }
+
+    @Test
+    @DisplayName(
         "PATCH parcial (só name) retorna 200 e preserva email/login/senha/createdAt"
     )
     void patchPartialPreservesOthers() throws Exception {

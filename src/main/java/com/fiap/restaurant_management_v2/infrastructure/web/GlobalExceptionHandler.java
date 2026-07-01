@@ -1,9 +1,11 @@
 package com.fiap.restaurant_management_v2.infrastructure.web;
 
+import com.fiap.restaurant_management_v2.application.exception.DuplicateRestaurantException;
 import com.fiap.restaurant_management_v2.application.exception.DuplicateUserException;
 import com.fiap.restaurant_management_v2.application.exception.DuplicateUserTypeException;
 import com.fiap.restaurant_management_v2.application.exception.InvalidFilterException;
 import com.fiap.restaurant_management_v2.application.exception.RestaurantNotFoundException;
+import com.fiap.restaurant_management_v2.application.exception.UserHasActiveRestaurantsException;
 import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
 import com.fiap.restaurant_management_v2.application.exception.UserTypeNotFoundException;
 import com.fiap.restaurant_management_v2.domain.exception.InvalidRestaurantException;
@@ -12,14 +14,21 @@ import com.fiap.restaurant_management_v2.domain.exception.InvalidUserTypeExcepti
 import com.fiap.restaurant_management_v2.domain.exception.InvalidUserTypeUuidException;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
     @ExceptionHandler(DuplicateUserException.class)
     public ProblemDetail handleDuplicate(DuplicateUserException ex) {
         return ProblemDetail.forStatusAndDetail(
@@ -28,20 +37,39 @@ public class GlobalExceptionHandler {
         );
     }
 
-
     @ExceptionHandler(DuplicateUserTypeException.class)
     public ProblemDetail handleDuplicate(DuplicateUserTypeException ex) {
         return ProblemDetail.forStatusAndDetail(
-                HttpStatus.CONFLICT,
-                ex.getMessage()
+            HttpStatus.CONFLICT,
+            ex.getMessage()
         );
     }
 
-    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    @ExceptionHandler(DuplicateRestaurantException.class)
+    public ProblemDetail handleDuplicate(DuplicateRestaurantException ex) {
+        return ProblemDetail.forStatusAndDetail(
+            HttpStatus.CONFLICT,
+            ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(UserHasActiveRestaurantsException.class)
+    public ProblemDetail handleUserHasRestaurants(
+        UserHasActiveRestaurantsException ex
+    ) {
+        return ProblemDetail.forStatusAndDetail(
+            HttpStatus.CONFLICT,
+            ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(
+        org.springframework.dao.DataIntegrityViolationException.class
+    )
     public ProblemDetail handleDataIntegrityViolation() {
         return ProblemDetail.forStatusAndDetail(
-                HttpStatus.CONFLICT,
-                "Violacao de integridade: registro duplicado ou referencia invalida"
+            HttpStatus.CONFLICT,
+            "Violacao de integridade: registro duplicado ou referencia invalida"
         );
     }
 
@@ -56,24 +84,26 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidUserTypeException.class)
     public ProblemDetail handleInvalid(InvalidUserTypeException ex) {
         return ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST,
-                ex.getMessage()
+            HttpStatus.BAD_REQUEST,
+            ex.getMessage()
         );
     }
 
     @ExceptionHandler(InvalidRestaurantException.class)
-    public ProblemDetail handleRestaurantInvalid(InvalidRestaurantException ex) {
+    public ProblemDetail handleRestaurantInvalid(
+        InvalidRestaurantException ex
+    ) {
         return ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST,
-                ex.getMessage()
+            HttpStatus.BAD_REQUEST,
+            ex.getMessage()
         );
     }
 
     @ExceptionHandler(InvalidUserTypeUuidException.class)
     public ProblemDetail handleInvalid(InvalidUserTypeUuidException ex) {
         return ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST,
-                ex.getMessage()
+            HttpStatus.BAD_REQUEST,
+            ex.getMessage()
         );
     }
 
@@ -88,48 +118,69 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     public ProblemDetail handleNotFound(UserNotFoundException ex) {
         return ProblemDetail.forStatusAndDetail(
-                HttpStatus.NOT_FOUND,
-                ex.getMessage()
+            HttpStatus.NOT_FOUND,
+            ex.getMessage()
         );
     }
 
     @ExceptionHandler(RestaurantNotFoundException.class)
     public ProblemDetail restaurantNotFound(RestaurantNotFoundException ex) {
         return ProblemDetail.forStatusAndDetail(
-                HttpStatus.NOT_FOUND,
-                ex.getMessage()
+            HttpStatus.NOT_FOUND,
+            ex.getMessage()
         );
     }
 
     @ExceptionHandler(UserTypeNotFoundException.class)
     public ProblemDetail handleNotFound(UserTypeNotFoundException ex) {
         return ProblemDetail.forStatusAndDetail(
-                HttpStatus.NOT_FOUND,
-                ex.getMessage()
+            HttpStatus.NOT_FOUND,
+            ex.getMessage()
         );
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ProblemDetail handleIllegalArgument(IllegalArgumentException ex) {
         return ProblemDetail.forStatusAndDetail(
-                HttpStatus.BAD_REQUEST,
-                "Parâmetro inválido: " + ex.getMessage()
+            HttpStatus.BAD_REQUEST,
+            "Parâmetro inválido: " + ex.getMessage()
         );
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-            HttpStatus.BAD_REQUEST,
-            "Falha de validação"
-        );
+    // Exceções PADRÃO do Spring MVC: com `problemdetails.enabled=true` o handler
+    // interno do framework ofusca @ExceptionHandler avulsos. O jeito confiável é
+    // estender ResponseEntityExceptionHandler e sobrescrever os métodos protegidos.
+
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+        MethodArgumentNotValidException ex,
+        HttpHeaders headers,
+        HttpStatusCode status,
+        WebRequest request
+    ) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult()
             .getFieldErrors()
             .forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage())
             );
-        problem.setProperty("errors", errors);
-        return problem;
+        ProblemDetail body = ex.getBody();
+        body.setDetail("Falha de validação");
+        body.setProperty("errors", errors);
+        return handleExceptionInternal(ex, body, headers, status, request);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(
+        HttpMessageNotReadableException ex,
+        HttpHeaders headers,
+        HttpStatusCode status,
+        WebRequest request
+    ) {
+        ProblemDetail body = ProblemDetail.forStatusAndDetail(
+            HttpStatus.BAD_REQUEST,
+            "Corpo da requisição inválido ou malformado"
+        );
+        return handleExceptionInternal(ex, body, headers, status, request);
     }
 }

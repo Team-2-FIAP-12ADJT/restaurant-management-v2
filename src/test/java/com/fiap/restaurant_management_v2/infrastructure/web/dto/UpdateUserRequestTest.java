@@ -2,17 +2,19 @@ package com.fiap.restaurant_management_v2.infrastructure.web.dto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 class UpdateUserRequestTest {
 
     private static UpdateUserRequest withTax(String taxIdentifier) {
-        return new UpdateUserRequest("Ada", "ada@example.com", "ada", taxIdentifier);
+        return new UpdateUserRequest(
+            "Ada",
+            "ada@example.com",
+            "ada",
+            taxIdentifier
+        );
     }
 
     @Test
@@ -27,12 +29,12 @@ class UpdateUserRequestTest {
         assertEquals("12345678901", withTax("123.456.789-01").taxIdentifier());
     }
 
-    @ParameterizedTest
-    @DisplayName("Rejeita CPF presente inválido (inclui blank) com 400")
-    @ValueSource(strings = { "123", "123456789012", "1234567890a", " " })
-    void rejectsInvalidCpf(String taxIdentifier) {
-        assertThrows(IllegalArgumentException.class, () ->
-            withTax(taxIdentifier)
-        );
+    @Test
+    @DisplayName(
+        "Construtor NÃO lança para CPF inválido — só normaliza. " +
+        "Rejeição de formato é Bean Validation (@Pattern)."
+    )
+    void invalidCpfDoesNotThrowOnlyNormalizes() {
+        assertEquals("123", withTax("12.3").taxIdentifier());
     }
 }

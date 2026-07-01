@@ -1,38 +1,30 @@
 package com.fiap.restaurant_management_v2.infrastructure.web.dto;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 
 public record UpdateUserRequest(
     String name,
     @Email String email,
     String login,
+    @Pattern(
+        regexp = "^\\d{11}$",
+        message = "Tax identifier must be a valid CPF (11 digits)"
+    )
     String taxIdentifier
 ) {
-    private static final String EMAIL_REGEX =
-        "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
-
-    private static final String TAX_IDENTIFIER_REGEX = "^\\d{11}$";
-
+    /**
+     * PATCH parcial: campo ausente (null) = mantém o atual. O construtor SÓ
+     * normaliza (sem lançar) — formato vai para {@code @Pattern}, que ignora null
+     * (campo ausente) e valida o presente. CPF normalizado para 11 dígitos crus
+     * antes da validação.
+     */
     public UpdateUserRequest {
-        if (email != null && !email.matches(EMAIL_REGEX)) {
-            throw new IllegalArgumentException("Invalid email format");
-        }
-
-        // Partial (PATCH): null = campo ausente (mantém atual). Campo presente é
-        // normalizado igual ao create; blank vira "" (não null) p/ cair na
-        // validação do domínio (400) em vez de virar no-op silencioso.
         name = name != null ? name.trim() : null;
         email = email != null ? email.trim().toLowerCase() : null;
         login = login != null ? login.trim().toLowerCase() : null;
-
-        // CPF aceito com ou sem máscara; normaliza para 11 dígitos crus.
-        if (taxIdentifier != null) {
-            taxIdentifier = taxIdentifier.replaceAll("\\D", "");
-            if (!taxIdentifier.matches(TAX_IDENTIFIER_REGEX)) {
-                throw new IllegalArgumentException(
-                    "Tax identifier must be a valid CPF (11 digits)"
-                );
-            }
-        }
+        taxIdentifier = taxIdentifier != null
+            ? taxIdentifier.replaceAll("\\D", "")
+            : null;
     }
 }

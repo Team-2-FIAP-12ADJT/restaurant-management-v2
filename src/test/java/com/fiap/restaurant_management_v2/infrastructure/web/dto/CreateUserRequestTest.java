@@ -1,12 +1,9 @@
 package com.fiap.restaurant_management_v2.infrastructure.web.dto;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 class CreateUserRequestTest {
 
@@ -32,12 +29,13 @@ class CreateUserRequestTest {
         assertEquals("12345678901", withTax("12345678901").taxIdentifier());
     }
 
-    @ParameterizedTest
-    @DisplayName("Rejeita CPF inválido com 400 (IllegalArgumentException)")
-    @ValueSource(strings = { "123", "123456789012", "1234567890a", "abc" })
-    void rejectsInvalidCpf(String taxIdentifier) {
-        assertThrows(IllegalArgumentException.class, () ->
-            withTax(taxIdentifier)
-        );
+    @Test
+    @DisplayName(
+        "Construtor NÃO lança para CPF inválido — só normaliza (tira não-dígitos). " +
+        "Rejeição de formato é Bean Validation (@Pattern), testada em UserApiIT."
+    )
+    void invalidCpfDoesNotThrowOnlyNormalizes() {
+        assertEquals("123", withTax("12.3").taxIdentifier());
+        assertEquals("1234567890", withTax("1234567890").taxIdentifier());
     }
 }
