@@ -1,7 +1,15 @@
 package com.fiap.restaurant_management_v2.application.usecases.restaurant.get_all;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
+
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsResponseModel;
+import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
+import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.search.SearchQuery;
 import com.fiap.restaurant_management_v2.application.pagination.PageResult;
 import java.util.List;
@@ -12,11 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GetAllRestaurantsInteractorTest {
@@ -24,40 +27,87 @@ class GetAllRestaurantsInteractorTest {
     @Mock
     private RestaurantDsGateway restaurantDsGateway;
 
+    @Mock
+    private UserDsGateway userDsGateway;
+
     private CapturingPresenter presenter;
     private GetAllRestaurantsInteractor interactor;
+
+    private UUID ownerId;
+    private UserDsResponseModel owner;
 
     @BeforeEach
     void setUp() {
         presenter = new CapturingPresenter();
-        interactor = new GetAllRestaurantsInteractor(presenter, restaurantDsGateway);
+        interactor = new GetAllRestaurantsInteractor(
+            presenter,
+            restaurantDsGateway,
+            userDsGateway
+        );
+        ownerId = UUID.randomUUID();
+        owner = new UserDsResponseModel(
+            ownerId,
+            "Dona Ada",
+            "dona@example.com",
+            "dona",
+            "12345678901"
+        );
+    }
+
+    private RestaurantDsResponseModel restaurant(UUID id) {
+        return new RestaurantDsResponseModel(
+            id,
+            "Foo",
+            "Rua A",
+            "12345678000199",
+            "Italiana",
+            "Seg-Sex 11h-23h",
+            ownerId
+        );
     }
 
     @Test
-    @DisplayName("Lista restaurantes paginados com sucesso")
+    @DisplayName("Lista restaurantes paginados com owner completo (batch)")
     void listsRestaurants() {
-        var id = UUID.randomUUID();
-        var ownerId = UUID.randomUUID();
-        var dsResponse = new RestaurantDsResponseModel(id, "Foo", "Rua A", "Italiana", "Seg-Sex 11h-23h", ownerId);
-        var pageResult = new PageResult<RestaurantDsResponseModel>(List.of(dsResponse), 1L, 1, 10);
+        var pageResult = new PageResult<>(
+            List.of(restaurant(UUID.randomUUID())),
+            1L,
+            1,
+            10
+        );
+        when(
+            restaurantDsGateway.findAll(any(SearchQuery.class), anyInt(), anyInt())
+        ).thenReturn(pageResult);
+        when(userDsGateway.findAllByIds(any())).thenReturn(List.of(owner));
 
-        when(restaurantDsGateway.findAll(any(SearchQuery.class), anyInt(), anyInt())).thenReturn(pageResult);
-
-        interactor.execute(new GetAllRestaurantsRequestModel(null, null, 1, 10));
+        interactor.execute(
+            new GetAllRestaurantsRequestModel(null, null, null, 1, 10)
+        );
 
         assertNotNull(presenter.response);
         assertEquals(1, presenter.response.page().content().size());
-        assertEquals("Foo", presenter.response.page().content().getFirst().name());
+        var first = presenter.response.page().content().getFirst();
+        assertEquals("Foo", first.name());
+        assertEquals(owner, first.owner());
     }
 
     @Test
     @DisplayName("Retorna página vazia quando não há restaurantes")
     void returnsEmptyPage() {
-        var pageResult = new PageResult<RestaurantDsResponseModel>(List.of(), 0L, 1, 10);
+        var pageResult = new PageResult<RestaurantDsResponseModel>(
+            List.of(),
+            0L,
+            1,
+            10
+        );
+        when(
+            restaurantDsGateway.findAll(any(SearchQuery.class), anyInt(), anyInt())
+        ).thenReturn(pageResult);
+        when(userDsGateway.findAllByIds(any())).thenReturn(List.of());
 
-        when(restaurantDsGateway.findAll(any(SearchQuery.class), anyInt(), anyInt())).thenReturn(pageResult);
-
-        interactor.execute(new GetAllRestaurantsRequestModel(null, null, 1, 10));
+        interactor.execute(
+            new GetAllRestaurantsRequestModel(null, null, null, 1, 10)
+        );
 
         assertNotNull(presenter.response);
         assertEquals(0, presenter.response.page().content().size());
@@ -66,20 +116,32 @@ class GetAllRestaurantsInteractorTest {
     @Test
     @DisplayName("Filtra por nome quando informado")
     void filtersByName() {
-        var id = UUID.randomUUID();
-        var ownerId = UUID.randomUUID();
-        var dsResponse = new RestaurantDsResponseModel(id, "Foo", "Rua A", "Italiana", "Seg-Sex 11h-23h", ownerId);
-        var pageResult = new PageResult<RestaurantDsResponseModel>(List.of(dsResponse), 1L, 1, 10);
+        var pageResult = new PageResult<>(
+            List.of(restaurant(UUID.randomUUID())),
+            1L,
+            1,
+            10
+        );
+        when(
+            restaurantDsGateway.findAll(any(SearchQuery.class), anyInt(), anyInt())
+        ).thenReturn(pageResult);
+        when(userDsGateway.findAllByIds(any())).thenReturn(List.of(owner));
 
-        when(restaurantDsGateway.findAll(any(SearchQuery.class), anyInt(), anyInt())).thenReturn(pageResult);
-
-        interactor.execute(new GetAllRestaurantsRequestModel("Foo", null, 1, 10));
+        interactor.execute(
+            new GetAllRestaurantsRequestModel("Foo", null, null, 1, 10)
+        );
 
         assertEquals(1, presenter.response.page().content().size());
-        assertEquals("Foo", presenter.response.page().content().getFirst().name());
+        assertEquals(
+            "Foo",
+            presenter.response.page().content().getFirst().name()
+        );
     }
 
-    private static final class CapturingPresenter implements GetAllRestaurantsOutputBoundary {
+    private static final class CapturingPresenter
+        implements GetAllRestaurantsOutputBoundary
+    {
+
         private GetAllRestaurantsResponseModel response;
 
         @Override

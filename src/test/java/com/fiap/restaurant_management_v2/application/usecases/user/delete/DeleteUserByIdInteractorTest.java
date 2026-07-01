@@ -7,7 +7,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fiap.restaurant_management_v2.application.exception.UserHasActiveRestaurantsException;
 import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
 import java.util.Optional;
@@ -25,17 +27,24 @@ class DeleteUserByIdInteractorTest {
     @Mock
     private UserDsGateway userDsGateway;
 
+    @Mock
+    private RestaurantDsGateway restaurantDsGateway;
+
     private CapturingPresenter presenter;
     private DeleteUserByIdInteractor interactor;
 
     @BeforeEach
     void setUp() {
         presenter = new CapturingPresenter();
-        interactor = new DeleteUserByIdInteractor(userDsGateway, presenter);
+        interactor = new DeleteUserByIdInteractor(
+            userDsGateway,
+            restaurantDsGateway,
+            presenter
+        );
     }
 
     @Test
-    @DisplayName("Exclui usuário com sucesso")
+    @DisplayName("Exclui usuário com sucesso quando não possui restaurante ativo")
     void deletesSuccessfully() {
         var id = UUID.randomUUID();
         var user = new UserDsResponseModel(
@@ -47,6 +56,9 @@ class DeleteUserByIdInteractorTest {
         );
 
         when(userDsGateway.findById(id)).thenReturn(Optional.of(user));
+        when(restaurantDsGateway.existsByOwnerIdAndIsActive(id)).thenReturn(
+            false
+        );
 
         interactor.execute(new DeleteUserByIdRequestModel(id));
 
@@ -62,6 +74,32 @@ class DeleteUserByIdInteractorTest {
         when(userDsGateway.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () ->
+            interactor.execute(new DeleteUserByIdRequestModel(id))
+        );
+
+        verify(userDsGateway, never()).deleteById(any());
+    }
+
+    @Test
+    @DisplayName(
+        "Usuário com restaurante ativo → UserHasActiveRestaurantsException; não deleta"
+    )
+    void throwsWhenUserHasActiveRestaurants() {
+        var id = UUID.randomUUID();
+        var user = new UserDsResponseModel(
+            id,
+            "Foo",
+            "foo@example.com",
+            "foo",
+            "12345678900"
+        );
+
+        when(userDsGateway.findById(id)).thenReturn(Optional.of(user));
+        when(restaurantDsGateway.existsByOwnerIdAndIsActive(id)).thenReturn(
+            true
+        );
+
+        assertThrows(UserHasActiveRestaurantsException.class, () ->
             interactor.execute(new DeleteUserByIdRequestModel(id))
         );
 
