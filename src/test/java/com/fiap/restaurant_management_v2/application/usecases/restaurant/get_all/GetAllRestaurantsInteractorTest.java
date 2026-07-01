@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
@@ -18,6 +20,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -136,6 +141,68 @@ class GetAllRestaurantsInteractorTest {
             "Foo",
             presenter.response.page().content().getFirst().name()
         );
+    }
+
+    @Test
+    @DisplayName("Filtra por CNPJ mascarado → critério normalizado (só alfanumérico)")
+    void filtersByCnpjNormalizingMask() {
+        var pageResult = new PageResult<RestaurantDsResponseModel>(
+            List.of(),
+            0L,
+            1,
+            10
+        );
+        var captor = ArgumentCaptor.forClass(SearchQuery.class);
+        when(
+            restaurantDsGateway.findAll(any(SearchQuery.class), anyInt(), anyInt())
+        ).thenReturn(pageResult);
+        when(userDsGateway.findAllByIds(any())).thenReturn(List.of());
+
+        interactor.execute(
+            new GetAllRestaurantsRequestModel(
+                null,
+                "12.345.678/0001-99",
+                null,
+                1,
+                10
+            )
+        );
+
+        verify(restaurantDsGateway).findAll(captor.capture(), eq(1), eq(10));
+        var criteria = captor.getValue().criteria();
+        assertEquals(1, criteria.size());
+        assertEquals("taxIdentifier", criteria.getFirst().field());
+        assertEquals("12345678000199", criteria.getFirst().value());
+    }
+
+    @ParameterizedTest
+    @DisplayName(
+        "Filtro CNPJ sem alfanumérico (wildcard/pontuação) vira sentinela NON-CNPJ"
+    )
+    @ValueSource(strings = { "%", "_", "...", "//--" })
+    void cnpjFilterWithoutAlnumBecomesSentinel(String filter) {
+        var pageResult = new PageResult<RestaurantDsResponseModel>(
+            List.of(),
+            0L,
+            1,
+            10
+        );
+        var captor = ArgumentCaptor.forClass(SearchQuery.class);
+        when(
+            restaurantDsGateway.findAll(any(SearchQuery.class), anyInt(), anyInt())
+        ).thenReturn(pageResult);
+        when(userDsGateway.findAllByIds(any())).thenReturn(List.of());
+
+        interactor.execute(
+            new GetAllRestaurantsRequestModel(null, filter, null, 1, 10)
+        );
+
+        verify(restaurantDsGateway).findAll(captor.capture(), eq(1), eq(10));
+        var criteria = captor.getValue().criteria();
+        assertEquals(1, criteria.size());
+        var value = criteria.getFirst().value();
+        assertEquals("taxIdentifier", criteria.getFirst().field());
+        assertEquals("NON-CNPJ", value);
     }
 
     private static final class CapturingPresenter
