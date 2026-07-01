@@ -5,6 +5,7 @@ import java.util.UUID;
 public record CreateRestaurantRequestModel(
     String name,
     String address,
+    String taxIdentifier,
     String cuisineType,
     String openingHours,
     UUID ownerId

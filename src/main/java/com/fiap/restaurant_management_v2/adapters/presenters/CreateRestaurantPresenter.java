@@ -1,26 +1,41 @@
 package com.fiap.restaurant_management_v2.adapters.presenters;
 
-import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.RestaurantViewModel;
+import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.RestaurantWithOwnerViewModel;
+import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.UserViewModel;
+import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
 import com.fiap.restaurant_management_v2.application.usecases.restaurant.create.CreateRestaurantOutputBoundary;
 import com.fiap.restaurant_management_v2.application.usecases.restaurant.create.CreateRestaurantResponseModel;
 
-public class CreateRestaurantPresenter implements CreateRestaurantOutputBoundary {
+public class CreateRestaurantPresenter
+    implements CreateRestaurantOutputBoundary
+{
 
-    private RestaurantViewModel viewModel;
+    private RestaurantWithOwnerViewModel viewModel;
 
     @Override
     public void present(CreateRestaurantResponseModel response) {
-        this.viewModel = new RestaurantViewModel(
+        this.viewModel = new RestaurantWithOwnerViewModel(
             response.id().toString(),
             response.name(),
             response.address(),
+            CnpjFormatter.format(response.taxIdentifier()),
             response.cuisineType(),
             response.openingHours(),
-            response.ownerId().toString()
+            toOwnerViewModel(response.owner())
         );
     }
 
-    public RestaurantViewModel getViewModel() {
+    public RestaurantWithOwnerViewModel getViewModel() {
         return viewModel;
+    }
+
+    private UserViewModel toOwnerViewModel(UserDsResponseModel owner) {
+        return new UserViewModel(
+            owner.id().toString(),
+            owner.name(),
+            owner.email(),
+            owner.login(),
+            CpfFormatter.format(owner.taxIdentifier())
+        );
     }
 }

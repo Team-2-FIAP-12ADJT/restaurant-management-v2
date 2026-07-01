@@ -6,7 +6,7 @@ import com.fiap.restaurant_management_v2.adapters.presenters.GetAllRestaurantsPr
 import com.fiap.restaurant_management_v2.adapters.presenters.GetRestaurantByIdPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.UpdateRestaurantPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.PageViewModel;
-import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.RestaurantViewModel;
+import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.RestaurantWithOwnerViewModel;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.CreateRestaurantRequest;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.GetAllRestaurantsParams;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.UpdateRestaurantRequest;
@@ -49,12 +49,13 @@ public class RestaurantApi {
     }
 
     @PostMapping
-    public ResponseEntity<RestaurantViewModel> create(
+    public ResponseEntity<RestaurantWithOwnerViewModel> create(
         @Valid @RequestBody CreateRestaurantRequest request
     ) {
         restaurantController.create(
             request.name(),
             request.address(),
+            request.taxIdentifier(),
             request.cuisineType(),
             request.openingHours(),
             request.ownerId()
@@ -66,11 +67,12 @@ public class RestaurantApi {
     }
 
     @GetMapping
-    public ResponseEntity<PageViewModel<RestaurantViewModel>> getAll(
+    public ResponseEntity<PageViewModel<RestaurantWithOwnerViewModel>> getAll(
         @ParameterObject GetAllRestaurantsParams params
     ) {
         restaurantController.getAll(
             params.name(),
+            params.taxIdentifier(),
             params.cuisineType(),
             params.page(),
             params.size()
@@ -80,13 +82,15 @@ public class RestaurantApi {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RestaurantViewModel> getById(@PathVariable UUID id) {
+    public ResponseEntity<RestaurantWithOwnerViewModel> getById(
+        @PathVariable UUID id
+    ) {
         restaurantController.getById(id);
         return ResponseEntity.ok(getRestaurantByIdPresenter.getViewModel());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RestaurantViewModel> update(
+    public ResponseEntity<RestaurantWithOwnerViewModel> update(
         @PathVariable UUID id,
         @Valid @RequestBody UpdateRestaurantRequest request
     ) {
@@ -94,6 +98,7 @@ public class RestaurantApi {
             id,
             request.name(),
             request.address(),
+            request.taxIdentifier(),
             request.cuisineType(),
             request.openingHours(),
             request.ownerId()

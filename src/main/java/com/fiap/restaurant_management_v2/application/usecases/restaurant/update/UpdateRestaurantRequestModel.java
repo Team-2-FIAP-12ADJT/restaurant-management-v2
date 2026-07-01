@@ -6,6 +6,7 @@ public record UpdateRestaurantRequestModel(
     UUID id,
     String name,
     String address,
+    String taxIdentifier,
     String cuisineType,
     String openingHours,
     UUID ownerId
