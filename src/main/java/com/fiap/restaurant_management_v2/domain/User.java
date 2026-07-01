@@ -131,7 +131,9 @@ public final class User {
             isBlank(taxIdentifier) ||
             !TAX_IDENTIFIER_PATTERN.matcher(taxIdentifier).matches()
         ) {
-            throw new InvalidUserException("CPF inválido");
+            throw new InvalidUserException(
+                "CPF inválido. Deve conter 11 dígitos numéricos"
+            );
         }
     }
 

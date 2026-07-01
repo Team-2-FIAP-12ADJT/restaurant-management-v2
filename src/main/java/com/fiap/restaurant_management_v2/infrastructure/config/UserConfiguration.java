@@ -7,6 +7,7 @@ import com.fiap.restaurant_management_v2.adapters.presenters.GetAllUsersPresente
 import com.fiap.restaurant_management_v2.adapters.presenters.GetUserByIdPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.UpdateUserPresenter;
 import com.fiap.restaurant_management_v2.application.gateways.PasswordEncoderGateway;
+import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.usecases.user.create.CreateUserInputBoundary;
@@ -89,10 +90,12 @@ public class UserConfiguration {
     @Bean
     public DeleteUserByIdInputBoundary deleteUserByIdInputBoundary(
         UserDsGateway userDsGateway,
+        RestaurantDsGateway restaurantDsGateway,
         DeleteUserByIdPresenter deleteUserByIdPresenter
     ) {
         return new DeleteUserByIdInteractor(
             userDsGateway,
+            restaurantDsGateway,
             deleteUserByIdPresenter
         );
     }

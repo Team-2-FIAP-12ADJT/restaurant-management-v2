@@ -2,6 +2,8 @@ package com.fiap.restaurant_management_v2.application.gateways;
 
 import com.fiap.restaurant_management_v2.application.gateways.search.SearchQuery;
 import com.fiap.restaurant_management_v2.application.pagination.PageResult;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,6 +24,8 @@ public interface UserDsGateway {
     );
 
     Optional<UserDsResponseModel> findById(UUID id);
+
+    List<UserDsResponseModel> findAllByIds(Collection<UUID> ids);
 
     Optional<UserBindDsResponseModel> findAllById(UUID id);
 

@@ -8,6 +8,8 @@ import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseMode
 import com.fiap.restaurant_management_v2.application.gateways.search.SearchQuery;
 import com.fiap.restaurant_management_v2.application.pagination.PageResult;
 import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -46,6 +48,7 @@ public class UserDsGatewayImpl implements UserDsGateway {
         entity.setEmail(email);
         entity.setLogin(login);
         entity.setTaxIdentifier(taxIdentifier);
+        entity.setUpdatedAt(Instant.now());
         return UserEntityMapper.toDsResponse(jpaRepository.save(entity));
     }
 
@@ -97,6 +100,15 @@ public class UserDsGatewayImpl implements UserDsGateway {
         return jpaRepository
             .findByIdAndDeletedAtIsNull(id)
             .map(UserEntityMapper::toDsResponse);
+    }
+
+    @Override
+    public List<UserDsResponseModel> findAllByIds(Collection<UUID> ids) {
+        return jpaRepository
+            .findAllByIdInAndDeletedAtIsNull(ids)
+            .stream()
+            .map(UserEntityMapper::toDsResponse)
+            .toList();
     }
 
     @Override
