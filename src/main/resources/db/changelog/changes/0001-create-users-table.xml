@@ -28,6 +28,13 @@
                     uniqueConstraintName="uk_users_login"
                 />
             </column>
+            <column name="tax_identifier" type="VARCHAR(11)">
+                <constraints
+                    nullable="false"
+                    unique="true"
+                    uniqueConstraintName="uk_users_tax_identifier"
+                />
+            </column>
             <column name="password" type="VARCHAR(255)">
                 <constraints nullable="false" />
             </column>

@@ -3,12 +3,19 @@ package com.fiap.restaurant_management_v2.domain;
 import com.fiap.restaurant_management_v2.domain.exception.InvalidRestaurantException;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 public final class Restaurant {
+
+    // Regex pattern to validate Brazilian CNPJ Alphanumeric (Cadastro Nacional da Pessoa Jurídica) format
+    private static final Pattern TAX_IDENTIFIER_PATTERN = Pattern.compile(
+        "^([A-Z0-9]{12}[0-9]{2}|[A-Z0-9]{2}\\.[A-Z0-9]{3}\\.[A-Z0-9]{3}/[A-Z0-9]{4}-[0-9]{2})$"
+    );
 
     private final UUID id;
     private final String name;
     private final String address;
+    private final String taxIdentifier;
     private final String cuisineType;
     private final String openingHours;
     private final UUID ownerId;
@@ -17,6 +24,7 @@ public final class Restaurant {
         UUID id,
         String name,
         String address,
+        String taxIdentifier,
         String cuisineType,
         String openingHours,
         UUID ownerId
@@ -24,6 +32,7 @@ public final class Restaurant {
         this.id = id;
         this.name = name;
         this.address = address;
+        this.taxIdentifier = taxIdentifier;
         this.cuisineType = cuisineType;
         this.openingHours = openingHours;
         this.ownerId = ownerId;
@@ -32,6 +41,7 @@ public final class Restaurant {
     public static Restaurant create(
         String name,
         String address,
+        String taxIdentifier,
         String cuisineType,
         String openingHours,
         UUID ownerId
@@ -40,6 +50,7 @@ public final class Restaurant {
             UUID.randomUUID(),
             name,
             address,
+            taxIdentifier,
             cuisineType,
             openingHours,
             ownerId
@@ -52,6 +63,7 @@ public final class Restaurant {
         UUID id,
         String name,
         String address,
+        String taxIdentifier,
         String cuisineType,
         String openingHours,
         UUID ownerId
@@ -60,27 +72,58 @@ public final class Restaurant {
             Objects.requireNonNull(id, "id"),
             name,
             address,
+            taxIdentifier,
             cuisineType,
             openingHours,
             Objects.requireNonNull(ownerId, "ownerId")
         );
     }
 
-    private void validate() {
+    /**
+     * Valida os campos mutáveis (sem ownerId) — usado pelo update, que preserva/
+     * valida o dono à parte. Mesma ideia do {@code User.validateDetails}.
+     *
+     * @throws InvalidRestaurantException se algum invariante for violado
+     */
+    public static void validateDetails(
+        String name,
+        String address,
+        String taxIdentifier,
+        String cuisineType,
+        String openingHours
+    ) {
         if (isBlank(name)) {
-            throw new InvalidRestaurantException("Nome do restaurante é obrigatório");
+            throw new InvalidRestaurantException(
+                "Nome do restaurante é obrigatório"
+            );
         }
         if (isBlank(address)) {
             throw new InvalidRestaurantException("Endereço é obrigatório");
         }
         if (isBlank(cuisineType)) {
-            throw new InvalidRestaurantException("Tipo de cozinha é obrigatório");
+            throw new InvalidRestaurantException(
+                "Tipo de cozinha é obrigatório"
+            );
+        }
+        if (
+            isBlank(taxIdentifier) ||
+            !TAX_IDENTIFIER_PATTERN.matcher(taxIdentifier).matches()
+        ) {
+            throw new InvalidRestaurantException("CNPJ inválido.");
         }
         if (isBlank(openingHours)) {
-            throw new InvalidRestaurantException("Horário de funcionamento é obrigatório");
+            throw new InvalidRestaurantException(
+                "Horário de funcionamento é obrigatório"
+            );
         }
+    }
+
+    private void validate() {
+        validateDetails(name, address, taxIdentifier, cuisineType, openingHours);
         if (ownerId == null) {
-            throw new InvalidRestaurantException("Dono do restaurante é obrigatório");
+            throw new InvalidRestaurantException(
+                "Dono do restaurante é obrigatório"
+            );
         }
     }
 
@@ -88,12 +131,33 @@ public final class Restaurant {
         return value == null || value.trim().isEmpty();
     }
 
-    public UUID getId() { return id; }
-    public String getName() { return name; }
-    public String getAddress() { return address; }
-    public String getCuisineType() { return cuisineType; }
-    public String getOpeningHours() { return openingHours; }
-    public UUID getOwnerId() { return ownerId; }
+    public UUID getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public String getCuisineType() {
+        return cuisineType;
+    }
+
+    public String getOpeningHours() {
+        return openingHours;
+    }
+
+    public String getTaxIdentifier() {
+        return taxIdentifier;
+    }
+
+    public UUID getOwnerId() {
+        return ownerId;
+    }
 
     @Override
     public boolean equals(Object o) {

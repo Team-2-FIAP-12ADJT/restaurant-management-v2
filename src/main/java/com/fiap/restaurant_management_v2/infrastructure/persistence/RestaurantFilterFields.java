@@ -8,6 +8,7 @@ public class RestaurantFilterFields {
 
     static final Map<String, String> ALLOWED = Map.of(
         "name", "name",
-        "cuisineType", "cuisineType"
+        "cuisineType", "cuisineType",
+        "taxIdentifier", "taxIdentifier"
     );
 }

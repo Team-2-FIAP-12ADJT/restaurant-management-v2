@@ -4,6 +4,7 @@ public record GetAllUsersRequestModel(
     String name,
     String email,
     String login,
+    String taxIdentifier,
     int page,
     int size
 ) {}

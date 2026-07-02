@@ -5,5 +5,6 @@ public record UserViewModel(
     String id,
     String name,
     String email,
-    String login
+    String login,
+    String taxIdentifier
 ) {}

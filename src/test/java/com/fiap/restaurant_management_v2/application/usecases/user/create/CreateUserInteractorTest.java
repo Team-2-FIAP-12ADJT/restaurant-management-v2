@@ -1,5 +1,14 @@
 package com.fiap.restaurant_management_v2.application.usecases.user.create;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.fiap.restaurant_management_v2.application.exception.DuplicateUserException;
 import com.fiap.restaurant_management_v2.application.gateways.PasswordEncoderGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
@@ -13,17 +22,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class CreateUserInteractorTest {
+
     @Mock
     private UserDsGateway userDsGateway;
 
@@ -37,25 +38,50 @@ class CreateUserInteractorTest {
     @BeforeEach
     void setUp() {
         presenter = new CapturingPresenter();
-        interactor = new CreateUserInteractor(userDsGateway, passwordEncoder, presenter);
+        interactor = new CreateUserInteractor(
+            userDsGateway,
+            passwordEncoder,
+            presenter
+        );
     }
 
     @Test
-    @DisplayName("Cadastra com sucesso, codifica a senha e apresenta o resultado sem senha")
+    @DisplayName(
+        "Cadastra com sucesso, codifica a senha e apresenta o resultado sem senha"
+    )
     void createsUserHashingPassword() {
-        var request = new CreateUserRequestModel("Ada", "ada@example.com", "ada", "secret123");
+        var request = new CreateUserRequestModel(
+            "Ada",
+            "ada@example.com",
+            "ada",
+            "12345678901",
+            "secret123"
+        );
         when(userDsGateway.existsByEmail("ada@example.com")).thenReturn(false);
         when(userDsGateway.existsByLogin("ada")).thenReturn(false);
+        when(userDsGateway.existsByTaxIdentifier("12345678901")).thenReturn(
+            false
+        );
         when(passwordEncoder.encode("secret123")).thenReturn("hashed-secret");
-        when(userDsGateway.save(any(UserDsRequestModel.class))).thenAnswer(call -> {
-            UserDsRequestModel ds = call.getArgument(0);
-            return new UserDsResponseModel(ds.id(), ds.name(), ds.email(), ds.login());
-        });
+        when(userDsGateway.save(any(UserDsRequestModel.class))).thenAnswer(
+            call -> {
+                UserDsRequestModel ds = call.getArgument(0);
+                return new UserDsResponseModel(
+                    ds.id(),
+                    ds.name(),
+                    ds.email(),
+                    ds.login(),
+                    ds.taxIdentifier()
+                );
+            }
+        );
 
         interactor.execute(request);
 
         verify(passwordEncoder).encode("secret123");
-        ArgumentCaptor<UserDsRequestModel> captor = ArgumentCaptor.forClass(UserDsRequestModel.class);
+        ArgumentCaptor<UserDsRequestModel> captor = ArgumentCaptor.forClass(
+            UserDsRequestModel.class
+        );
         verify(userDsGateway).save(captor.capture());
         assertEquals("hashed-secret", captor.getValue().password());
 
@@ -68,10 +94,18 @@ class CreateUserInteractorTest {
     @Test
     @DisplayName("Email duplicado não persiste nem apresenta")
     void rejectsDuplicateEmail() {
-        var request = new CreateUserRequestModel("Ada", "ada@example.com", "ada", "secret123");
+        var request = new CreateUserRequestModel(
+            "Ada",
+            "ada@example.com",
+            "ada",
+            "12345678901",
+            "secret123"
+        );
         when(userDsGateway.existsByEmail("ada@example.com")).thenReturn(true);
 
-        assertThrows(DuplicateUserException.class, () -> interactor.execute(request));
+        assertThrows(DuplicateUserException.class, () ->
+            interactor.execute(request)
+        );
         verify(userDsGateway, never()).save(any());
         assertNull(presenter.response);
     }
@@ -79,16 +113,50 @@ class CreateUserInteractorTest {
     @Test
     @DisplayName("Login duplicado não persiste nem apresenta")
     void rejectsDuplicateLogin() {
-        var request = new CreateUserRequestModel("Ada", "ada@example.com", "ada", "secret123");
+        var request = new CreateUserRequestModel(
+            "Ada",
+            "ada@example.com",
+            "ada",
+            "12345678901",
+            "secret123"
+        );
         when(userDsGateway.existsByEmail("ada@example.com")).thenReturn(false);
         when(userDsGateway.existsByLogin("ada")).thenReturn(true);
 
-        assertThrows(DuplicateUserException.class, () -> interactor.execute(request));
+        assertThrows(DuplicateUserException.class, () ->
+            interactor.execute(request)
+        );
         verify(userDsGateway, never()).save(any());
         assertNull(presenter.response);
     }
 
-    private static final class CapturingPresenter implements CreateUserOutputBoundary {
+    @Test
+    @DisplayName("CPF duplicado não persiste nem apresenta")
+    void rejectsDuplicateTaxIdentifier() {
+        var request = new CreateUserRequestModel(
+            "Ada",
+            "ada@example.com",
+            "ada",
+            "12345678901",
+            "secret123"
+        );
+        when(userDsGateway.existsByEmail("ada@example.com")).thenReturn(false);
+        when(userDsGateway.existsByLogin("ada")).thenReturn(false);
+        when(userDsGateway.existsByTaxIdentifier("12345678901")).thenReturn(
+            true
+        );
+
+        assertThrows(DuplicateUserException.class, () ->
+            interactor.execute(request)
+        );
+        verify(userDsGateway, never()).save(any());
+        assertNull(presenter.response);
+    }
+
+    private static final class CapturingPresenter
+        implements CreateUserOutputBoundary
+    {
+
         private CreateUserResponseModel response;
 
         @Override

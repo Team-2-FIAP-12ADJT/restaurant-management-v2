@@ -1,5 +1,6 @@
 package com.fiap.restaurant_management_v2.infrastructure.persistence;
 
+import com.fiap.restaurant_management_v2.application.exception.RestaurantNotFoundException;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsResponseModel;
@@ -41,7 +42,20 @@ public class RestaurantDsGatewayImpl implements RestaurantDsGateway {
     }
 
     @Override
-    public PageResult<RestaurantDsResponseModel> findAll(SearchQuery query, int page, int size) {
+    public Optional<RestaurantDsResponseModel> findByTaxIdentifier(
+        String taxIdentifier
+    ) {
+        return jpaRepository
+            .findByTaxIdentifierAndDeletedAtIsNull(taxIdentifier)
+            .map(RestaurantEntityMapper::toDsResponse);
+    }
+
+    @Override
+    public PageResult<RestaurantDsResponseModel> findAll(
+        SearchQuery query,
+        int page,
+        int size
+    ) {
         Specification<RestaurantEntity> spec = SpecificationBuilder.build(
             query,
             RestaurantFilterFields.ALLOWED
@@ -56,10 +70,17 @@ public class RestaurantDsGatewayImpl implements RestaurantDsGateway {
             size,
             Sort.by("name").ascending()
         );
-        Page<RestaurantEntity> resultPage = jpaRepository.findAll(spec, pageRequest);
+        Page<RestaurantEntity> resultPage = jpaRepository.findAll(
+            spec,
+            pageRequest
+        );
 
         return new PageResult<>(
-            resultPage.getContent().stream().map(RestaurantEntityMapper::toDsResponse).toList(),
+            resultPage
+                .getContent()
+                .stream()
+                .map(RestaurantEntityMapper::toDsResponse)
+                .toList(),
             resultPage.getTotalElements(),
             page,
             size
@@ -77,5 +98,51 @@ public class RestaurantDsGatewayImpl implements RestaurantDsGateway {
     @Override
     public boolean existsById(UUID id) {
         return jpaRepository.existsByIdAndDeletedAtIsNull(id);
+    }
+
+    @Override
+    public boolean existsByCnpjExcludingId(String taxIdentifier, UUID id) {
+        return jpaRepository.existsByTaxIdentifierAndDeletedAtIsNullAndIdNot(
+            taxIdentifier,
+            id
+        );
+    }
+
+    @Override
+    public boolean existsByTaxIdentifier(String taxIdentifier) {
+        return jpaRepository.existsByTaxIdentifierAndDeletedAtIsNull(
+            taxIdentifier
+        );
+    }
+
+    @Override
+    public boolean existsByOwnerIdAndIsActive(UUID ownerId) {
+        return jpaRepository.existsByOwnerIdAndDeletedAtIsNull(ownerId);
+    }
+
+    @Override
+    public RestaurantDsResponseModel update(
+        UUID id,
+        String name,
+        String address,
+        String taxIdentifier,
+        String cuisineType,
+        String openingHours,
+        UUID ownerId
+    ) {
+        RestaurantEntity entity = jpaRepository
+            .findByIdAndDeletedAtIsNull(id)
+            .orElseThrow(() ->
+                new RestaurantNotFoundException("Restaurant not found")
+            );
+        entity.setName(name);
+        entity.setAddress(address);
+        entity.setTaxIdentifier(taxIdentifier);
+        entity.setCuisineType(cuisineType);
+        entity.setOpeningHours(openingHours);
+        entity.setOwner(UserEntity.builder().id(ownerId).build());
+        entity.setUpdatedAt(Instant.now());
+
+        return RestaurantEntityMapper.toDsResponse(jpaRepository.save(entity));
     }
 }

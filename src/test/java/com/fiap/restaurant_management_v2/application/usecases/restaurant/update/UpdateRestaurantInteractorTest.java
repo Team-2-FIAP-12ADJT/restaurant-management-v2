@@ -1,27 +1,31 @@
 package com.fiap.restaurant_management_v2.application.usecases.restaurant.update;
 
-import com.fiap.restaurant_management_v2.application.exception.DuplicateUserException;
-import com.fiap.restaurant_management_v2.application.exception.RestaurantNotFoundException;
-import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
-import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsRequestModel;
-import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsResponseModel;
-import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
-import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.fiap.restaurant_management_v2.application.exception.DuplicateRestaurantException;
+import com.fiap.restaurant_management_v2.application.exception.RestaurantNotFoundException;
+import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
+import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsResponseModel;
+import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
+import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
+import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
+import java.util.Optional;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class UpdateRestaurantInteractorTest {
@@ -32,69 +36,262 @@ class UpdateRestaurantInteractorTest {
     @Mock
     private UserDsGateway userDsGateway;
 
+    // Executor real que só roda a ação (espelha o boundary @Transactional).
+    private final TransactionalExecutor transactionalExecutor = Runnable::run;
+
     private CapturingPresenter presenter;
     private UpdateRestaurantInteractor interactor;
+
+    private UUID id;
+    private UUID ownerId;
+    private RestaurantDsResponseModel current;
+    private UserDsResponseModel owner;
 
     @BeforeEach
     void setUp() {
         presenter = new CapturingPresenter();
-        interactor = new UpdateRestaurantInteractor(restaurantDsGateway, userDsGateway, presenter);
+        interactor = new UpdateRestaurantInteractor(
+            transactionalExecutor,
+            restaurantDsGateway,
+            userDsGateway,
+            presenter
+        );
+        id = UUID.randomUUID();
+        ownerId = UUID.randomUUID();
+        current = new RestaurantDsResponseModel(
+            id,
+            "Bar Velho",
+            "Rua A",
+            "12345678000199",
+            "Japonesa",
+            "Seg-Sex 12h-22h",
+            ownerId
+        );
+        owner = new UserDsResponseModel(
+            ownerId,
+            "Dona Ada",
+            "dona@example.com",
+            "dona",
+            "12345678901"
+        );
     }
 
     @Test
-    @DisplayName("Atualiza restaurante com sucesso")
-    void updatesSuccessfully() {
-        var id = UUID.randomUUID();
-        var ownerId = UUID.randomUUID();
-        var request = new UpdateRestaurantRequestModel(id, "Bar", "Rua B", "Japonesa", "Seg-Sab 12h-22h", ownerId);
+    @DisplayName(
+        "PATCH parcial sem ownerId mantém o owner atual (não dá 404) e retorna o owner completo"
+    )
+    void partialUpdateKeepsOwnerAndReturnsFullOwner() {
+        when(restaurantDsGateway.findById(id)).thenReturn(Optional.of(current));
+        when(userDsGateway.findById(ownerId)).thenReturn(Optional.of(owner));
+        var saved = new RestaurantDsResponseModel(
+            id,
+            "Bar Novo",
+            "Rua A",
+            "12345678000199",
+            "Japonesa",
+            "Seg-Sex 12h-22h",
+            ownerId
+        );
+        when(
+            restaurantDsGateway.update(
+                id,
+                "Bar Novo",
+                "Rua A",
+                "12345678000199",
+                "Japonesa",
+                "Seg-Sex 12h-22h",
+                ownerId
+            )
+        ).thenReturn(saved);
 
-        when(restaurantDsGateway.existsById(id)).thenReturn(true);
-        when(userDsGateway.existsById(ownerId)).thenReturn(true);
-        when(restaurantDsGateway.save(any(RestaurantDsRequestModel.class))).thenAnswer(call -> {
-            RestaurantDsRequestModel ds = call.getArgument(0);
-            return new RestaurantDsResponseModel(ds.id(), ds.name(), ds.address(), ds.cuisineType(), ds.openingHours(), ds.ownerId());
-        });
+        // só name muda; ownerId null = mantém o current
+        interactor.execute(
+            new UpdateRestaurantRequestModel(
+                id,
+                "Bar Novo",
+                null,
+                null,
+                null,
+                null,
+                null
+            )
+        );
 
-        interactor.execute(request);
-
-        ArgumentCaptor<RestaurantDsRequestModel> captor = ArgumentCaptor.forClass(RestaurantDsRequestModel.class);
-        verify(restaurantDsGateway).save(captor.capture());
-        assertEquals("Bar", captor.getValue().name());
-        assertEquals(id, captor.getValue().id());
-
+        verify(restaurantDsGateway).update(
+            id,
+            "Bar Novo",
+            "Rua A",
+            "12345678000199",
+            "Japonesa",
+            "Seg-Sex 12h-22h",
+            ownerId
+        );
         assertNotNull(presenter.response);
-        assertEquals("Bar", presenter.response.name());
+        assertEquals("Bar Novo", presenter.response.name());
+        // owner completo na resposta (não só id)
+        assertEquals(owner, presenter.response.owner());
     }
 
     @Test
-    @DisplayName("Restaurante inexistente lança exceção")
-    void throwsWhenNotFound() {
-        var id = UUID.randomUUID();
-        var request = new UpdateRestaurantRequestModel(id, "Bar", "Rua B", "Japonesa", "Seg-Sab 12h-22h", UUID.randomUUID());
+    @DisplayName("Restaurante inexistente → RestaurantNotFoundException; não persiste")
+    void throwsWhenRestaurantNotFound() {
+        when(restaurantDsGateway.findById(id)).thenReturn(Optional.empty());
 
-        when(restaurantDsGateway.existsById(id)).thenReturn(false);
+        assertThrows(RestaurantNotFoundException.class, () ->
+            interactor.execute(
+                new UpdateRestaurantRequestModel(
+                    id,
+                    "X",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+            )
+        );
 
-        assertThrows(RestaurantNotFoundException.class, () -> interactor.execute(request));
-        verify(restaurantDsGateway, never()).save(any());
-        assertNull(presenter.response);
+        verify(restaurantDsGateway, never()).update(
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any()
+        );
     }
 
     @Test
-    @DisplayName("Owner inválido lança exceção")
+    @DisplayName("Owner (efetivo) inexistente → UserNotFoundException; não persiste")
     void throwsWhenOwnerNotFound() {
-        var id = UUID.randomUUID();
-        var ownerId = UUID.randomUUID();
-        var request = new UpdateRestaurantRequestModel(id, "Bar", "Rua B", "Japonesa", "Seg-Sab 12h-22h", ownerId);
+        UUID newOwnerId = UUID.randomUUID();
+        when(restaurantDsGateway.findById(id)).thenReturn(Optional.of(current));
+        when(userDsGateway.findById(newOwnerId)).thenReturn(Optional.empty());
 
-        when(restaurantDsGateway.existsById(id)).thenReturn(true);
-        when(userDsGateway.existsById(ownerId)).thenReturn(false);
+        assertThrows(UserNotFoundException.class, () ->
+            interactor.execute(
+                new UpdateRestaurantRequestModel(
+                    id,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    newOwnerId
+                )
+            )
+        );
 
-        assertThrows(DuplicateUserException.class, () -> interactor.execute(request));
-        verify(restaurantDsGateway, never()).save(any());
-        assertNull(presenter.response);
+        verify(restaurantDsGateway, never()).update(
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any()
+        );
     }
 
-    private static final class CapturingPresenter implements UpdateRestaurantOutputBoundary {
+    @Test
+    @DisplayName("Troca de owner persiste o novo ownerId e retorna o novo owner completo")
+    void changesOwnerPersistsAndReturnsNewOwner() {
+        UUID newOwnerId = UUID.randomUUID();
+        var newOwner = new UserDsResponseModel(
+            newOwnerId,
+            "Novo Dono",
+            "novo@example.com",
+            "novo",
+            "98765432100"
+        );
+        when(restaurantDsGateway.findById(id)).thenReturn(Optional.of(current));
+        when(userDsGateway.findById(newOwnerId)).thenReturn(
+            Optional.of(newOwner)
+        );
+        var saved = new RestaurantDsResponseModel(
+            id,
+            "Bar Velho",
+            "Rua A",
+            "12345678000199",
+            "Japonesa",
+            "Seg-Sex 12h-22h",
+            newOwnerId
+        );
+        when(
+            restaurantDsGateway.update(
+                id,
+                "Bar Velho",
+                "Rua A",
+                "12345678000199",
+                "Japonesa",
+                "Seg-Sex 12h-22h",
+                newOwnerId
+            )
+        ).thenReturn(saved);
+
+        interactor.execute(
+            new UpdateRestaurantRequestModel(
+                id,
+                null,
+                null,
+                null,
+                null,
+                null,
+                newOwnerId
+            )
+        );
+
+        verify(restaurantDsGateway).update(
+            eq(id),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            eq(newOwnerId)
+        );
+        assertEquals(newOwner, presenter.response.owner());
+    }
+
+    @Test
+    @DisplayName("CNPJ novo já em uso (excluindo self) → DuplicateRestaurantException")
+    void throwsWhenCnpjDuplicated() {
+        when(restaurantDsGateway.findById(id)).thenReturn(Optional.of(current));
+        when(userDsGateway.findById(ownerId)).thenReturn(Optional.of(owner));
+        when(
+            restaurantDsGateway.existsByCnpjExcludingId("99999999000199", id)
+        ).thenReturn(true);
+
+        assertThrows(DuplicateRestaurantException.class, () ->
+            interactor.execute(
+                new UpdateRestaurantRequestModel(
+                    id,
+                    null,
+                    null,
+                    "99999999000199",
+                    null,
+                    null,
+                    null
+                )
+            )
+        );
+
+        verify(restaurantDsGateway, never()).update(
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any()
+        );
+    }
+
+    private static final class CapturingPresenter
+        implements UpdateRestaurantOutputBoundary
+    {
+
         private UpdateRestaurantResponseModel response;
 
         @Override

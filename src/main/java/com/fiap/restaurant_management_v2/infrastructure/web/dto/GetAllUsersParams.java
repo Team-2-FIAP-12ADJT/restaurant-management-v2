@@ -4,11 +4,12 @@ public record GetAllUsersParams(
     String name,
     String email,
     String login,
+    String taxIdentifier,
     Integer page,
     Integer size
 ) {
     public GetAllUsersParams {
-        page = (page == null || page < 1) ? 1 : page;
-        size = (size == null || size < 1) ? 10 : Math.min(size, 100);
+        page = page == null || page < 1 ? 1 : page;
+        size = size == null || size < 1 ? 10 : Math.min(size, 100);
     }
 }

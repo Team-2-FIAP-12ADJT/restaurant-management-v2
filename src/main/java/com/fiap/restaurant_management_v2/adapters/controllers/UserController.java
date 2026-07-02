@@ -8,6 +8,8 @@ import com.fiap.restaurant_management_v2.application.usecases.user.get_all.GetAl
 import com.fiap.restaurant_management_v2.application.usecases.user.get_all.GetAllUsersRequestModel;
 import com.fiap.restaurant_management_v2.application.usecases.user.get_user_by_id.GetUserByIdInputBoundary;
 import com.fiap.restaurant_management_v2.application.usecases.user.get_user_by_id.GetUserByIdRequestModel;
+import com.fiap.restaurant_management_v2.application.usecases.user.update.UpdateUserInputBoundary;
+import com.fiap.restaurant_management_v2.application.usecases.user.update.UpdateUserRequestModel;
 import java.util.UUID;
 
 /**
@@ -21,27 +23,37 @@ public class UserController {
     private final GetAllUsersInputBoundary getAllUsers;
     private final GetUserByIdInputBoundary getUserById;
     private final DeleteUserByIdInputBoundary deleteUserById;
+    private final UpdateUserInputBoundary updateUser;
 
     public UserController(
         CreateUserInputBoundary createUser,
         GetAllUsersInputBoundary getAllUsers,
         GetUserByIdInputBoundary getUserById,
-        DeleteUserByIdInputBoundary deleteUserById
+        DeleteUserByIdInputBoundary deleteUserById,
+        UpdateUserInputBoundary updateUser
     ) {
         this.createUser = createUser;
         this.getAllUsers = getAllUsers;
         this.getUserById = getUserById;
         this.deleteUserById = deleteUserById;
+        this.updateUser = updateUser;
     }
 
     public void create(
         String name,
         String email,
         String login,
+        String taxIdentifier,
         String password
     ) {
         createUser.execute(
-            new CreateUserRequestModel(name, email, login, password)
+            new CreateUserRequestModel(
+                name,
+                email,
+                login,
+                taxIdentifier,
+                password
+            )
         );
     }
 
@@ -49,11 +61,19 @@ public class UserController {
         String name,
         String email,
         String login,
+        String taxIdentifier,
         int page,
         int size
     ) {
         getAllUsers.execute(
-            new GetAllUsersRequestModel(name, email, login, page, size)
+            new GetAllUsersRequestModel(
+                name,
+                email,
+                login,
+                taxIdentifier,
+                page,
+                size
+            )
         );
     }
 
@@ -63,5 +83,17 @@ public class UserController {
 
     public void delete(UUID id) {
         deleteUserById.execute(new DeleteUserByIdRequestModel(id));
+    }
+
+    public void update(
+        UUID id,
+        String name,
+        String email,
+        String login,
+        String taxIdentifier
+    ) {
+        updateUser.execute(
+            new UpdateUserRequestModel(id, name, email, login, taxIdentifier)
+        );
     }
 }

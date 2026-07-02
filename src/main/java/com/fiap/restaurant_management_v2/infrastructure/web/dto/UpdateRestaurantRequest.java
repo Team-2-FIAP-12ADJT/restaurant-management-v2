@@ -1,13 +1,32 @@
 package com.fiap.restaurant_management_v2.infrastructure.web.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.Pattern;
 import java.util.UUID;
 
 public record UpdateRestaurantRequest(
-    @NotBlank String name,
-    @NotBlank String address,
-    @NotBlank String cuisineType,
-    @NotBlank String openingHours,
-    @NotNull UUID ownerId
-) {}
+    @Nullable String name,
+    @Nullable String address,
+    @Nullable
+    @Pattern(
+        regexp = "^([A-Z0-9]{12}[0-9]{2}|[A-Z0-9]{2}\\.[A-Z0-9]{3}\\.[A-Z0-9]{3}/[A-Z0-9]{4}-[0-9]{2})$",
+        message = "Tax identifier must be a valid CNPJ (14 digits, with or without formatting)"
+    )
+    String taxIdentifier,
+    @Nullable String cuisineType,
+    @Nullable String openingHours,
+    @Nullable UUID ownerId
+) {
+    // PATCH parcial: campo ausente (null) = mantém. Construtor SÓ normaliza —
+    // CNPJ tira só a máscara (./-), preservando alfanumérico; formato vai p/
+    // @Pattern (valida o já normalizado; ignora null).
+    public UpdateRestaurantRequest {
+        name = name != null ? name.trim() : null;
+        address = address != null ? address.trim() : null;
+        cuisineType = cuisineType != null ? cuisineType.trim() : null;
+        openingHours = openingHours != null ? openingHours.trim() : null;
+        taxIdentifier = taxIdentifier != null
+            ? taxIdentifier.replaceAll("[./-]", "").toUpperCase()
+            : null;
+    }
+}

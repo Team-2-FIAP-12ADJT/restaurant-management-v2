@@ -14,7 +14,8 @@ public class GetUserByIdPresenter implements GetUserByIdOutputBoundary {
             response.id().toString(),
             response.name(),
             response.email(),
-            response.login()
+            response.login(),
+            CpfFormatter.format(response.taxIdentifier())
         );
     }
 

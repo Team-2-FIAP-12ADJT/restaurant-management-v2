@@ -5,5 +5,6 @@ public record CreateUserRequestModel(
     String name,
     String email,
     String login,
+    String taxIdentifier,
     String password
 ) {}

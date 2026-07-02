@@ -7,6 +7,7 @@ import com.fiap.restaurant_management_v2.adapters.presenters.GetAllRestaurantsPr
 import com.fiap.restaurant_management_v2.adapters.presenters.GetRestaurantByIdPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.UpdateRestaurantPresenter;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
+import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.usecases.restaurant.create.CreateRestaurantInputBoundary;
 import com.fiap.restaurant_management_v2.application.usecases.restaurant.create.CreateRestaurantInteractor;
@@ -28,7 +29,9 @@ import org.springframework.web.context.annotation.RequestScope;
 public class RestaurantConfiguration {
 
     @Bean
-    public RestaurantDsGateway restaurantDsGateway(RestaurantJpaRepository jpaRepository) {
+    public RestaurantDsGateway restaurantDsGateway(
+        RestaurantJpaRepository jpaRepository
+    ) {
         return new RestaurantDsGatewayImpl(jpaRepository);
     }
 
@@ -40,11 +43,13 @@ public class RestaurantConfiguration {
 
     @Bean
     public CreateRestaurantInputBoundary createRestaurantInputBoundary(
+        TransactionalExecutor transactionalExecutor,
         RestaurantDsGateway restaurantDsGateway,
         UserDsGateway userDsGateway,
         CreateRestaurantPresenter createRestaurantPresenter
     ) {
         return new CreateRestaurantInteractor(
+            transactionalExecutor,
             restaurantDsGateway,
             userDsGateway,
             createRestaurantPresenter
@@ -60,11 +65,13 @@ public class RestaurantConfiguration {
     @Bean
     public GetAllRestaurantsInputBoundary getAllRestaurantsInputBoundary(
         RestaurantDsGateway restaurantDsGateway,
+        UserDsGateway userDsGateway,
         GetAllRestaurantsPresenter getAllRestaurantsPresenter
     ) {
         return new GetAllRestaurantsInteractor(
             getAllRestaurantsPresenter,
-            restaurantDsGateway
+            restaurantDsGateway,
+            userDsGateway
         );
     }
 
@@ -77,10 +84,12 @@ public class RestaurantConfiguration {
     @Bean
     public GetRestaurantByIdInputBoundary getRestaurantByIdInputBoundary(
         RestaurantDsGateway restaurantDsGateway,
+        UserDsGateway userDsGateway,
         GetRestaurantByIdPresenter getRestaurantByIdPresenter
     ) {
         return new GetRestaurantByIdInteractor(
             restaurantDsGateway,
+            userDsGateway,
             getRestaurantByIdPresenter
         );
     }
@@ -93,11 +102,13 @@ public class RestaurantConfiguration {
 
     @Bean
     public UpdateRestaurantInputBoundary updateRestaurantInputBoundary(
+        TransactionalExecutor transactionalExecutor,
         RestaurantDsGateway restaurantDsGateway,
         UserDsGateway userDsGateway,
         UpdateRestaurantPresenter updateRestaurantPresenter
     ) {
         return new UpdateRestaurantInteractor(
+            transactionalExecutor,
             restaurantDsGateway,
             userDsGateway,
             updateRestaurantPresenter

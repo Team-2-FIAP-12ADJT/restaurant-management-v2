@@ -1,24 +1,31 @@
 package com.fiap.restaurant_management_v2.application.usecases.restaurant.create;
 
-import com.fiap.restaurant_management_v2.application.exception.DuplicateUserException;
+import com.fiap.restaurant_management_v2.application.exception.DuplicateRestaurantException;
+import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsResponseModel;
+import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
+import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
 import com.fiap.restaurant_management_v2.domain.Restaurant;
-import java.util.UUID;
 
-public class CreateRestaurantInteractor implements CreateRestaurantInputBoundary {
+public class CreateRestaurantInteractor
+    implements CreateRestaurantInputBoundary
+{
 
+    private final TransactionalExecutor transactionalExecutor;
     private final RestaurantDsGateway restaurantDsGateway;
     private final UserDsGateway userDsGateway;
     private final CreateRestaurantOutputBoundary outputBoundary;
 
     public CreateRestaurantInteractor(
+        TransactionalExecutor transactionalExecutor,
         RestaurantDsGateway restaurantDsGateway,
         UserDsGateway userDsGateway,
         CreateRestaurantOutputBoundary outputBoundary
     ) {
+        this.transactionalExecutor = transactionalExecutor;
         this.restaurantDsGateway = restaurantDsGateway;
         this.userDsGateway = userDsGateway;
         this.outputBoundary = outputBoundary;
@@ -26,18 +33,38 @@ public class CreateRestaurantInteractor implements CreateRestaurantInputBoundary
 
     @Override
     public void execute(CreateRestaurantRequestModel request) {
-        UUID ownerId = request.ownerId();
+        transactionalExecutor.execute(() -> {
+            restaurantDsGateway
+                .findByTaxIdentifier(request.taxIdentifier())
+                .ifPresent(restaurant -> {
+                    throw new DuplicateRestaurantException(
+                        "Restaurant with tax identifier already exists"
+                    );
+                });
 
-        if (!userDsGateway.existsById(ownerId)) {
-            throw new DuplicateUserException("Usuário dono do restaurante não encontrado");
-        }
+            UserDsResponseModel owner = userDsGateway
+                .findById(request.ownerId())
+                .orElseThrow(() ->
+                    new UserNotFoundException(
+                        "User not found with id: " + request.ownerId()
+                    )
+                );
 
+            createRestaurant(request, owner);
+        });
+    }
+
+    private void createRestaurant(
+        CreateRestaurantRequestModel request,
+        UserDsResponseModel owner
+    ) {
         Restaurant restaurant = Restaurant.create(
             request.name(),
             request.address(),
+            request.taxIdentifier(),
             request.cuisineType(),
             request.openingHours(),
-            ownerId
+            request.ownerId()
         );
 
         RestaurantDsResponseModel saved = restaurantDsGateway.save(
@@ -45,6 +72,7 @@ public class CreateRestaurantInteractor implements CreateRestaurantInputBoundary
                 restaurant.getId(),
                 restaurant.getName(),
                 restaurant.getAddress(),
+                restaurant.getTaxIdentifier(),
                 restaurant.getCuisineType(),
                 restaurant.getOpeningHours(),
                 restaurant.getOwnerId()
@@ -56,9 +84,10 @@ public class CreateRestaurantInteractor implements CreateRestaurantInputBoundary
                 saved.id(),
                 saved.name(),
                 saved.address(),
+                saved.taxIdentifier(),
                 saved.cuisineType(),
                 saved.openingHours(),
-                saved.ownerId()
+                owner
             )
         );
     }

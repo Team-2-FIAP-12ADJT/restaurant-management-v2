@@ -29,7 +29,8 @@ public class GetUserByIdInteractor implements GetUserByIdInputBoundary {
             user.id(),
             user.name(),
             user.email(),
-            user.login()
+            user.login(),
+            user.taxIdentifier()
         );
         outputBoundary.present(response);
     }

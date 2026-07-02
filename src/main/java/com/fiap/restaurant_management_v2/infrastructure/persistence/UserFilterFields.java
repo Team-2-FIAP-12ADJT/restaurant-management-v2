@@ -12,6 +12,8 @@ public class UserFilterFields {
         "email",
         "email",
         "login",
-        "login"
+        "login",
+        "taxIdentifier",
+        "taxIdentifier"
     );
 }

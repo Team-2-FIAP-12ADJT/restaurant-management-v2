@@ -8,9 +8,22 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 public interface RestaurantJpaRepository
     extends
         JpaRepository<RestaurantEntity, UUID>,
-        JpaSpecificationExecutor<RestaurantEntity> {
-
+        JpaSpecificationExecutor<RestaurantEntity>
+{
     boolean existsByIdAndDeletedAtIsNull(UUID id);
 
     Optional<RestaurantEntity> findByIdAndDeletedAtIsNull(UUID id);
+
+    Optional<RestaurantEntity> findByTaxIdentifierAndDeletedAtIsNull(
+        String taxIdentifier
+    );
+
+    boolean existsByTaxIdentifierAndDeletedAtIsNull(String taxIdentifier);
+
+    boolean existsByOwnerIdAndDeletedAtIsNull(UUID ownerId);
+
+    boolean existsByTaxIdentifierAndDeletedAtIsNullAndIdNot(
+        String taxIdentifier,
+        UUID id
+    );
 }

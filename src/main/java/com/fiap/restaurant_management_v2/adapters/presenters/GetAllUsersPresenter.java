@@ -33,7 +33,8 @@ public class GetAllUsersPresenter implements GetAllUsersOutputBoundary {
             summary.id().toString(),
             summary.name(),
             summary.email(),
-            summary.login()
+            summary.login(),
+            CpfFormatter.format(summary.taxIdentifier())
         );
     }
 }

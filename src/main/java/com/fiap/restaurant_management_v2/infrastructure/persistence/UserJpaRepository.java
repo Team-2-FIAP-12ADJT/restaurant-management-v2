@@ -1,5 +1,6 @@
 package com.fiap.restaurant_management_v2.infrastructure.persistence;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,7 +18,20 @@ public interface UserJpaRepository
 
     boolean existsByIdAndDeletedAtIsNull(UUID id);
 
+    boolean existsByEmailAndDeletedAtIsNullAndIdNot(String email, UUID id);
+
+    boolean existsByLoginAndDeletedAtIsNullAndIdNot(String login, UUID id);
+
+    boolean existsByTaxIdentifierAndDeletedAtIsNullAndIdNot(
+        String taxIdentifier,
+        UUID id
+    );
+
     Optional<UserEntity> findByIdAndDeletedAtIsNull(UUID id);
+
+    List<UserEntity> findAllByIdInAndDeletedAtIsNull(Collection<UUID> ids);
+
+    boolean existsByTaxIdentifierAndDeletedAtIsNull(String taxIdentifier);
 
     List<UserEntity> findAllByUserTypeEntityIdAndDeletedAtIsNull(UUID typeId);
 }

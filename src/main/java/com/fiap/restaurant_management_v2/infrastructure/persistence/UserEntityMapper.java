@@ -14,27 +14,28 @@ final class UserEntityMapper {
             .name(user.name())
             .email(user.email())
             .login(user.login())
+            .taxIdentifier(user.taxIdentifier())
             .password(user.password())
             .build();
     }
-
 
     static UserDsResponseModel toDsResponse(UserEntity entity) {
         return new UserDsResponseModel(
             entity.getId(),
             entity.getName(),
             entity.getEmail(),
-            entity.getLogin()
+            entity.getLogin(),
+            entity.getTaxIdentifier()
         );
     }
 
     static UserBindDsResponseModel toBindDsResponse(UserEntity entity) {
         return new UserBindDsResponseModel(
-                entity.getId(),
-                entity.getName(),
-                entity.getEmail(),
-                entity.getLogin(),
-                entity.getPassword()
+            entity.getId(),
+            entity.getName(),
+            entity.getEmail(),
+            entity.getLogin(),
+            entity.getPassword()
         );
     }
 }

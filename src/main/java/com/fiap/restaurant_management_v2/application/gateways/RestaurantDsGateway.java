@@ -10,9 +10,33 @@ public interface RestaurantDsGateway {
 
     Optional<RestaurantDsResponseModel> findById(UUID id);
 
-    PageResult<RestaurantDsResponseModel> findAll(SearchQuery query, int page, int size);
+    Optional<RestaurantDsResponseModel> findByTaxIdentifier(
+        String taxIdentifier
+    );
+
+    PageResult<RestaurantDsResponseModel> findAll(
+        SearchQuery query,
+        int page,
+        int size
+    );
 
     void deleteById(UUID id);
 
     boolean existsById(UUID id);
+
+    boolean existsByTaxIdentifier(String taxIdentifier);
+
+    boolean existsByCnpjExcludingId(String taxIdentifier, UUID id);
+
+    boolean existsByOwnerIdAndIsActive(UUID ownerId);
+
+    RestaurantDsResponseModel update(
+        UUID id,
+        String name,
+        String address,
+        String taxIdentifier,
+        String cuisineType,
+        String openingHours,
+        UUID ownerId
+    );
 }
