@@ -1,17 +1,8 @@
 package com.fiap.restaurant_management_v2.infrastructure.web;
 
-import com.fiap.restaurant_management_v2.application.exception.DuplicateRestaurantException;
-import com.fiap.restaurant_management_v2.application.exception.DuplicateUserException;
-import com.fiap.restaurant_management_v2.application.exception.DuplicateUserTypeException;
-import com.fiap.restaurant_management_v2.application.exception.InvalidFilterException;
-import com.fiap.restaurant_management_v2.application.exception.RestaurantNotFoundException;
-import com.fiap.restaurant_management_v2.application.exception.UserHasActiveRestaurantsException;
-import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
-import com.fiap.restaurant_management_v2.application.exception.UserTypeNotFoundException;
-import com.fiap.restaurant_management_v2.domain.exception.InvalidRestaurantException;
-import com.fiap.restaurant_management_v2.domain.exception.InvalidUserException;
-import com.fiap.restaurant_management_v2.domain.exception.InvalidUserTypeException;
-import com.fiap.restaurant_management_v2.domain.exception.InvalidUserTypeUuidException;
+import com.fiap.restaurant_management_v2.application.exception.*;
+import com.fiap.restaurant_management_v2.domain.exception.*;
+
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.HttpHeaders;
@@ -136,6 +127,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ProblemDetail.forStatusAndDetail(
             HttpStatus.NOT_FOUND,
             ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(MenuItemNotFoundException.class)
+    public ProblemDetail menuItemNotFound(MenuItemNotFoundException ex) {
+        return ProblemDetail.forStatusAndDetail(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(InvalidMenuItemException.class)
+    public ProblemDetail handleMenuItemInvalid(InvalidMenuItemException ex) {
+        return ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage()
         );
     }
 

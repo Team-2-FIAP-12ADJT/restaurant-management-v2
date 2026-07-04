@@ -604,12 +604,166 @@
           }
         }
       ]
+    },
+    {
+      "name": "Menu-items",
+      "item": [
+        {
+          "name": "Criação de item do cardápio",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/menu-items",
+              "protocol": "",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "menu-items"],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Arroz com Feijão\",\n  \"description\": \"Arroz com feijão da casa\",\n  \"price\": 25.90,\n  \"onlyLocal\": true,\n  \"photoPath\": \"/images/arroz-feijao.jpg\",\n  \"restaurantId\": \"{{restaurantId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Listagem de itens do cardápio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/menu-items?name=Arroz&page=1&size=10",
+              "protocol": "",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "menu-items"],
+              "query": [
+                { "key": "name", "value": "Arroz" },
+                { "key": "page", "value": "1" },
+                { "key": "size", "value": "10" }
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Busca de item do cardápio por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/menu-items/{{menuItemId}}",
+              "protocol": "",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "menu-items", "{{menuItemId}}"],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Listagem de itens por restaurante",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/menu-items/restaurant/{{restaurantId}}?page=1&size=10",
+              "protocol": "",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "menu-items", "restaurant", "{{restaurantId}}"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "size", "value": "10" }
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Atualização de item do cardápio",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/menu-items/{{menuItemId}}",
+              "protocol": "",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "menu-items", "{{menuItemId}}"],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Arroz com Feijão Especial\",\n  \"description\": \"Arroz com feijão, carne-seca e couve\",\n  \"price\": 35.90,\n  \"onlyLocal\": false,\n  \"photoPath\": \"/images/arroz-feijao-especial.jpg\",\n  \"restaurantId\": \"{{restaurantId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Exclusão de item do cardápio",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/menu-items/{{menuItemId}}",
+              "protocol": "",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "menu-items", "{{menuItemId}}"],
+              "query": [],
+              "variable": []
+            }
+          }
+        }
+      ]
     }
   ],
   "variable": [
     {
       "key": "baseUrl",
-      "value": "",
+      "value": "http://localhost:8080",
+      "type": "default"
+    },
+    {
+      "key": "restaurantId",
+      "value": "00000000-0000-0000-0000-000000000000",
+      "type": "default"
+    },
+    {
+      "key": "menuItemId",
+      "value": "00000000-0000-0000-0000-000000000000",
       "type": "default"
     }
   ]
