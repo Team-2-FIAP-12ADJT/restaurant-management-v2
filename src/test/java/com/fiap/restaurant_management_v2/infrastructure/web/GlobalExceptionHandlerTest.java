@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import com.fiap.restaurant_management_v2.application.exception.DuplicateRestaurantException;
 import com.fiap.restaurant_management_v2.application.exception.InvalidFilterException;
@@ -11,13 +12,14 @@ import com.fiap.restaurant_management_v2.application.exception.RestaurantNotFoun
 import com.fiap.restaurant_management_v2.application.exception.UserHasActiveRestaurantsException;
 import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
 import com.fiap.restaurant_management_v2.application.exception.UserTypeNotFoundException;
-import com.fiap.restaurant_management_v2.domain.exception.InvalidRestaurantException;
 import com.fiap.restaurant_management_v2.domain.exception.InvalidMenuItemException;
+import com.fiap.restaurant_management_v2.domain.exception.InvalidRestaurantException;
 import com.fiap.restaurant_management_v2.domain.exception.InvalidUserTypeException;
 import com.fiap.restaurant_management_v2.domain.exception.InvalidUserTypeUuidException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.Map;
+
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
@@ -38,9 +40,8 @@ class GlobalExceptionHandlerTest {
 
         var pd = handler.handleIllegalArgument(new IllegalArgumentException("uuid"));
 
-        assertNotNull(pd.getDetail());
-        assertTrue(pd.getDetail().contains("uuid"));
         assertEquals(HttpStatus.BAD_REQUEST.value(), pd.getStatus());
+        assert pd.getDetail() != null;
         assertTrue(pd.getDetail().contains("uuid"));
     }
 
@@ -74,6 +75,7 @@ class GlobalExceptionHandlerTest {
     @Test
     void handleMethodArgumentNotValidBuildsErrorsMap() throws NoSuchMethodException {
         var handler = new GlobalExceptionHandler();
+        WebRequest request = mock(WebRequest.class);
 
         var target = new Object();
         var binding = new BeanPropertyBindingResult(target, "object");
@@ -87,32 +89,34 @@ class GlobalExceptionHandlerTest {
             ex,
             new HttpHeaders(),
             HttpStatus.BAD_REQUEST,
-            (WebRequest) null
+            request
         );
 
         assertNotNull(resp);
-        assertInstanceOf(ProblemDetail.class, resp.getBody());
-        var pd = (ProblemDetail) resp.getBody();
+        ProblemDetail pd = assertInstanceOf(ProblemDetail.class, resp.getBody());
+        var properties = pd.getProperties();
+        assertNotNull(properties);
         assertEquals("Falha de validação", pd.getDetail());
-        Map<?, ?> errors = (Map<?, ?>) pd.getProperties().get("errors");
-        assertEquals(1, errors.size());
-        assertEquals("must not be blank", errors.get("name"));
+        assertEquals(
+            java.util.Map.of("name", "must not be blank"),
+            properties.get("errors")
+        );
     }
 
     @Test
     void handleHttpMessageNotReadableReturnsBadRequest() {
         var handler = new GlobalExceptionHandler();
+        WebRequest request = mock(WebRequest.class);
 
         ResponseEntity<Object> resp = handler.handleHttpMessageNotReadable(
             new HttpMessageNotReadableException("bad body", emptyInputMessage()),
             new HttpHeaders(),
             HttpStatus.BAD_REQUEST,
-            (WebRequest) null
+            request
         );
 
         assertNotNull(resp);
-        assertInstanceOf(ProblemDetail.class, resp.getBody());
-        var pd = (ProblemDetail) resp.getBody();
+        ProblemDetail pd = assertInstanceOf(ProblemDetail.class, resp.getBody());
         assertEquals(HttpStatus.BAD_REQUEST.value(), pd.getStatus());
         assertEquals("Corpo da requisição inválido ou malformado", pd.getDetail());
     }
@@ -122,12 +126,12 @@ class GlobalExceptionHandlerTest {
     private static HttpInputMessage emptyInputMessage() {
         return new HttpInputMessage() {
             @Override
-            public InputStream getBody() {
+            public @NonNull InputStream getBody() {
                 return new ByteArrayInputStream(new byte[0]);
             }
 
             @Override
-            public HttpHeaders getHeaders() {
+            public @NonNull HttpHeaders getHeaders() {
                 return new HttpHeaders();
             }
         };

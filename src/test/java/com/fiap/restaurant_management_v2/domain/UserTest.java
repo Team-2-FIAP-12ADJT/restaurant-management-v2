@@ -189,14 +189,14 @@ class UserTest {
         User user1 = User.restore(java.util.UUID.randomUUID(), "Ada", "ada@example.com", "ada", VALID_CPF, "hash");
         User user2 = User.restore(java.util.UUID.randomUUID(), "Ada", "ada@example.com", "ada", VALID_CPF, "hash");
 
-        assertFalse(user1.equals(user2));
+        assertNotEquals(user1, user2);
     }
 
     @Test
     @DisplayName("equals: not equal to null")
     void equalsWithNull() {
         User user = User.create("Ada", "ada@example.com", "ada", VALID_CPF, "secret123");
-        assertFalse(user.equals(null));
+        assertNotEquals(null, user);
     }
 
     @Test

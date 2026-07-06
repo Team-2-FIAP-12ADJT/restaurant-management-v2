@@ -87,7 +87,7 @@ class UserTypeTest {
     void equalsWithDifferentObjectType() {
         var type = UserType.create("admin");
 
-        assertNotEquals("admin", type);
+        assertNotEquals(new Object(), type);
     }
 
     @Test
@@ -95,6 +95,6 @@ class UserTypeTest {
     void equalsWithNull() {
         var type = UserType.create("admin");
 
-        assertFalse(type.equals(null));
+        assertNotEquals(null, type);
     }
 }

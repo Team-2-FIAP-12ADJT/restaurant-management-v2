@@ -14,6 +14,11 @@ import static org.mockito.Mockito.when;
 import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.search.SearchQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Map;
@@ -25,11 +30,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -76,8 +76,8 @@ class UserDsGatewayImplTest {
         var result = gateway.findAllByIds(List.of(id));
 
         assertEquals(1, result.size());
-        assertEquals(id, result.get(0).id());
-        assertEquals("Ada", result.get(0).name());
+        assertEquals(id, result.getFirst().id());
+        assertEquals("Ada", result.getFirst().name());
     }
 
     @Test
@@ -118,7 +118,7 @@ class UserDsGatewayImplTest {
     @Test
     void findAllBuildsPageResult() {
         var entity = userEntity(UUID.randomUUID());
-        when(repository.findAll(any(Specification.class), any(Pageable.class)))
+        when(repository.findAll(anySpecification(), any(Pageable.class)))
             .thenReturn(new PageImpl<>(List.of(entity)));
 
         var result = gateway.findAll(SearchQuery.empty(), 1, 10);
@@ -128,17 +128,14 @@ class UserDsGatewayImplTest {
         assertEquals(1, result.page());
         assertEquals(10, result.size());
 
-        @SuppressWarnings("unchecked")
         ArgumentCaptor<Specification<UserEntity>> specCaptor =
-            ArgumentCaptor.forClass(Specification.class);
+            specificationCaptor();
         verify(repository).findAll(specCaptor.capture(), any(Pageable.class));
 
-        @SuppressWarnings("unchecked")
-        Root<UserEntity> root = mock(Root.class);
-        CriteriaQuery<?> query = mock(CriteriaQuery.class);
+        Root<UserEntity> root = mockRoot();
+        CriteriaQuery<UserEntity> query = mockCriteriaQuery();
         CriteriaBuilder cb = mock(CriteriaBuilder.class);
-        @SuppressWarnings("unchecked")
-        Path<Object> deletedAtPath = mock(Path.class);
+        Path<Object> deletedAtPath = mockPath();
         Predicate predicate = mock(Predicate.class);
         when(root.get("deletedAt")).thenReturn(deletedAtPath);
         when(cb.isNull(deletedAtPath)).thenReturn(predicate);
@@ -216,5 +213,30 @@ class UserDsGatewayImplTest {
             .taxIdentifier("12345678901")
             .password("hash")
             .build();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Specification<UserEntity> anySpecification() {
+        return (Specification<UserEntity>) any(Specification.class);
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private static ArgumentCaptor<Specification<UserEntity>> specificationCaptor() {
+        return (ArgumentCaptor) ArgumentCaptor.forClass(Specification.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Root<T> mockRoot() {
+        return (Root<T>) mock(Root.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> CriteriaQuery<T> mockCriteriaQuery() {
+        return (CriteriaQuery<T>) mock(CriteriaQuery.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Path<T> mockPath() {
+        return (Path<T>) mock(Path.class);
     }
 }
