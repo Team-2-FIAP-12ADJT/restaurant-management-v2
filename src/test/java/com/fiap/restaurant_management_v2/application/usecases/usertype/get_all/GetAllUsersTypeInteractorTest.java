@@ -58,7 +58,7 @@ class GetAllUsersTypeInteractorTest {
         assertEquals(1, presenter.response.page().content().size());
         assertEquals(
             "admin",
-            presenter.response.page().content().get(0).userType()
+            presenter.response.page().content().getFirst().userType()
         );
     }
 

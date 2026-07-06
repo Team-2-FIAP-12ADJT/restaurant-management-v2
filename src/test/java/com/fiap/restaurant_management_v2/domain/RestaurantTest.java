@@ -1,15 +1,13 @@
 package com.fiap.restaurant_management_v2.domain;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import com.fiap.restaurant_management_v2.domain.exception.InvalidRestaurantException;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class RestaurantTest {
 
@@ -114,6 +112,21 @@ class RestaurantTest {
     }
 
     @Test
+    @DisplayName("Proibe CNPJ nulo")
+    void rejectsNullTaxIdentifier() {
+        assertThrows(InvalidRestaurantException.class, () ->
+            Restaurant.create(
+                "Foo",
+                "Rua A",
+                null,
+                "Italiana",
+                "Seg-Sex 11h-23h",
+                UUID.randomUUID()
+            )
+        );
+    }
+
+    @Test
     @DisplayName("Proíbe ownerId nulo")
     void rejectsNullOwnerId() {
         assertThrows(InvalidRestaurantException.class, () ->
@@ -161,5 +174,124 @@ class RestaurantTest {
                 UUID.randomUUID()
             )
         );
+    }
+
+    @Test
+    @DisplayName("equals: two restaurants with same id are equal")
+    void equalsWithSameId() {
+        var id = UUID.randomUUID();
+        var ownerId = UUID.randomUUID();
+        Restaurant r1 = Restaurant.restore(
+            id,
+            "Foo",
+            "Rua A",
+            VALID_CNPJ,
+            "Italiana",
+            "Seg-Sex 11h-23h",
+            ownerId
+        );
+        Restaurant r2 = Restaurant.restore(
+            id,
+            "Bar",
+            "Rua B",
+            "12345678000189",
+            "Brasileira",
+            "Qui-Sab 18h-02h",
+            UUID.randomUUID()
+        );
+
+        assertEquals(r1, r2);
+    }
+
+    @Test
+    @DisplayName("equals: same instance returns true")
+    void equalsWithSameInstance() {
+        Restaurant r = Restaurant.create(
+            "Foo",
+            "Rua A",
+            VALID_CNPJ,
+            "Italiana",
+            "Seg-Sex 11h-23h",
+            UUID.randomUUID()
+        );
+        assertEquals(r, r);
+    }
+
+    @Test
+    @DisplayName("equals: different ids are not equal")
+    void equalsWithDifferentIds() {
+        Restaurant r1 = Restaurant.create(
+            "Foo",
+            "Rua A",
+            VALID_CNPJ,
+            "Italiana",
+            "Seg-Sex 11h-23h",
+            UUID.randomUUID()
+        );
+        Restaurant r2 = Restaurant.create(
+            "Bar",
+            "Rua B",
+            "12345678000189",
+            "Brasileira",
+            "Qui-Sab 18h-02h",
+            UUID.randomUUID()
+        );
+
+        assertNotEquals(r1, r2);
+    }
+
+    @Test
+    @DisplayName("equals: not equal to object of different type")
+    void equalsWithDifferentType() {
+        Restaurant r = Restaurant.create(
+            "Foo",
+            "Rua A",
+            VALID_CNPJ,
+            "Italiana",
+            "Seg-Sex 11h-23h",
+            UUID.randomUUID()
+        );
+        assertNotEquals("not a restaurant", r);
+    }
+
+    @Test
+    @DisplayName("equals: not equal to null")
+    void equalsWithNull() {
+        Restaurant r = Restaurant.create(
+            "Foo",
+            "Rua A",
+            VALID_CNPJ,
+            "Italiana",
+            "Seg-Sex 11h-23h",
+            UUID.randomUUID()
+        );
+        assertEquals(false, r.equals(null));
+    }
+
+    @Test
+    @DisplayName("hashCode: same id produces same hash")
+    void hashCodeConsistentWithId() {
+        var id = UUID.randomUUID();
+        var ownerId = UUID.randomUUID();
+        Restaurant r1 = Restaurant.restore(
+            id,
+            "Foo",
+            "Rua A",
+            VALID_CNPJ,
+            "Italiana",
+            "Seg-Sex 11h-23h",
+            ownerId
+        );
+        Restaurant r2 = Restaurant.restore(
+            id,
+            "Bar",
+            "Rua B",
+            "12345678000189",
+            "Brasileira",
+            "Qui-Sab 18h-02h",
+            UUID.randomUUID()
+        );
+
+        assertEquals(r1.hashCode(), r2.hashCode());
     }
 }

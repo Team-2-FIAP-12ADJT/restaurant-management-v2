@@ -2,7 +2,6 @@ package com.fiap.restaurant_management_v2.application.usecases.restaurant.update
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -36,7 +35,7 @@ class UpdateRestaurantInteractorTest {
     @Mock
     private UserDsGateway userDsGateway;
 
-    // Executor real que só roda a ação (espelha o boundary @Transactional).
+    // Executor real que só roda a ação (espelha o contrato @Transactional).
     private final TransactionalExecutor transactionalExecutor = Runnable::run;
 
     private CapturingPresenter presenter;
@@ -104,7 +103,7 @@ class UpdateRestaurantInteractorTest {
             )
         ).thenReturn(saved);
 
-        // só name muda; ownerId null = mantém o current
+        // Só o nome muda; ownerId null = mantém o atual.
         interactor.execute(
             new UpdateRestaurantRequestModel(
                 id,
@@ -128,7 +127,7 @@ class UpdateRestaurantInteractorTest {
         );
         assertNotNull(presenter.response);
         assertEquals("Bar Novo", presenter.response.name());
-        // owner completo na resposta (não só id)
+        // Dono completo na resposta (não só id).
         assertEquals(owner, presenter.response.owner());
     }
 

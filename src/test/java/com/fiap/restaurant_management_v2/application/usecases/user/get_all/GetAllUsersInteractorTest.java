@@ -184,13 +184,60 @@ class GetAllUsersInteractorTest {
 
         verify(userDsGateway).findAll(queryCaptor.capture(), eq(1), eq(10));
         var criteria = queryCaptor.getValue().criteria();
-        // critério presente (não descartado) e SEM wildcard cru => não casa CPF
+        // Critério presente (não descartado) e SEM caractere curinga cru => não casa CPF.
         assertEquals(1, criteria.size());
         var value = criteria.getFirst().value();
         assertEquals("taxIdentifier", criteria.getFirst().field());
         assertEquals("NON-CPF", value);
         assertFalse(value.contains("%"));
         assertFalse(value.contains("_"));
+    }
+
+    @Test
+    @DisplayName("Ignora filtros blank para name/email/login (não monta criteria)")
+    void ignoresBlankLikeFilters() {
+        var pageResult = new PageResult<UserDsResponseModel>(
+            List.of(),
+            0L,
+            1,
+            10
+        );
+        var queryCaptor = ArgumentCaptor.forClass(SearchQuery.class);
+        when(
+            userDsGateway.findAll(any(SearchQuery.class), anyInt(), anyInt())
+        ).thenReturn(pageResult);
+
+        // Passa vários valores em branco para nome/email/login.
+        interactor.execute(
+            new GetAllUsersRequestModel("  ", "\t", "", null, 1, 10)
+        );
+
+        verify(userDsGateway).findAll(queryCaptor.capture(), eq(1), eq(10));
+        var criteria = queryCaptor.getValue().criteria();
+        assertEquals(0, criteria.size());
+    }
+
+    @Test
+    @DisplayName("Ignora filtro taxIdentifier blank (não monta criteria)")
+    void ignoresBlankTaxFilter() {
+        var pageResult = new PageResult<UserDsResponseModel>(
+            List.of(),
+            0L,
+            1,
+            10
+        );
+        var queryCaptor = ArgumentCaptor.forClass(SearchQuery.class);
+        when(
+            userDsGateway.findAll(any(SearchQuery.class), anyInt(), anyInt())
+        ).thenReturn(pageResult);
+
+        interactor.execute(
+            new GetAllUsersRequestModel(null, null, null, "  ", 1, 10)
+        );
+
+        verify(userDsGateway).findAll(queryCaptor.capture(), eq(1), eq(10));
+        var criteria = queryCaptor.getValue().criteria();
+        assertEquals(0, criteria.size());
     }
 
     private static final class CapturingPresenter
