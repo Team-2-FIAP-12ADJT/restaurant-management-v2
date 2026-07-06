@@ -73,4 +73,28 @@ class UserTypeTest {
         assertNotEquals(type1, type3);
         assertEquals(type1.hashCode(), type2.hashCode());
     }
+
+    @Test
+    @DisplayName("equals retorna true para a mesma instancia")
+    void equalsWithSameInstance() {
+        var type = UserType.create("admin");
+
+        assertEquals(type, type);
+    }
+
+    @Test
+    @DisplayName("equals retorna false para outro tipo de objeto")
+    void equalsWithDifferentObjectType() {
+        var type = UserType.create("admin");
+
+        assertNotEquals(type, new Object());
+    }
+
+    @Test
+    @DisplayName("equals retorna false para null")
+    void equalsWithNull() {
+        var type = UserType.create("admin");
+
+        assertNotEquals(null, type);
+    }
 }

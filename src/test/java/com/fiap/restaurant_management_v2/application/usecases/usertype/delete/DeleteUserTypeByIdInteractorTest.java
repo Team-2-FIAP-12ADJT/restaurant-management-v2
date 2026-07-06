@@ -30,12 +30,11 @@ class DeleteUserTypeByIdInteractorTest {
     @Mock
     private TransactionalExecutor transactionalExecutor;
 
-    private CapturingPresenter presenter;
     private DeleteUserTypeByIdInteractor interactor;
 
     @BeforeEach
     void setUp() {
-        presenter = new CapturingPresenter();
+        CapturingPresenter presenter = new CapturingPresenter();
         interactor = new DeleteUserTypeByIdInteractor(
                 userTypeDsGateway,
                 userDsGateway,
