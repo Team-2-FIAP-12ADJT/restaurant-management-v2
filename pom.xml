@@ -186,7 +186,8 @@
 				<artifactId>liquibase-maven-plugin</artifactId>
 				<version>${liquibase-maven-plugin.version}</version>
 				<configuration>
-					<changeLogFile>src/main/resources/db/changelog/db.changelog-master.xml</changeLogFile>
+					<changeLogFile
+                    >src/main/resources/db/changelog/db.changelog-master.xml</changeLogFile>
 					<diffTypes>tables,columns,primaryKeys,foreignKeys,indexes</diffTypes>
 					<propertyFile>src/main/resources/liquibase.properties</propertyFile>
 				</configuration>
@@ -228,6 +229,12 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
+				<configuration>
+					<!-- Override the parent's @{argLine} so integration tests use the
+					     IT-specific JaCoCo agent (jacoco-it.exec), keeping unit coverage
+					     (jacoco.exec) isolated for the coverage gate. -->
+					<argLine>@{failsafeArgLine}</argLine>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>
@@ -249,9 +256,23 @@
 				</configuration>
 				<executions>
 					<execution>
+						<id>prepare-agent</id>
 						<goals>
 							<goal>prepare-agent</goal>
 						</goals>
+						<configuration>
+							<destFile>${project.build.directory}/jacoco.exec</destFile>
+						</configuration>
+					</execution>
+					<execution>
+						<id>prepare-agent-integration</id>
+						<goals>
+							<goal>prepare-agent-integration</goal>
+						</goals>
+						<configuration>
+							<destFile>${project.build.directory}/jacoco-it.exec</destFile>
+							<propertyName>failsafeArgLine</propertyName>
+						</configuration>
 					</execution>
 					<execution>
 						<id>report</id>
@@ -259,6 +280,31 @@
 						<goals>
 							<goal>report</goal>
 						</goals>
+						<configuration>
+							<dataFile>${project.build.directory}/jacoco.exec</dataFile>
+						</configuration>
+					</execution>
+					<execution>
+						<id>check</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<dataFile>${project.build.directory}/jacoco.exec</dataFile>
+							<rules>
+								<rule>
+									<element>BUNDLE</element>
+									<limits>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.80</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
