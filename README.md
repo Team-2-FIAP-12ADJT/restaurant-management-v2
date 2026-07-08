@@ -79,6 +79,18 @@ Activates `application-dev.yaml`, which enables `show-sql`, `format_sql`, and `u
 ./mvnw verify
 ```
 
+### Coverage & static analysis
+
+Unit coverage is enforced by a JaCoCo gate: `./mvnw verify` **fails** if unit line coverage drops below 80%.
+
+Static analysis runs on SonarQube via the Maven plugin. With a SonarQube server up, run:
+
+```bash
+./mvnw clean verify sonar:sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.token=<token>
+```
+
+The token is passed on the command line (or `SONAR_TOKEN`) — never commit it.
+
 ### Build the JAR
 
 ```bash
@@ -115,9 +127,8 @@ cp src/main/resources/liquibase.properties.example src/main/resources/liquibase.
 | Java | 25 |
 | Spring Boot | 4.0.6 |
 | PostgreSQL | 18 |
-| Hibernate | 6 |
+| Hibernate | 7 |
 | Springdoc OpenAPI | 3.0.2 |
-| spring-dotenv | 4.0.0 |
 
 ### Environment Variables
 
@@ -161,4 +172,4 @@ Hibernate validates the schema against entities on startup but never creates or 
 
 ### Why environment variables for everything?
 
-`spring-dotenv` loads `.env` automatically — no manual `export` needed. This keeps secrets out of `application.yaml` and out of version control, while still allowing Docker Compose and local dev to share the same configuration source.
+Spring Boot loads `.env` natively via `spring.config.import: optional:file:.env[.properties]` in `application.yaml` — no dependency, no manual `export`. This keeps secrets out of `application.yaml` and out of version control, while still allowing Docker Compose and local dev to share the same configuration source. Real environment variables still take precedence over the `.env` file, so Docker and prod are unaffected.
