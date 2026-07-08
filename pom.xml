@@ -39,6 +39,14 @@
 		<postgresql.version>42.7.10</postgresql.version>
 		<jacoco.version>0.8.14</jacoco.version>
 		<archunit.version>1.4.1</archunit.version>
+		<sonar-maven-plugin.version>5.7.0.6970</sonar-maven-plugin.version>
+		<!-- Análise Sonar via `./mvnw sonar:sonar` (plugin resolve sources/tests/binaries/classpath do POM).
+		     host.url e token são passados por -D na linha de comando, nunca versionados aqui. -->
+		<sonar.projectKey>Restaurant-Management-V2</sonar.projectKey>
+		<sonar.projectName>Restaurant-Management-V2</sonar.projectName>
+		<sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+		<sonar.exclusions>**/Application.java</sonar.exclusions>
+		<sonar.coverage.exclusions>**/Application.java,**/config/OpenApiConfig.java</sonar.coverage.exclusions>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -307,6 +315,12 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<!-- Pina a versão do scanner Maven usado por `./mvnw sonar:sonar` (não gerido pelo Boot parent). -->
+			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>${sonar-maven-plugin.version}</version>
 			</plugin>
 		</plugins>
 	</build>
