@@ -1,6 +1,7 @@
 package com.fiap.restaurant_management_v2.application.usecases.menuitem.create;
 
 import com.fiap.restaurant_management_v2.application.exception.RestaurantNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsResponseModel;
@@ -13,15 +14,18 @@ public class CreateMenuItemInteractor implements CreateMenuItemInputBoundary {
     private final MenuItemDsGateway menuItemDsGateway;
     private final RestaurantDsGateway restaurantDsGateway;
     private final CreateMenuItemOutputBoundary outputBoundary;
+    private final LoggerGateway loggerGateway;
 
     public CreateMenuItemInteractor(
         MenuItemDsGateway menuItemDsGateway,
         RestaurantDsGateway restaurantDsGateway,
-        CreateMenuItemOutputBoundary outputBoundary
+        CreateMenuItemOutputBoundary outputBoundary,
+        LoggerGateway loggerGateway
     ) {
         this.menuItemDsGateway = menuItemDsGateway;
         this.restaurantDsGateway = restaurantDsGateway;
         this.outputBoundary = outputBoundary;
+        this.loggerGateway = loggerGateway;
     }
 
     @Override
@@ -53,6 +57,12 @@ public class CreateMenuItemInteractor implements CreateMenuItemInputBoundary {
                 menuItem.getPhotoPath(),
                 menuItem.getRestaurantId()
             )
+        );
+
+        loggerGateway.info(
+            "menu item created id={} restaurantId={}",
+            saved.id(),
+            saved.restaurantId()
         );
 
         outputBoundary.present(

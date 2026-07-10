@@ -6,6 +6,7 @@ import com.fiap.restaurant_management_v2.adapters.presenters.DeleteUserTypeByIdP
 import com.fiap.restaurant_management_v2.adapters.presenters.GetAllUsersTypePresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.GetUserTypeByIdPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.UpdateUserTypePresenter;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsGateway;
@@ -48,12 +49,13 @@ public class UserTypeConfiguration {
     @Bean
     public CreateUserTypeInputBoundary createUserTypeInputBoundary  (
             UserTypeDsGateway userTypeDsGateway,
-            CreateUserTypeOutputBoundary createUserTypePresenter
+            CreateUserTypeOutputBoundary createUserTypePresenter,
+            LoggerGateway loggerGateway
     ) {
         return new CreateUserTypeInteractor(
                 userTypeDsGateway,
-                createUserTypePresenter
-
+                createUserTypePresenter,
+                loggerGateway
         );
     }
 
@@ -94,9 +96,10 @@ public class UserTypeConfiguration {
     @Bean
     public UpdateUserTypeInputBoundary updateUserTypeInputBoundary(
             UserTypeDsGateway userTypeDsGateway,
-            UpdateUserTypePresenter updateUserTypePresenter
+            UpdateUserTypePresenter updateUserTypePresenter,
+            LoggerGateway loggerGateway
     ) {
-        return new UpdateUserTypeInteractor(userTypeDsGateway, updateUserTypePresenter);
+        return new UpdateUserTypeInteractor(userTypeDsGateway, updateUserTypePresenter, loggerGateway);
     }
 
     @Bean
@@ -110,22 +113,25 @@ public class UserTypeConfiguration {
             UserTypeDsGateway userTypeDsGateway,
             UserDsGateway userDsGateway,
             TransactionalExecutor transactionalExecutor,
-            DeleteUserTypeByIdOutputBoundary deleteUserTypeByIdPresenter
+            DeleteUserTypeByIdOutputBoundary deleteUserTypeByIdPresenter,
+            LoggerGateway loggerGateway
     ) {
         return new DeleteUserTypeByIdInteractor(
                 userTypeDsGateway,
                 userDsGateway,
                 transactionalExecutor,
-                deleteUserTypeByIdPresenter
+                deleteUserTypeByIdPresenter,
+                loggerGateway
         );
     }
 
     @Bean
     public BindUserTypeToUserInputBoundary bindUserTypeToUserInputBoundary(
             UserTypeDsGateway userTypeDsGateway,
-            UserDsGateway userDsGateway
+            UserDsGateway userDsGateway,
+            LoggerGateway loggerGateway
     ) {
-        return new BindUserTypeToUserInteractor(userTypeDsGateway, userDsGateway);
+        return new BindUserTypeToUserInteractor(userTypeDsGateway, userDsGateway, loggerGateway);
     }
 
 

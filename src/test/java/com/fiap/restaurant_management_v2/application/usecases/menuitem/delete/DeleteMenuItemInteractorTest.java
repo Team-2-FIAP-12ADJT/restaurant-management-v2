@@ -1,6 +1,7 @@
 package com.fiap.restaurant_management_v2.application.usecases.menuitem.delete;
 
 import com.fiap.restaurant_management_v2.application.exception.MenuItemNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsGateway;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,13 +23,16 @@ class DeleteMenuItemInteractorTest {
     @Mock
     private MenuItemDsGateway menuItemDsGateway;
 
+    @Mock
+    private LoggerGateway loggerGateway;
+
     private CapturingPresenter presenter;
     private DeleteMenuItemInteractor interactor;
 
     @BeforeEach
     void setUp() {
         presenter = new CapturingPresenter();
-        interactor = new DeleteMenuItemInteractor(menuItemDsGateway, presenter);
+        interactor = new DeleteMenuItemInteractor(menuItemDsGateway, presenter, loggerGateway);
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.fiap.restaurant_management_v2.application.usecases.menuitem.create;
 
 import com.fiap.restaurant_management_v2.application.exception.RestaurantNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsResponseModel;
@@ -33,6 +34,9 @@ class CreateMenuItemInteractorTest {
     @Mock
     private RestaurantDsGateway restaurantDsGateway;
 
+    @Mock
+    private LoggerGateway loggerGateway;
+
     private CapturingPresenter presenter;
     private CreateMenuItemInteractor interactor;
 
@@ -42,7 +46,8 @@ class CreateMenuItemInteractorTest {
         interactor = new CreateMenuItemInteractor(
             menuItemDsGateway,
             restaurantDsGateway,
-            presenter
+            presenter,
+            loggerGateway
         );
     }
 

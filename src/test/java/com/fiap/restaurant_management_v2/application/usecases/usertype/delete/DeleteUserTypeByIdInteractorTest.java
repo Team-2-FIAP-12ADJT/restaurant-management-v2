@@ -1,6 +1,7 @@
 package com.fiap.restaurant_management_v2.application.usecases.usertype.delete;
 
 import com.fiap.restaurant_management_v2.application.exception.UserTypeNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsGateway;
@@ -30,6 +31,9 @@ class DeleteUserTypeByIdInteractorTest {
     @Mock
     private TransactionalExecutor transactionalExecutor;
 
+    @Mock
+    private LoggerGateway loggerGateway;
+
     private DeleteUserTypeByIdInteractor interactor;
 
     @BeforeEach
@@ -39,7 +43,8 @@ class DeleteUserTypeByIdInteractorTest {
                 userTypeDsGateway,
                 userDsGateway,
                 transactionalExecutor,
-                presenter
+                presenter,
+                loggerGateway
         );
     }
 

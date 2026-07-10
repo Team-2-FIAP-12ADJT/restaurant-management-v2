@@ -8,12 +8,15 @@ public class CreateUserTypeInteractor implements CreateUserTypeInputBoundary {
 
     private final UserTypeDsGateway userTypeDsGateway;
     private final CreateUserTypeOutputBoundary createUserTypeOutputBoundary ;
+    private final LoggerGateway loggerGateway;
 
     public CreateUserTypeInteractor(UserTypeDsGateway userTypeDsGateway,
-                                    CreateUserTypeOutputBoundary createUserTypeOutputBoundary
+                                    CreateUserTypeOutputBoundary createUserTypeOutputBoundary,
+                                    LoggerGateway loggerGateway
     ) {
         this.userTypeDsGateway = userTypeDsGateway;
         this.createUserTypeOutputBoundary = createUserTypeOutputBoundary;
+        this.loggerGateway = loggerGateway;
     }
 
     @Override
@@ -31,6 +34,8 @@ public class CreateUserTypeInteractor implements CreateUserTypeInputBoundary {
                         userType.getUserType()
                 )
         );
+
+        loggerGateway.info("user type created id={}", saved.id());
 
         createUserTypeOutputBoundary.present(
                 new CreateUserTypeResponseModel(

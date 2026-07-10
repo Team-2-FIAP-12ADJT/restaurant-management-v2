@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fiap.restaurant_management_v2.application.exception.DuplicateUserException;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.PasswordEncoderGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsRequestModel;
@@ -31,6 +32,9 @@ class CreateUserInteractorTest {
     @Mock
     private PasswordEncoderGateway passwordEncoder;
 
+    @Mock
+    private LoggerGateway loggerGateway;
+
     private CapturingPresenter presenter;
 
     private CreateUserInteractor interactor;
@@ -41,7 +45,8 @@ class CreateUserInteractorTest {
         interactor = new CreateUserInteractor(
             userDsGateway,
             passwordEncoder,
-            presenter
+            presenter,
+            loggerGateway
         );
     }
 

@@ -2,6 +2,7 @@ package com.fiap.restaurant_management_v2.application.usecases.restaurant.create
 
 import com.fiap.restaurant_management_v2.application.exception.DuplicateRestaurantException;
 import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsResponseModel;
@@ -18,17 +19,20 @@ public class CreateRestaurantInteractor
     private final RestaurantDsGateway restaurantDsGateway;
     private final UserDsGateway userDsGateway;
     private final CreateRestaurantOutputBoundary outputBoundary;
+    private final LoggerGateway loggerGateway;
 
     public CreateRestaurantInteractor(
         TransactionalExecutor transactionalExecutor,
         RestaurantDsGateway restaurantDsGateway,
         UserDsGateway userDsGateway,
-        CreateRestaurantOutputBoundary outputBoundary
+        CreateRestaurantOutputBoundary outputBoundary,
+        LoggerGateway loggerGateway
     ) {
         this.transactionalExecutor = transactionalExecutor;
         this.restaurantDsGateway = restaurantDsGateway;
         this.userDsGateway = userDsGateway;
         this.outputBoundary = outputBoundary;
+        this.loggerGateway = loggerGateway;
     }
 
     @Override
@@ -78,6 +82,8 @@ public class CreateRestaurantInteractor
                 restaurant.getOwnerId()
             )
         );
+
+        loggerGateway.info("restaurant created id={}", saved.id());
 
         outputBoundary.present(
             new CreateRestaurantResponseModel(

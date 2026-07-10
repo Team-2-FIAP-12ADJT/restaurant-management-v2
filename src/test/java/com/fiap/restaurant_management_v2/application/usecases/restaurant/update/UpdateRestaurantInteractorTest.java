@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.fiap.restaurant_management_v2.application.exception.DuplicateRestaurantException;
 import com.fiap.restaurant_management_v2.application.exception.RestaurantNotFoundException;
 import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
@@ -38,6 +39,9 @@ class UpdateRestaurantInteractorTest {
     // Executor real que só roda a ação (espelha o contrato @Transactional).
     private final TransactionalExecutor transactionalExecutor = Runnable::run;
 
+    @Mock
+    private LoggerGateway loggerGateway;
+
     private CapturingPresenter presenter;
     private UpdateRestaurantInteractor interactor;
 
@@ -53,7 +57,8 @@ class UpdateRestaurantInteractorTest {
             transactionalExecutor,
             restaurantDsGateway,
             userDsGateway,
-            presenter
+            presenter,
+            loggerGateway
         );
         id = UUID.randomUUID();
         ownerId = UUID.randomUUID();

@@ -3,6 +3,7 @@ package com.fiap.restaurant_management_v2.application.usecases.restaurant.update
 import com.fiap.restaurant_management_v2.application.exception.DuplicateRestaurantException;
 import com.fiap.restaurant_management_v2.application.exception.RestaurantNotFoundException;
 import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
@@ -19,17 +20,20 @@ public class UpdateRestaurantInteractor
     private final RestaurantDsGateway restaurantDsGateway;
     private final UserDsGateway userDsGateway;
     private final UpdateRestaurantOutputBoundary outputBoundary;
+    private final LoggerGateway loggerGateway;
 
     public UpdateRestaurantInteractor(
         TransactionalExecutor transactionalExecutor,
         RestaurantDsGateway restaurantDsGateway,
         UserDsGateway userDsGateway,
-        UpdateRestaurantOutputBoundary outputBoundary
+        UpdateRestaurantOutputBoundary outputBoundary,
+        LoggerGateway loggerGateway
     ) {
         this.transactionalExecutor = transactionalExecutor;
         this.restaurantDsGateway = restaurantDsGateway;
         this.userDsGateway = userDsGateway;
         this.outputBoundary = outputBoundary;
+        this.loggerGateway = loggerGateway;
     }
 
     @Override
@@ -106,6 +110,8 @@ public class UpdateRestaurantInteractor
                 openingHours,
                 ownerId
             );
+
+            loggerGateway.info("restaurant updated id={}", saved.id());
 
             outputBoundary.present(
                 new UpdateRestaurantResponseModel(

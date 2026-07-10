@@ -1,6 +1,7 @@
 package com.fiap.restaurant_management_v2.application.usecases.user.create;
 
 import com.fiap.restaurant_management_v2.application.exception.DuplicateUserException;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.PasswordEncoderGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsRequestModel;
@@ -12,15 +13,18 @@ public class CreateUserInteractor implements CreateUserInputBoundary {
     private final UserDsGateway userDsGateway;
     private final PasswordEncoderGateway passwordEncoder;
     private final CreateUserOutputBoundary outputBoundary;
+    private final LoggerGateway loggerGateway;
 
     public CreateUserInteractor(
         UserDsGateway userDsGateway,
         PasswordEncoderGateway passwordEncoder,
-        CreateUserOutputBoundary outputBoundary
+        CreateUserOutputBoundary outputBoundary,
+        LoggerGateway loggerGateway
     ) {
         this.userDsGateway = userDsGateway;
         this.passwordEncoder = passwordEncoder;
         this.outputBoundary = outputBoundary;
+        this.loggerGateway = loggerGateway;
     }
 
     @Override
@@ -54,6 +58,8 @@ public class CreateUserInteractor implements CreateUserInputBoundary {
                 user.getPassword()
             )
         );
+
+        loggerGateway.info("user created id={}", saved.id());
 
         outputBoundary.present(
             new CreateUserResponseModel(

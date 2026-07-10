@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsResponseModel;
@@ -40,6 +41,9 @@ class CreateRestaurantInteractorTest {
 
     private final TransactionalExecutor transactionalExecutor = Runnable::run;
 
+    @Mock
+    private LoggerGateway loggerGateway;
+
     private CapturingPresenter presenter;
     private CreateRestaurantInteractor interactor;
 
@@ -53,7 +57,8 @@ class CreateRestaurantInteractorTest {
             transactionalExecutor,
             restaurantDsGateway,
             userDsGateway,
-            presenter
+            presenter,
+            loggerGateway
         );
         ownerId = UUID.randomUUID();
         owner = new UserDsResponseModel(

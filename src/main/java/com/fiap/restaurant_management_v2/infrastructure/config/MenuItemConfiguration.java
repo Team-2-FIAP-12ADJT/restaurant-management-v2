@@ -7,6 +7,7 @@ import com.fiap.restaurant_management_v2.adapters.presenters.GetAllMenuItemsPres
 import com.fiap.restaurant_management_v2.adapters.presenters.GetMenuItemByIdPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.GetMenuItemsByRestaurantPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.UpdateMenuItemPresenter;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.usecases.menuitem.create.CreateMenuItemInputBoundary;
@@ -47,12 +48,14 @@ public class MenuItemConfiguration {
     public CreateMenuItemInputBoundary createMenuItemInputBoundary(
         MenuItemDsGateway menuItemDsGateway,
         RestaurantDsGateway restaurantDsGateway,
-        CreateMenuItemPresenter presenter
+        CreateMenuItemPresenter presenter,
+        LoggerGateway loggerGateway
     ) {
         return new CreateMenuItemInteractor(
             menuItemDsGateway,
             restaurantDsGateway,
-            presenter
+            presenter,
+            loggerGateway
         );
     }
 
@@ -113,12 +116,14 @@ public class MenuItemConfiguration {
     public UpdateMenuItemInputBoundary updateMenuItemInputBoundary(
         MenuItemDsGateway menuItemDsGateway,
         RestaurantDsGateway restaurantDsGateway,
-        UpdateMenuItemPresenter presenter
+        UpdateMenuItemPresenter presenter,
+        LoggerGateway loggerGateway
     ) {
         return new UpdateMenuItemInteractor(
             menuItemDsGateway,
             restaurantDsGateway,
-            presenter
+            presenter,
+            loggerGateway
         );
     }
 
@@ -131,9 +136,10 @@ public class MenuItemConfiguration {
     @Bean
     public DeleteMenuItemInputBoundary deleteMenuItemInputBoundary(
         MenuItemDsGateway menuItemDsGateway,
-        DeleteMenuItemPresenter presenter
+        DeleteMenuItemPresenter presenter,
+        LoggerGateway loggerGateway
     ) {
-        return new DeleteMenuItemInteractor(menuItemDsGateway, presenter);
+        return new DeleteMenuItemInteractor(menuItemDsGateway, presenter, loggerGateway);
     }
 
     @Bean

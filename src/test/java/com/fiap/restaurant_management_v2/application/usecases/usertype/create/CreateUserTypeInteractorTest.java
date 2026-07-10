@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.fiap.restaurant_management_v2.application.exception.DuplicateUserTypeException;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsResponseModel;
@@ -21,13 +22,16 @@ class CreateUserTypeInteractorTest {
     @Mock
     private UserTypeDsGateway userTypeDsGateway;
 
+    @Mock
+    private LoggerGateway loggerGateway;
+
     private CapturingPresenter presenter;
     private CreateUserTypeInteractor interactor;
 
     @BeforeEach
     void setUp() {
         presenter = new CapturingPresenter();
-        interactor = new CreateUserTypeInteractor(userTypeDsGateway, presenter);
+        interactor = new CreateUserTypeInteractor(userTypeDsGateway, presenter, loggerGateway);
     }
 
     @Test

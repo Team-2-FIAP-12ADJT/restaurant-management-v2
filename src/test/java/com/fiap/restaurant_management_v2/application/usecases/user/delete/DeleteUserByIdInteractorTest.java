@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.fiap.restaurant_management_v2.application.exception.UserHasActiveRestaurantsException;
 import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
@@ -30,6 +31,9 @@ class DeleteUserByIdInteractorTest {
     @Mock
     private RestaurantDsGateway restaurantDsGateway;
 
+    @Mock
+    private LoggerGateway loggerGateway;
+
     private CapturingPresenter presenter;
     private DeleteUserByIdInteractor interactor;
 
@@ -39,7 +43,8 @@ class DeleteUserByIdInteractorTest {
         interactor = new DeleteUserByIdInteractor(
             userDsGateway,
             restaurantDsGateway,
-            presenter
+            presenter,
+            loggerGateway
         );
     }
 
