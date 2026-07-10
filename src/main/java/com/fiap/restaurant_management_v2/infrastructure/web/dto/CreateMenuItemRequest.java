@@ -17,4 +17,12 @@ public record CreateMenuItemRequest(
     @NotNull Boolean onlyLocal,
     @NotBlank @Size(max = MenuItem.MAX_PHOTO_PATH_LENGTH) String photoPath,
     @NotNull UUID restaurantId
-) {}
+) {
+    // Normaliza na borda (trim), espelhando Create User/Restaurant. Campo em
+    // branco vira "" → @NotBlank dispara → 400.
+    public CreateMenuItemRequest {
+        name = name != null ? name.trim() : null;
+        description = description != null ? description.trim() : null;
+        photoPath = photoPath != null ? photoPath.trim() : null;
+    }
+}
