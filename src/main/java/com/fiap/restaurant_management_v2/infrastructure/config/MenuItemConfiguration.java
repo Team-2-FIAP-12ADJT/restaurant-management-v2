@@ -47,12 +47,14 @@ public class MenuItemConfiguration {
 
     @Bean
     public CreateMenuItemInputBoundary createMenuItemInputBoundary(
+        TransactionalExecutor transactionalExecutor,
         MenuItemDsGateway menuItemDsGateway,
         RestaurantDsGateway restaurantDsGateway,
         CreateMenuItemPresenter presenter,
         LoggerGateway loggerGateway
     ) {
         return new CreateMenuItemInteractor(
+            transactionalExecutor,
             menuItemDsGateway,
             restaurantDsGateway,
             presenter,
