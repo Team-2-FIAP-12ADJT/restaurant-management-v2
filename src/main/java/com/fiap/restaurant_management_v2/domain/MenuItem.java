@@ -58,6 +58,28 @@ public final class MenuItem {
         return menuItem;
     }
 
+    public static MenuItem update(
+        UUID id,
+        String name,
+        String description,
+        BigDecimal price,
+        boolean onlyLocal,
+        String photoPath,
+        UUID restaurantId
+    ) {
+        MenuItem menuItem = new MenuItem(
+            Objects.requireNonNull(id, "id"),
+            name,
+            description,
+            price,
+            onlyLocal,
+            photoPath,
+            restaurantId
+        );
+        menuItem.validate();
+        return menuItem;
+    }
+
     public static MenuItem restore(
         UUID id,
         String name,
@@ -79,6 +101,10 @@ public final class MenuItem {
     }
 
     private void validate() {
+        validateDetails();
+    }
+
+    private void validateDetails() {
         if (isBlank(name)) {
             throw new InvalidMenuItemException("Nome do item do cardápio é obrigatório");
         }

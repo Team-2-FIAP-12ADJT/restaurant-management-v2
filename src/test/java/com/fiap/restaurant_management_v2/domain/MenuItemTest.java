@@ -166,6 +166,62 @@ class MenuItemTest {
     }
 
     @Test
+    @DisplayName("Update valida e preserva o id fornecido")
+    void updatesWithProvidedIdAndValidates() {
+        UUID id = UUID.randomUUID();
+
+        MenuItem menuItem = MenuItem.update(
+            id,
+            "Risoto especial",
+            "Risoto de cogumelos frescos",
+            new BigDecimal("49.90"),
+            false,
+            "/images/risoto-especial.jpg",
+            RESTAURANT_ID
+        );
+
+        assertEquals(id, menuItem.getId());
+        assertEquals("Risoto especial", menuItem.getName());
+        assertEquals(RESTAURANT_ID, menuItem.getRestaurantId());
+    }
+
+    @Test
+    @DisplayName("Update rejeita dados inválidos")
+    void updateRejectsInvalidData() {
+        UUID id = UUID.randomUUID();
+
+        assertThrows(
+            InvalidMenuItemException.class,
+            () -> MenuItem.update(
+                id,
+                "  ",
+                "Descricao",
+                VALID_PRICE,
+                false,
+                "/images/item.jpg",
+                RESTAURANT_ID
+            )
+        );
+    }
+
+    @Test
+    @DisplayName("Update rejeita id nulo")
+    void updateRejectsNullId() {
+        assertThrows(
+            NullPointerException.class,
+            () -> MenuItem.update(
+                null,
+                "Item",
+                "Descricao",
+                VALID_PRICE,
+                false,
+                "/images/item.jpg",
+                RESTAURANT_ID
+            )
+        );
+    }
+
+    @Test
     @DisplayName("Restore preserva id e restaurantId")
     void restoresWithoutRegeneratingId() {
         UUID id = UUID.randomUUID();
