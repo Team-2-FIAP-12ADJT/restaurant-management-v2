@@ -33,7 +33,8 @@ class CleanArchitectureTest {
             "jakarta..",
             "org.hibernate..",
             "com.fasterxml.jackson..",
-            "tools.jackson..")
+            "tools.jackson..",
+            "org.slf4j..")
         .as("circles 1-3 (domain, application, interface adapters) must not depend on any framework")
         .allowEmptyShould(true);
 }
