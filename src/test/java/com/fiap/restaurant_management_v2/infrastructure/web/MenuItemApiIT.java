@@ -23,8 +23,8 @@ import org.springframework.web.context.WebApplicationContext;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -128,7 +128,7 @@ class MenuItemApiIT extends IntegrationTestBase {
 
         mockMvc
             .perform(
-                put(ApiPaths.MENU_ITEMS + "/" + id)
+                patch(ApiPaths.MENU_ITEMS + "/" + id)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(updateBody(restaurantId))
             )
@@ -229,11 +229,76 @@ class MenuItemApiIT extends IntegrationTestBase {
 
         mockMvc
             .perform(
-                put(ApiPaths.MENU_ITEMS + "/" + id)
+                patch(ApiPaths.MENU_ITEMS + "/" + id)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(body)
             )
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("PATCH parcial altera só o campo enviado e faz trim")
+    void partialUpdateChangesOnlySentFieldWithTrim() throws Exception {
+        MvcResult createResult = mockMvc
+            .perform(
+                post(ApiPaths.MENU_ITEMS)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(createBody(restaurantId))
+            )
+            .andExpect(status().isCreated())
+            .andReturn();
+        UUID id = UUID.fromString(
+            JsonPath.read(createResult.getResponse().getContentAsString(), "$.id")
+        );
+
+        // Só name (com espaços nas pontas); demais campos mantidos.
+        mockMvc
+            .perform(
+                patch(ApiPaths.MENU_ITEMS + "/" + id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"name\": \"  Risoto trufado  \"}")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.name").value("Risoto trufado"))
+            .andExpect(jsonPath("$.description").value("Risoto de cogumelos"))
+            .andExpect(jsonPath("$.price").value(39.90))
+            .andExpect(jsonPath("$.onlyLocal").value(true));
+
+        mockMvc.perform(get(ApiPaths.MENU_ITEMS + "/" + id))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.name").value("Risoto trufado"))
+            .andExpect(jsonPath("$.description").value("Risoto de cogumelos"));
+    }
+
+    @Test
+    @DisplayName("PATCH em item soft-deleted retorna 404 e não ressuscita")
+    void patchOnSoftDeletedReturnsNotFoundAndDoesNotResurrect()
+        throws Exception {
+        MvcResult createResult = mockMvc
+            .perform(
+                post(ApiPaths.MENU_ITEMS)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(createBody(restaurantId))
+            )
+            .andExpect(status().isCreated())
+            .andReturn();
+        UUID id = UUID.fromString(
+            JsonPath.read(createResult.getResponse().getContentAsString(), "$.id")
+        );
+
+        mockMvc.perform(delete(ApiPaths.MENU_ITEMS + "/" + id))
+            .andExpect(status().isNoContent());
+
+        mockMvc
+            .perform(
+                patch(ApiPaths.MENU_ITEMS + "/" + id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"name\": \"Tentativa de resurreição\"}")
+            )
+            .andExpect(status().isNotFound());
+
+        MenuItemEntity stored = menuItemJpaRepository.findById(id).orElseThrow();
+        assertNotNull(stored.getDeletedAt());
     }
 
     @Test
