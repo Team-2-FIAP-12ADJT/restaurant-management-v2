@@ -7,22 +7,27 @@ import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
+import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
 import com.fiap.restaurant_management_v2.domain.MenuItem;
+import java.math.BigDecimal;
 import java.util.UUID;
 
 public class UpdateMenuItemInteractor implements UpdateMenuItemInputBoundary {
 
+    private final TransactionalExecutor transactionalExecutor;
     private final MenuItemDsGateway menuItemDsGateway;
     private final RestaurantDsGateway restaurantDsGateway;
     private final UpdateMenuItemOutputBoundary outputBoundary;
     private final LoggerGateway loggerGateway;
 
     public UpdateMenuItemInteractor(
+        TransactionalExecutor transactionalExecutor,
         MenuItemDsGateway menuItemDsGateway,
         RestaurantDsGateway restaurantDsGateway,
         UpdateMenuItemOutputBoundary outputBoundary,
         LoggerGateway loggerGateway
     ) {
+        this.transactionalExecutor = transactionalExecutor;
         this.menuItemDsGateway = menuItemDsGateway;
         this.restaurantDsGateway = restaurantDsGateway;
         this.outputBoundary = outputBoundary;
@@ -31,54 +36,84 @@ public class UpdateMenuItemInteractor implements UpdateMenuItemInputBoundary {
 
     @Override
     public void execute(UpdateMenuItemRequestModel request) {
-        UUID id = request.id();
-        UUID restaurantId = request.restaurantId();
+        transactionalExecutor.execute(() -> {
+            MenuItemDsResponseModel current = menuItemDsGateway
+                .findById(request.id())
+                .orElseThrow(() ->
+                    new MenuItemNotFoundException(
+                        "Item do cardápio não encontrado: " + request.id()
+                    )
+                );
 
-        if (!menuItemDsGateway.existsById(id)) {
-            throw new MenuItemNotFoundException(
-                "Item do cardápio não encontrado: " + id
+            // PATCH parcial: campo omitido (null) = mantém o atual.
+            String name =
+                request.name() != null ? request.name() : current.name();
+            String description =
+                request.description() != null
+                    ? request.description()
+                    : current.description();
+            BigDecimal price =
+                request.price() != null ? request.price() : current.price();
+            boolean onlyLocal =
+                request.onlyLocal() != null
+                    ? request.onlyLocal()
+                    : current.onlyLocal();
+            String photoPath =
+                request.photoPath() != null
+                    ? request.photoPath()
+                    : current.photoPath();
+            UUID restaurantId =
+                request.restaurantId() != null
+                    ? request.restaurantId()
+                    : current.restaurantId();
+
+            // Valida existência do restaurante só quando enviado (troca).
+            if (
+                request.restaurantId() != null &&
+                !restaurantDsGateway.existsById(restaurantId)
+            ) {
+                throw new RestaurantNotFoundException(
+                    "Restaurante não encontrado: " + restaurantId
+                );
+            }
+
+            // Invariante de domínio sobre o estado MESCLADO (não o request cru):
+            // omitido = current (mantém); presente-blank/inválido → 400.
+            MenuItem menuItem = MenuItem.update(
+                request.id(),
+                name,
+                description,
+                price,
+                onlyLocal,
+                photoPath,
+                restaurantId
             );
-        }
 
-        if (!restaurantDsGateway.existsById(restaurantId)) {
-            throw new RestaurantNotFoundException(
-                "Restaurante não encontrado: " + restaurantId
+            MenuItemDsResponseModel saved = menuItemDsGateway.update(
+                new MenuItemDsRequestModel(
+                    menuItem.getId(),
+                    menuItem.getName(),
+                    menuItem.getDescription(),
+                    menuItem.getPrice(),
+                    menuItem.isOnlyLocal(),
+                    menuItem.getPhotoPath(),
+                    menuItem.getRestaurantId()
+                )
             );
-        }
 
-        MenuItem menuItem = MenuItem.create(
-            request.name(),
-            request.description(),
-            request.price(),
-            request.onlyLocal(),
-            request.photoPath(),
-            restaurantId
-        );
+            loggerGateway.info("menu item updated id={}", saved.id());
 
-        MenuItemDsResponseModel saved = menuItemDsGateway.save(
-            new MenuItemDsRequestModel(
-                id,
-                menuItem.getName(),
-                menuItem.getDescription(),
-                menuItem.getPrice(),
-                menuItem.isOnlyLocal(),
-                menuItem.getPhotoPath(),
-                menuItem.getRestaurantId()
-            )
-        );
-
-        loggerGateway.info("menu item updated id={}", saved.id());
-
-        outputBoundary.present(
-            new UpdateMenuItemResponseModel(
-                saved.id(),
-                saved.name(),
-                saved.description(),
-                saved.price(),
-                saved.onlyLocal(),
-                saved.photoPath(),
-                saved.restaurantId()
-            )
-        );
+            outputBoundary.present(
+                new UpdateMenuItemResponseModel(
+                    saved.id(),
+                    saved.name(),
+                    saved.description(),
+                    saved.price(),
+                    saved.onlyLocal(),
+                    saved.photoPath(),
+                    saved.restaurantId()
+                )
+            );
+        });
     }
 }
