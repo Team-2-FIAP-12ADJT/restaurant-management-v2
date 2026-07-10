@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fiap.restaurant_management_v2.application.exception.DuplicateRestaurantException;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
@@ -30,6 +31,9 @@ class CreateRestaurantInteractorAdditionalTest {
 
     private final TransactionalExecutor transactionalExecutor = Runnable::run;
 
+    @Mock
+    private LoggerGateway loggerGateway;
+
     private CreateRestaurantInteractor interactor;
 
     private UUID ownerId;
@@ -41,7 +45,8 @@ class CreateRestaurantInteractorAdditionalTest {
             transactionalExecutor,
             restaurantDsGateway,
             userDsGateway,
-                presenter
+                presenter,
+            loggerGateway
         );
         ownerId = UUID.randomUUID();
     }

@@ -1,19 +1,23 @@
 package com.fiap.restaurant_management_v2.application.usecases.menuitem.delete;
 
 import com.fiap.restaurant_management_v2.application.exception.MenuItemNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsGateway;
 
 public class DeleteMenuItemInteractor implements DeleteMenuItemInputBoundary {
 
     private final MenuItemDsGateway menuItemDsGateway;
     private final DeleteMenuItemOutputBoundary outputBoundary;
+    private final LoggerGateway loggerGateway;
 
     public DeleteMenuItemInteractor(
         MenuItemDsGateway menuItemDsGateway,
-        DeleteMenuItemOutputBoundary outputBoundary
+        DeleteMenuItemOutputBoundary outputBoundary,
+        LoggerGateway loggerGateway
     ) {
         this.menuItemDsGateway = menuItemDsGateway;
         this.outputBoundary = outputBoundary;
+        this.loggerGateway = loggerGateway;
     }
 
     @Override
@@ -25,6 +29,7 @@ public class DeleteMenuItemInteractor implements DeleteMenuItemInputBoundary {
         }
 
         menuItemDsGateway.deleteById(request.id());
+        loggerGateway.info("menu item deleted id={}", request.id());
         outputBoundary.present(new DeleteMenuItemResponseModel(request.id()));
     }
 }

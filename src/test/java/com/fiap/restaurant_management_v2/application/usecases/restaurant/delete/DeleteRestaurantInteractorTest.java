@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fiap.restaurant_management_v2.application.exception.RestaurantNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +22,9 @@ class DeleteRestaurantInteractorTest {
     @Mock
     private RestaurantDsGateway restaurantDsGateway;
 
+    @Mock
+    private LoggerGateway loggerGateway;
+
     private CapturingPresenter presenter;
     private DeleteRestaurantInteractor interactor;
 
@@ -29,7 +33,8 @@ class DeleteRestaurantInteractorTest {
         presenter = new CapturingPresenter();
         interactor = new DeleteRestaurantInteractor(
             restaurantDsGateway,
-            presenter
+            presenter,
+            loggerGateway
         );
     }
 

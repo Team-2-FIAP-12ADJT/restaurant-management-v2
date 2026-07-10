@@ -6,6 +6,7 @@ import com.fiap.restaurant_management_v2.adapters.presenters.DeleteRestaurantPre
 import com.fiap.restaurant_management_v2.adapters.presenters.GetAllRestaurantsPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.GetRestaurantByIdPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.UpdateRestaurantPresenter;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
@@ -46,13 +47,15 @@ public class RestaurantConfiguration {
         TransactionalExecutor transactionalExecutor,
         RestaurantDsGateway restaurantDsGateway,
         UserDsGateway userDsGateway,
-        CreateRestaurantPresenter createRestaurantPresenter
+        CreateRestaurantPresenter createRestaurantPresenter,
+        LoggerGateway loggerGateway
     ) {
         return new CreateRestaurantInteractor(
             transactionalExecutor,
             restaurantDsGateway,
             userDsGateway,
-            createRestaurantPresenter
+            createRestaurantPresenter,
+            loggerGateway
         );
     }
 
@@ -105,13 +108,15 @@ public class RestaurantConfiguration {
         TransactionalExecutor transactionalExecutor,
         RestaurantDsGateway restaurantDsGateway,
         UserDsGateway userDsGateway,
-        UpdateRestaurantPresenter updateRestaurantPresenter
+        UpdateRestaurantPresenter updateRestaurantPresenter,
+        LoggerGateway loggerGateway
     ) {
         return new UpdateRestaurantInteractor(
             transactionalExecutor,
             restaurantDsGateway,
             userDsGateway,
-            updateRestaurantPresenter
+            updateRestaurantPresenter,
+            loggerGateway
         );
     }
 
@@ -124,11 +129,13 @@ public class RestaurantConfiguration {
     @Bean
     public DeleteRestaurantInputBoundary deleteRestaurantInputBoundary(
         RestaurantDsGateway restaurantDsGateway,
-        DeleteRestaurantPresenter deleteRestaurantPresenter
+        DeleteRestaurantPresenter deleteRestaurantPresenter,
+        LoggerGateway loggerGateway
     ) {
         return new DeleteRestaurantInteractor(
             restaurantDsGateway,
-            deleteRestaurantPresenter
+            deleteRestaurantPresenter,
+            loggerGateway
         );
     }
 

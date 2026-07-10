@@ -2,6 +2,7 @@ package com.fiap.restaurant_management_v2.application.usecases.usertype.update;
 
 import com.fiap.restaurant_management_v2.application.exception.DuplicateUserTypeException;
 import com.fiap.restaurant_management_v2.application.exception.UserTypeNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsResponseModel;
@@ -26,13 +27,16 @@ class UpdateUserTypeInteractorTest {
     @Mock
     private UserTypeDsGateway userTypeDsGateway;
 
+    @Mock
+    private LoggerGateway loggerGateway;
+
     private CapturingPresenter presenter;
     private UpdateUserTypeInteractor interactor;
 
     @BeforeEach
     void setUp() {
         presenter = new CapturingPresenter();
-        interactor = new UpdateUserTypeInteractor(userTypeDsGateway, presenter);
+        interactor = new UpdateUserTypeInteractor(userTypeDsGateway, presenter, loggerGateway);
     }
 
     @Test

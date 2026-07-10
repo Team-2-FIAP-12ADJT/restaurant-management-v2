@@ -2,6 +2,7 @@ package com.fiap.restaurant_management_v2.application.usecases.user.update;
 
 import com.fiap.restaurant_management_v2.application.exception.DuplicateUserException;
 import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
@@ -12,15 +13,18 @@ public class UpdateUserInteractor implements UpdateUserInputBoundary {
     private final UserDsGateway userDsGateway;
     private final TransactionalExecutor transactionalExecutor;
     private final UpdateUserOutputBoundary outputBoundary;
+    private final LoggerGateway loggerGateway;
 
     public UpdateUserInteractor(
         UserDsGateway userDsGateway,
         TransactionalExecutor transactionalExecutor,
-        UpdateUserOutputBoundary outputBoundary
+        UpdateUserOutputBoundary outputBoundary,
+        LoggerGateway loggerGateway
     ) {
         this.userDsGateway = userDsGateway;
         this.transactionalExecutor = transactionalExecutor;
         this.outputBoundary = outputBoundary;
+        this.loggerGateway = loggerGateway;
     }
 
     @Override
@@ -76,6 +80,8 @@ public class UpdateUserInteractor implements UpdateUserInputBoundary {
                 login,
                 taxIdentifier
             );
+
+            loggerGateway.info("user updated id={}", saved.id());
 
             outputBoundary.present(
                 new UpdateUserResponseModel(

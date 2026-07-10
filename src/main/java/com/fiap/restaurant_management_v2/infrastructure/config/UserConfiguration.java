@@ -6,6 +6,7 @@ import com.fiap.restaurant_management_v2.adapters.presenters.DeleteUserByIdPrese
 import com.fiap.restaurant_management_v2.adapters.presenters.GetAllUsersPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.GetUserByIdPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.UpdateUserPresenter;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.PasswordEncoderGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
@@ -44,12 +45,14 @@ public class UserConfiguration {
     public CreateUserInputBoundary createUserInputBoundary(
         UserDsGateway userDsGateway,
         PasswordEncoderGateway passwordEncoderGateway,
-        CreateUserPresenter createUserPresenter
+        CreateUserPresenter createUserPresenter,
+        LoggerGateway loggerGateway
     ) {
         return new CreateUserInteractor(
             userDsGateway,
             passwordEncoderGateway,
-            createUserPresenter
+            createUserPresenter,
+            loggerGateway
         );
     }
 
@@ -91,12 +94,14 @@ public class UserConfiguration {
     public DeleteUserByIdInputBoundary deleteUserByIdInputBoundary(
         UserDsGateway userDsGateway,
         RestaurantDsGateway restaurantDsGateway,
-        DeleteUserByIdPresenter deleteUserByIdPresenter
+        DeleteUserByIdPresenter deleteUserByIdPresenter,
+        LoggerGateway loggerGateway
     ) {
         return new DeleteUserByIdInteractor(
             userDsGateway,
             restaurantDsGateway,
-            deleteUserByIdPresenter
+            deleteUserByIdPresenter,
+            loggerGateway
         );
     }
 
@@ -110,12 +115,14 @@ public class UserConfiguration {
     public UpdateUserInputBoundary updateUserInputBoundary(
         UserDsGateway userDsGateway,
         TransactionalExecutor transactionalExecutor,
-        UpdateUserPresenter updateUserPresenter
+        UpdateUserPresenter updateUserPresenter,
+        LoggerGateway loggerGateway
     ) {
         return new UpdateUserInteractor(
             userDsGateway,
             transactionalExecutor,
-            updateUserPresenter
+            updateUserPresenter,
+            loggerGateway
         );
     }
 

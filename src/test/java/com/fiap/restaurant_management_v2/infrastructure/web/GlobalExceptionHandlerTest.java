@@ -35,6 +35,47 @@ import org.springframework.web.context.request.WebRequest;
 class GlobalExceptionHandlerTest {
 
     @Test
+    void handleUnexpectedReturns500WithoutLeakingDetail() throws Exception {
+        var handler = new GlobalExceptionHandler();
+
+        var pd = handler.handleUnexpected(new RuntimeException("segredo interno"));
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), pd.getStatus());
+        assertEquals("Erro interno inesperado", pd.getDetail());
+    }
+
+    @Test
+    void handleUnexpectedRethrowsResponseStatusAnnotated() {
+        var handler = new GlobalExceptionHandler();
+        var annotated = new TeapotException();
+
+        var thrown = org.junit.jupiter.api.Assertions.assertThrows(
+            TeapotException.class,
+            () -> handler.handleUnexpected(annotated)
+        );
+        assertEquals(annotated, thrown);
+    }
+
+    @org.springframework.web.bind.annotation.ResponseStatus(
+        HttpStatus.I_AM_A_TEAPOT
+    )
+    private static final class TeapotException extends RuntimeException {}
+
+    @Test
+    void handleUnexpectedRethrowsErrorResponse() {
+        var handler = new GlobalExceptionHandler();
+        var rse = new org.springframework.web.server.ResponseStatusException(
+            HttpStatus.NOT_FOUND
+        );
+
+        var thrown = org.junit.jupiter.api.Assertions.assertThrows(
+            org.springframework.web.server.ResponseStatusException.class,
+            () -> handler.handleUnexpected(rse)
+        );
+        assertEquals(rse, thrown);
+    }
+
+    @Test
     void handleIllegalArgumentReturnsBadRequestDetail() {
         var handler = new GlobalExceptionHandler();
 
@@ -51,7 +92,7 @@ class GlobalExceptionHandlerTest {
 
         assertProblem(handler.handleDuplicate(new DuplicateRestaurantException("duplicate")), HttpStatus.CONFLICT, "duplicate");
         assertProblem(handler.handleUserHasRestaurants(new UserHasActiveRestaurantsException("active")), HttpStatus.CONFLICT, "active");
-        assertProblem(handler.handleDataIntegrityViolation(), HttpStatus.CONFLICT, "Violacao de integridade");
+        assertProblem(handler.handleDataIntegrityViolation(new org.springframework.dao.DataIntegrityViolationException("dup")), HttpStatus.CONFLICT, "Violacao de integridade");
         assertProblem(handler.handleInvalid(new InvalidUserTypeException("invalid type")), HttpStatus.BAD_REQUEST, "invalid type");
         assertProblem(handler.handleRestaurantInvalid(new InvalidRestaurantException("invalid restaurant")), HttpStatus.BAD_REQUEST, "invalid restaurant");
         assertProblem(handler.handleInvalid(new InvalidUserTypeUuidException("invalid uuid")), HttpStatus.BAD_REQUEST, "invalid uuid");

@@ -5,3 +5,8 @@ spring:
       hibernate:
         format_sql: true
         use_sql_comments: true
+
+logging:
+  level:
+    # DEBUG liga o log do request body (mascarado) no RequestLoggingFilter
+    com.fiap.restaurant_management_v2.infrastructure.web.filter.RequestLoggingFilter: DEBUG

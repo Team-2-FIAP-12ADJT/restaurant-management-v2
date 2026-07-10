@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.fiap.restaurant_management_v2.application.exception.DuplicateUserException;
 import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
@@ -32,6 +33,9 @@ class UpdateUserInteractorTest {
     // Real executor that just runs the action (mirrors @Transactional boundary).
     private final TransactionalExecutor transactionalExecutor = Runnable::run;
 
+    @Mock
+    private LoggerGateway loggerGateway;
+
     private CapturingPresenter presenter;
     private UpdateUserInteractor interactor;
 
@@ -44,7 +48,8 @@ class UpdateUserInteractorTest {
         interactor = new UpdateUserInteractor(
             userDsGateway,
             transactionalExecutor,
-            presenter
+            presenter,
+            loggerGateway
         );
         id = UUID.randomUUID();
         current = new UserDsResponseModel(
