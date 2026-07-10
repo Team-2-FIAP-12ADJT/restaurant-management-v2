@@ -56,6 +56,22 @@ class SensitiveDataMaskerTest {
     }
 
     @Test
+    @DisplayName("Mascara campo sensível independente de caixa (Password, TAXIDENTIFIER)")
+    void masksCaseInsensitively() {
+        String masked = masker.mask(
+            "{\"Password\":\"s3cret\",\"TAXIDENTIFIER\":\"12345678901\"}"
+        );
+
+        assertFalse(masked.contains("s3cret"));
+        assertFalse(masked.contains("12345678901"));
+
+        assertEquals(
+            "TaxIdentifier=***&page=1",
+            masker.maskQueryString("TaxIdentifier=12345678901&page=1")
+        );
+    }
+
+    @Test
     @DisplayName("Query string: mascara valor de param sensível, preserva o resto")
     void masksSensitiveQueryParams() {
         assertEquals(

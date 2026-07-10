@@ -1,5 +1,8 @@
 package com.fiap.restaurant_management_v2.infrastructure.web.filter;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -7,9 +10,10 @@ import tools.jackson.databind.node.ObjectNode;
 
 public class SensitiveDataMasker {
 
+    // Comparação sempre em lowercase — "Password"/"TAXIDENTIFIER" também mascaram.
     private static final Set<String> SENSITIVE_FIELDS = Set.of(
         "password",
-        "taxIdentifier"
+        "taxidentifier"
     );
     private static final String MASK = "***";
     private static final String UNPARSEABLE = "[unparseable body]";
@@ -40,7 +44,7 @@ public class SensitiveDataMasker {
             }
             int eq = pair.indexOf('=');
             String key = eq < 0 ? pair : pair.substring(0, eq);
-            if (eq >= 0 && SENSITIVE_FIELDS.contains(key)) {
+            if (eq >= 0 && isSensitive(key)) {
                 masked.append(key).append('=').append(MASK);
             } else {
                 masked.append(pair);
@@ -52,14 +56,21 @@ public class SensitiveDataMasker {
     private void maskNode(JsonNode node) {
         if (node.isObject()) {
             ObjectNode object = (ObjectNode) node;
-            SENSITIVE_FIELDS.forEach(field -> {
-                if (object.has(field)) {
-                    object.put(field, MASK);
+            List<String> names = new ArrayList<>();
+            object.properties().forEach(entry -> names.add(entry.getKey()));
+            for (String name : names) {
+                if (isSensitive(name)) {
+                    object.put(name, MASK);
+                } else {
+                    maskNode(object.get(name));
                 }
-            });
-            object.properties().forEach(entry -> maskNode(entry.getValue()));
+            }
         } else if (node.isArray()) {
             node.forEach(this::maskNode);
         }
+    }
+
+    private boolean isSensitive(String field) {
+        return SENSITIVE_FIELDS.contains(field.toLowerCase(Locale.ROOT));
     }
 }
