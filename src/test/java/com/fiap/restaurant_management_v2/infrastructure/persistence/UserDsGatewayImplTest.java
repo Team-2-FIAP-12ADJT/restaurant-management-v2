@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.UserCredentialDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.search.SearchQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -91,6 +92,61 @@ class UserDsGatewayImplTest {
         assertTrue(result.isPresent());
         assertEquals(id, result.orElseThrow().id());
         assertEquals("hash", result.orElseThrow().passWord());
+    }
+
+    @Test
+    void findByLoginWithUserTypeReturnsCredentialResponse() {
+        UUID id = UUID.randomUUID();
+        var entity = UserEntity.builder()
+            .id(id)
+            .login("owner")
+            .password("hash")
+            .name("Ada")
+            .email("ada@example.com")
+            .taxIdentifier("12345678901")
+            .userTypeEntity(UserTypeEntity.builder().id(UUID.randomUUID()).userType("Dono").build())
+            .build();
+        when(repository.findByLoginAndDeletedAtIsNull("owner")).thenReturn(Optional.of(entity));
+
+        var result = gateway.findByLogin("owner");
+
+        assertTrue(result.isPresent());
+        assertEquals(id, result.orElseThrow().id());
+        assertEquals("owner", result.orElseThrow().login());
+        assertEquals("hash", result.orElseThrow().passwordHash());
+        assertEquals("Dono", result.orElseThrow().userTypeName());
+    }
+
+    @Test
+    void findByLoginWithoutUserTypeReturnsCredentialResponseWithNullUserType() {
+        UUID id = UUID.randomUUID();
+        var entity = UserEntity.builder()
+            .id(id)
+            .login("admin")
+            .password("hash")
+            .name("Bob")
+            .email("bob@example.com")
+            .taxIdentifier("98765432101")
+            .userTypeEntity(null)
+            .build();
+        when(repository.findByLoginAndDeletedAtIsNull("admin")).thenReturn(Optional.of(entity));
+
+        var result = gateway.findByLogin("admin");
+
+        assertTrue(result.isPresent());
+        assertEquals(id, result.orElseThrow().id());
+        assertEquals("admin", result.orElseThrow().login());
+        assertEquals("hash", result.orElseThrow().passwordHash());
+        assertNull(result.orElseThrow().userTypeName());
+    }
+
+    @Test
+    void findByLoginReturnsEmptyWhenNotFound() {
+        when(repository.findByLoginAndDeletedAtIsNull("nonexistent")).thenReturn(Optional.empty());
+
+        var result = gateway.findByLogin("nonexistent");
+
+        assertTrue(result.isEmpty());
     }
 
     @Test

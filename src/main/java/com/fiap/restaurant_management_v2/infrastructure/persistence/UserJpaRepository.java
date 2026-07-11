@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface UserJpaRepository
     extends
@@ -28,6 +30,9 @@ public interface UserJpaRepository
     );
 
     Optional<UserEntity> findByIdAndDeletedAtIsNull(UUID id);
+
+    @Query("select u from UserEntity u left join fetch u.userTypeEntity where u.login = :login and u.deletedAt is null")
+    Optional<UserEntity> findByLoginAndDeletedAtIsNull(@Param("login") String login);
 
     List<UserEntity> findAllByIdInAndDeletedAtIsNull(Collection<UUID> ids);
 

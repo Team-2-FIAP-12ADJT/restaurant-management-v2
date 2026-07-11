@@ -25,6 +25,8 @@ public interface UserDsGateway {
 
     Optional<UserDsResponseModel> findById(UUID id);
 
+    Optional<UserCredentialDsResponseModel> findByLogin(String login);
+
     List<UserDsResponseModel> findAllByIds(Collection<UUID> ids);
 
     Optional<UserBindDsResponseModel> findAllById(UUID id);
