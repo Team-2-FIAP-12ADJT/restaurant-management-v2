@@ -141,6 +141,8 @@ cp src/main/resources/liquibase.properties.example src/main/resources/liquibase.
 | `SPRING_DATASOURCE_PORT` | PostgreSQL host port | Yes | `5432` |
 | `APP_PORT` | Application host port | Yes | `8080` |
 | `SPRING_PROFILES_ACTIVE` | Spring profile (`dev` enables SQL logging) | No | — |
+| `JWT_SECRET` | Base64-encoded HS256 signing key (decodes to ≥32 bytes). Generate: `openssl rand -base64 32` | Yes (prod) | dev fallback in `application.yaml` |
+| `JWT_ACCESS_TOKEN_EXPIRATION_TIME` | Access token lifetime, in minutes | No | `15` |
 
 > `SPRING_DATASOURCE_DATABASE` and `SPRING_DATASOURCE_URL` are intentionally separate. The URL supports full JDBC flexibility. Keep both consistent in `.env`.
 
@@ -152,6 +154,7 @@ cp src/main/resources/liquibase.properties.example src/main/resources/liquibase.
 | Error format | [RFC 9457 Problem Details](https://www.rfc-editor.org/rfc/rfc9457) |
 | OpenAPI spec | `GET /v3/api-docs` |
 | Swagger UI | `GET /swagger-ui.html` |
+| Authentication | JWT Bearer (HS256). Get a token via `POST /api/v1/auth/login`, then send `Authorization: Bearer <token>`. See [docs/authentication.md](docs/authentication.md) |
 
 ### Docker
 

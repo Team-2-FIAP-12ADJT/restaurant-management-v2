@@ -7,6 +7,63 @@
   },
   "item": [
     {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body && body.accessToken) {",
+                  "    pm.collectionVariables.set('accessToken', body.accessToken);",
+                  "}",
+                  "pm.test('status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"login\": \"{{ownerLogin}}\", \"password\": \"{{ownerPassword}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Public. Returns { accessToken, expiresAt } and stores the token in the collection variable accessToken."
+          }
+        }
+      ]
+    },
+    {
       "name": "Users",
       "item": [
         {
@@ -759,6 +816,28 @@
     {
       "key": "menuItemId",
       "value": "00000000-0000-0000-0000-000000000000"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "ownerLogin",
+      "value": "owner"
+    },
+    {
+      "key": "ownerPassword",
+      "value": "Senh@1234"
     }
-  ]
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  }
 }
