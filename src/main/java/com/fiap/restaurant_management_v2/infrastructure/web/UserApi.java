@@ -10,6 +10,7 @@ import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.UserViewM
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.CreateUserRequest;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.GetAllUsersParams;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.UpdateUserRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(ApiPaths.USERS)
+@Tag(name = "Users")
 public class UserApi {
 
     private final UserController userController;

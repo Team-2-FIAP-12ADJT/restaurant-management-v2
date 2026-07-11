@@ -12,6 +12,7 @@ import com.fiap.restaurant_management_v2.infrastructure.web.dto.CreateMenuItemRe
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.GetAllMenuItemsParams;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.GetMenuItemsByRestaurantParams;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.UpdateMenuItemRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springdoc.core.annotations.ParameterObject;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(ApiPaths.MENU_ITEMS)
+@Tag(name = "Menu Items")
 public class MenuItemApi {
 
     private final MenuItemController menuItemController;

@@ -10,6 +10,7 @@ import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.UserTypeV
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.BindUserTypeRequest;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.CreateUserTypeRequest;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.GetAllUsersTypeParams;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(ApiPaths.USERS_TYPE)
+@Tag(name = "User Types")
 public class TypeUserApi {
 
     private  final UserTypeController userTypeController ;
