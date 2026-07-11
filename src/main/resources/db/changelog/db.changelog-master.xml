@@ -39,7 +39,7 @@
         relativeToChangelogFile="true"
     />
     <include
-        file="seeds/0002-seed-owner-user.xml"
+        file="seeds/0002-seed-admin-user.xml"
         relativeToChangelogFile="true"
     />
 

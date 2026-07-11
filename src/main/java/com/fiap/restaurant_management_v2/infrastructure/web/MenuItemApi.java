@@ -55,7 +55,7 @@ public class MenuItemApi {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('DONO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
     public ResponseEntity<MenuItemViewModel> create(
         @Valid @RequestBody CreateMenuItemRequest request
     ) {
@@ -121,7 +121,7 @@ public class MenuItemApi {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('DONO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         menuItemController.delete(id);
         return ResponseEntity.noContent().build();

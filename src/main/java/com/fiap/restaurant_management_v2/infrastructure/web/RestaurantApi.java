@@ -50,7 +50,7 @@ public class RestaurantApi {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('DONO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
     public ResponseEntity<RestaurantWithOwnerViewModel> create(
         @Valid @RequestBody CreateRestaurantRequest request
     ) {
@@ -92,7 +92,7 @@ public class RestaurantApi {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('DONO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
     public ResponseEntity<RestaurantWithOwnerViewModel> update(
         @PathVariable UUID id,
         @Valid @RequestBody UpdateRestaurantRequest request
@@ -111,7 +111,7 @@ public class RestaurantApi {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('DONO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         restaurantController.delete(id);
         return ResponseEntity.noContent().build();

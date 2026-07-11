@@ -39,7 +39,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\"login\": \"{{ownerLogin}}\", \"password\": \"{{ownerPassword}}\"}",
+              "raw": "{\"login\": \"{{adminLogin}}\", \"password\": \"{{adminPassword}}\"}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -822,11 +822,11 @@
       "value": ""
     },
     {
-      "key": "ownerLogin",
-      "value": "owner"
+      "key": "adminLogin",
+      "value": "admin"
     },
     {
-      "key": "ownerPassword",
+      "key": "adminPassword",
       "value": "Senh@1234"
     }
   ],

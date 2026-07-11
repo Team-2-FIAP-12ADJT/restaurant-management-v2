@@ -55,5 +55,5 @@ server:
   port: ${APP_PORT:8080}
 
 jwt:
-  secret: ${JWT_SECRET:ZGV2LW9ubHktc2VjcmV0LTMyLWJ5dGVzLW1pbi1wYWRkaW5nMDE=}
+  secret: ${JWT_SECRET}
   access-token-expiration-minutes: ${JWT_ACCESS_TOKEN_EXPIRATION_TIME:15}

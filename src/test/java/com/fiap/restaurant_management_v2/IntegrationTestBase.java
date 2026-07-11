@@ -7,6 +7,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 @SpringBootTest
@@ -19,6 +21,16 @@ public abstract class IntegrationTestBase {
 
     static {
         POSTGRES.start();
+    }
+
+    // Production requires JWT_SECRET from the environment (no fallback in
+    // application.yaml). Tests supply an ephemeral key so the context boots.
+    @DynamicPropertySource
+    static void jwtProperties(DynamicPropertyRegistry registry) {
+        registry.add(
+            "jwt.secret",
+            () -> "ZGV2LW9ubHktc2VjcmV0LTMyLWJ5dGVzLW1pbi1wYWRkaW5nMDE="
+        );
     }
 
     @Autowired

@@ -49,7 +49,7 @@ public class UserApi {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('DONO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
     public ResponseEntity<PageViewModel<UserViewModel>> getAll(
         @ParameterObject GetAllUsersParams params
     ) {
@@ -66,14 +66,14 @@ public class UserApi {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('DONO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
     public ResponseEntity<UserViewModel> getById(@PathVariable String id) {
         userController.getById(java.util.UUID.fromString(id));
         return ResponseEntity.ok(getUserByIdPresenter.getViewModel());
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('DONO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
     public ResponseEntity<UserViewModel> create(
         @Valid @RequestBody CreateUserRequest request
     ) {
@@ -91,14 +91,14 @@ public class UserApi {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('DONO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         userController.delete(java.util.UUID.fromString(id));
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('DONO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
     public ResponseEntity<UserViewModel> update(
         @PathVariable String id,
         @Valid @RequestBody UpdateUserRequest request
