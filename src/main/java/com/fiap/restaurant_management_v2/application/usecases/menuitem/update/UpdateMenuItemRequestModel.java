@@ -8,7 +8,7 @@ public record UpdateMenuItemRequestModel(
     String name,
     String description,
     BigDecimal price,
-    boolean onlyLocal,
+    Boolean onlyLocal,
     String photoPath,
     UUID restaurantId
 ) {}

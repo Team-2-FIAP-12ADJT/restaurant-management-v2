@@ -1,5 +1,6 @@
 package com.fiap.restaurant_management_v2.infrastructure.persistence;
 
+import com.fiap.restaurant_management_v2.application.exception.MenuItemNotFoundException;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.search.SearchQuery;
@@ -20,6 +21,8 @@ import org.springframework.data.jpa.domain.Specification;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -42,7 +45,6 @@ class MenuItemDsGatewayImplTest {
     @Test
     void savesNewMenuItemAndMapsResponse() {
         MenuItemDsRequestModel request = request();
-        when(repository.findById(request.id())).thenReturn(Optional.empty());
         when(repository.save(any(MenuItemEntity.class)))
             .thenAnswer(call -> call.getArgument(0));
 
@@ -55,26 +57,42 @@ class MenuItemDsGatewayImplTest {
         assertEquals(request.restaurantId(), response.restaurantId());
         assertNotNull(captor.getValue().getCreatedAt());
         assertNotNull(captor.getValue().getUpdatedAt());
+        assertNull(captor.getValue().getDeletedAt());
     }
 
     @Test
-    void preservesCreatedAtWhenUpdating() {
+    void updatesExistingMenuItemPreservingCreatedAt() {
         MenuItemDsRequestModel request = request();
         Instant createdAt = Instant.parse("2026-01-01T10:00:00Z");
         MenuItemEntity current = entity(request);
         current.setCreatedAt(createdAt);
 
-        when(repository.findById(request.id()))
+        when(repository.findByIdAndDeletedAtIsNull(request.id()))
             .thenReturn(Optional.of(current));
         when(repository.save(any(MenuItemEntity.class)))
             .thenAnswer(call -> call.getArgument(0));
 
-        gateway.save(request);
+        MenuItemDsResponseModel response = gateway.update(request);
 
         ArgumentCaptor<MenuItemEntity> captor =
             ArgumentCaptor.forClass(MenuItemEntity.class);
         verify(repository).save(captor.capture());
+        assertEquals(request.id(), response.id());
         assertEquals(createdAt, captor.getValue().getCreatedAt());
+        assertNull(captor.getValue().getDeletedAt());
+    }
+
+    @Test
+    void updateRejectsSoftDeletedMenuItem() {
+        MenuItemDsRequestModel request = request();
+        when(repository.findByIdAndDeletedAtIsNull(request.id()))
+            .thenReturn(Optional.empty());
+
+        assertThrows(
+            MenuItemNotFoundException.class,
+            () -> gateway.update(request)
+        );
+        verify(repository, never()).save(any());
     }
 
     @Test

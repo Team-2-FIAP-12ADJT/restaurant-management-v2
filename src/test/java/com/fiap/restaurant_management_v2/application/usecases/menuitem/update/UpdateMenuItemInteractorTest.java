@@ -7,8 +7,10 @@ import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
+import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
 import com.fiap.restaurant_management_v2.domain.exception.InvalidMenuItemException;
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,6 +31,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class UpdateMenuItemInteractorTest {
 
+    private static final BigDecimal CURRENT_PRICE = new BigDecimal("39.90");
+
     @Mock
     private MenuItemDsGateway menuItemDsGateway;
 
@@ -38,6 +42,7 @@ class UpdateMenuItemInteractorTest {
     @Mock
     private LoggerGateway loggerGateway;
 
+    private final TransactionalExecutor transactionalExecutor = Runnable::run;
     private CapturingPresenter presenter;
     private UpdateMenuItemInteractor interactor;
 
@@ -45,6 +50,7 @@ class UpdateMenuItemInteractorTest {
     void setUp() {
         presenter = new CapturingPresenter();
         interactor = new UpdateMenuItemInteractor(
+            transactionalExecutor,
             menuItemDsGateway,
             restaurantDsGateway,
             presenter,
@@ -53,105 +59,165 @@ class UpdateMenuItemInteractorTest {
     }
 
     @Test
-    @DisplayName("Atualiza item do cardápio com sucesso")
-    void updatesMenuItemSuccessfully() {
+    @DisplayName("PATCH parcial mantém os campos omitidos e usa update, não save")
+    void partialUpdateKeepsCurrentFields() {
         UUID id = UUID.randomUUID();
         UUID restaurantId = UUID.randomUUID();
-        UpdateMenuItemRequestModel request = validRequest(id, restaurantId);
+        when(menuItemDsGateway.findById(id))
+            .thenReturn(Optional.of(current(id, restaurantId)));
+        when(menuItemDsGateway.update(any(MenuItemDsRequestModel.class)))
+            .thenAnswer(call -> responseFrom(call.getArgument(0)));
 
-        when(menuItemDsGateway.existsById(id)).thenReturn(true);
-        when(restaurantDsGateway.existsById(restaurantId)).thenReturn(true);
-        when(menuItemDsGateway.save(any(MenuItemDsRequestModel.class)))
-            .thenAnswer(call -> {
-                MenuItemDsRequestModel item = call.getArgument(0);
-                return responseFrom(item);
-            });
-
-        interactor.execute(request);
+        // Só o nome é enviado; demais campos null = mantém o atual.
+        interactor.execute(
+            new UpdateMenuItemRequestModel(
+                id,
+                "Risoto especial",
+                null,
+                null,
+                null,
+                null,
+                null
+            )
+        );
 
         ArgumentCaptor<MenuItemDsRequestModel> captor =
             ArgumentCaptor.forClass(MenuItemDsRequestModel.class);
-        verify(menuItemDsGateway).save(captor.capture());
+        verify(menuItemDsGateway).update(captor.capture());
+        verify(menuItemDsGateway, never()).save(any());
+        verify(restaurantDsGateway, never()).existsById(any());
 
-        assertEquals(id, captor.getValue().id());
-        assertEquals("Risoto especial", captor.getValue().name());
+        MenuItemDsRequestModel merged = captor.getValue();
+        assertEquals(id, merged.id());
+        assertEquals("Risoto especial", merged.name());
+        assertEquals("Risoto de cogumelos", merged.description());
+        assertEquals(CURRENT_PRICE, merged.price());
+        assertEquals(true, merged.onlyLocal());
+        assertEquals("/images/risoto.jpg", merged.photoPath());
+        assertEquals(restaurantId, merged.restaurantId());
         assertNotNull(presenter.response);
-        assertEquals(id, presenter.response.id());
         assertEquals("Risoto especial", presenter.response.name());
+    }
+
+    @Test
+    @DisplayName("Troca de restaurante valida a existência do novo restaurante")
+    void validatesRestaurantWhenChanged() {
+        UUID id = UUID.randomUUID();
+        UUID currentRestaurant = UUID.randomUUID();
+        UUID newRestaurant = UUID.randomUUID();
+        when(menuItemDsGateway.findById(id))
+            .thenReturn(Optional.of(current(id, currentRestaurant)));
+        when(restaurantDsGateway.existsById(newRestaurant)).thenReturn(true);
+        when(menuItemDsGateway.update(any(MenuItemDsRequestModel.class)))
+            .thenAnswer(call -> responseFrom(call.getArgument(0)));
+
+        interactor.execute(
+            new UpdateMenuItemRequestModel(
+                id,
+                null,
+                null,
+                null,
+                null,
+                null,
+                newRestaurant
+            )
+        );
+
+        ArgumentCaptor<MenuItemDsRequestModel> captor =
+            ArgumentCaptor.forClass(MenuItemDsRequestModel.class);
+        verify(menuItemDsGateway).update(captor.capture());
+        assertEquals(newRestaurant, captor.getValue().restaurantId());
+    }
+
+    @Test
+    @DisplayName("Restaurante inexistente na troca impede a atualização")
+    void rejectsMissingRestaurant() {
+        UUID id = UUID.randomUUID();
+        UUID newRestaurant = UUID.randomUUID();
+        when(menuItemDsGateway.findById(id))
+            .thenReturn(Optional.of(current(id, UUID.randomUUID())));
+        when(restaurantDsGateway.existsById(newRestaurant)).thenReturn(false);
+
+        assertThrows(
+            RestaurantNotFoundException.class,
+            () -> interactor.execute(
+                new UpdateMenuItemRequestModel(
+                    id,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    newRestaurant
+                )
+            )
+        );
+
+        verify(menuItemDsGateway, never()).update(any());
+        assertNull(presenter.response);
     }
 
     @Test
     @DisplayName("Item inexistente impede a atualização")
     void rejectsMissingMenuItem() {
         UUID id = UUID.randomUUID();
-        UUID restaurantId = UUID.randomUUID();
-        when(menuItemDsGateway.existsById(id)).thenReturn(false);
+        when(menuItemDsGateway.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(
             MenuItemNotFoundException.class,
-            () -> interactor.execute(validRequest(id, restaurantId))
+            () -> interactor.execute(
+                new UpdateMenuItemRequestModel(
+                    id,
+                    "Nome",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+            )
         );
 
-        verify(restaurantDsGateway, never()).existsById(any());
-        verify(menuItemDsGateway, never()).save(any());
+        verify(menuItemDsGateway, never()).update(any());
         assertNull(presenter.response);
     }
 
     @Test
-    @DisplayName("Restaurante inexistente impede a atualização")
-    void rejectsMissingRestaurant() {
+    @DisplayName("Estado mesclado inválido não é atualizado")
+    void rejectsInvalidMergedState() {
         UUID id = UUID.randomUUID();
         UUID restaurantId = UUID.randomUUID();
-        when(menuItemDsGateway.existsById(id)).thenReturn(true);
-        when(restaurantDsGateway.existsById(restaurantId)).thenReturn(false);
+        when(menuItemDsGateway.findById(id))
+            .thenReturn(Optional.of(current(id, restaurantId)));
 
+        // Preço presente-inválido → estado mesclado inválido → 400.
         assertThrows(
-            RestaurantNotFoundException.class,
-            () -> interactor.execute(validRequest(id, restaurantId))
+            InvalidMenuItemException.class,
+            () -> interactor.execute(
+                new UpdateMenuItemRequestModel(
+                    id,
+                    null,
+                    null,
+                    BigDecimal.ZERO,
+                    null,
+                    null,
+                    null
+                )
+            )
         );
 
-        verify(menuItemDsGateway, never()).save(any());
+        verify(menuItemDsGateway, never()).update(any());
         assertNull(presenter.response);
     }
 
-    @Test
-    @DisplayName("Dados inválidos não são atualizados")
-    void rejectsInvalidMenuItem() {
-        UUID id = UUID.randomUUID();
-        UUID restaurantId = UUID.randomUUID();
-        when(menuItemDsGateway.existsById(id)).thenReturn(true);
-        when(restaurantDsGateway.existsById(restaurantId)).thenReturn(true);
-
-        UpdateMenuItemRequestModel request = new UpdateMenuItemRequestModel(
+    private static MenuItemDsResponseModel current(UUID id, UUID restaurantId) {
+        return new MenuItemDsResponseModel(
             id,
             "Risoto",
             "Risoto de cogumelos",
-            BigDecimal.ZERO,
-            false,
+            CURRENT_PRICE,
+            true,
             "/images/risoto.jpg",
-            restaurantId
-        );
-
-        assertThrows(
-            InvalidMenuItemException.class,
-            () -> interactor.execute(request)
-        );
-
-        verify(menuItemDsGateway, never()).save(any());
-        assertNull(presenter.response);
-    }
-
-    private static UpdateMenuItemRequestModel validRequest(
-        UUID id,
-        UUID restaurantId
-    ) {
-        return new UpdateMenuItemRequestModel(
-            id,
-            "Risoto especial",
-            "Risoto de cogumelos",
-            new BigDecimal("49.90"),
-            false,
-            "/images/risoto-especial.jpg",
             restaurantId
         );
     }

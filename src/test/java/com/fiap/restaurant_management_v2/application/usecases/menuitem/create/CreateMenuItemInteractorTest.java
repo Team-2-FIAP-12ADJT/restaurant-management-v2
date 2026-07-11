@@ -6,6 +6,7 @@ import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
+import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
 import com.fiap.restaurant_management_v2.domain.exception.InvalidMenuItemException;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -37,6 +38,7 @@ class CreateMenuItemInteractorTest {
     @Mock
     private LoggerGateway loggerGateway;
 
+    private final TransactionalExecutor transactionalExecutor = Runnable::run;
     private CapturingPresenter presenter;
     private CreateMenuItemInteractor interactor;
 
@@ -44,6 +46,7 @@ class CreateMenuItemInteractorTest {
     void setUp() {
         presenter = new CapturingPresenter();
         interactor = new CreateMenuItemInteractor(
+            transactionalExecutor,
             menuItemDsGateway,
             restaurantDsGateway,
             presenter,

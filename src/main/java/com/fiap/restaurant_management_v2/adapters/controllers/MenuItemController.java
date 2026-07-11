@@ -85,7 +85,7 @@ public class MenuItemController {
         String name,
         String description,
         BigDecimal price,
-        boolean onlyLocal,
+        Boolean onlyLocal,
         String photoPath,
         UUID restaurantId
     ) {
