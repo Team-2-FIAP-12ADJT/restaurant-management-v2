@@ -134,7 +134,7 @@ cp src/main/resources/liquibase.properties.example src/main/resources/liquibase.
 | `SPRING_DATASOURCE_PORT` | PostgreSQL host port | Yes | `5432` |
 | `APP_PORT` | Application host port | Yes | `8080` |
 | `SPRING_PROFILES_ACTIVE` | Spring profile (`dev` enables SQL logging) | No | — |
-| `JWT_SECRET` | Base64-encoded HS256 signing key (decodes to ≥32 bytes). Generate: `openssl rand -base64 32` | Yes (prod) | dev fallback in `application.yaml` |
+| `JWT_SECRET` | Base64-encoded HS256 signing key (decodes to ≥32 bytes). Generate: `openssl rand -base64 32` | Yes | — (app fails to start if unset) |
 | `JWT_ACCESS_TOKEN_EXPIRATION_TIME` | Access token lifetime, in minutes | No | `15` |
 
 > `SPRING_DATASOURCE_DATABASE` and `SPRING_DATASOURCE_URL` are intentionally separate. The URL supports full JDBC flexibility. Keep both consistent in `.env`.
