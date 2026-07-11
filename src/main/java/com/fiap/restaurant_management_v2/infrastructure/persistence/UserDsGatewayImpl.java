@@ -2,6 +2,7 @@ package com.fiap.restaurant_management_v2.infrastructure.persistence;
 
 import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
 import com.fiap.restaurant_management_v2.application.gateways.UserBindDsResponseModel;
+import com.fiap.restaurant_management_v2.application.gateways.UserCredentialDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
@@ -100,6 +101,11 @@ public class UserDsGatewayImpl implements UserDsGateway {
         return jpaRepository
             .findByIdAndDeletedAtIsNull(id)
             .map(UserEntityMapper::toDsResponse);
+    }
+
+    @Override
+    public Optional<UserCredentialDsResponseModel> findByLogin(String login) {
+        return jpaRepository.findByLoginAndDeletedAtIsNull(login).map(UserEntityMapper::toCredentialDsResponse);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.fiap.restaurant_management_v2.infrastructure.persistence;
 
 import com.fiap.restaurant_management_v2.application.gateways.UserBindDsResponseModel;
+import com.fiap.restaurant_management_v2.application.gateways.UserCredentialDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
 
@@ -37,5 +38,10 @@ final class UserEntityMapper {
             entity.getLogin(),
             entity.getPassword()
         );
+    }
+
+    static UserCredentialDsResponseModel toCredentialDsResponse(UserEntity entity) {
+        String userTypeName = entity.getUserTypeEntity() == null ? null : entity.getUserTypeEntity().getUserType();
+        return new UserCredentialDsResponseModel(entity.getId(), entity.getLogin(), entity.getPassword(), userTypeName);
     }
 }

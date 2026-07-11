@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -48,6 +49,7 @@ public class UserApi {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('DONO')")
     public ResponseEntity<PageViewModel<UserViewModel>> getAll(
         @ParameterObject GetAllUsersParams params
     ) {
@@ -64,12 +66,14 @@ public class UserApi {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('DONO')")
     public ResponseEntity<UserViewModel> getById(@PathVariable String id) {
         userController.getById(java.util.UUID.fromString(id));
         return ResponseEntity.ok(getUserByIdPresenter.getViewModel());
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('DONO')")
     public ResponseEntity<UserViewModel> create(
         @Valid @RequestBody CreateUserRequest request
     ) {
@@ -87,12 +91,14 @@ public class UserApi {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('DONO')")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         userController.delete(java.util.UUID.fromString(id));
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('DONO')")
     public ResponseEntity<UserViewModel> update(
         @PathVariable String id,
         @Valid @RequestBody UpdateUserRequest request
