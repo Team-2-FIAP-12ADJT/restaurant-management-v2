@@ -1,17 +1,18 @@
 package com.fiap.restaurant_management_v2.infrastructure.web.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 
 public record UpdateUserRequest(
-    String name,
-    @Email String email,
-    String login,
+    @Schema(example = "João Silva") String name,
+    @Email @Schema(example = "joao.silva@example.com") String email,
+    @Schema(example = "joaosilva") String login,
     @Pattern(
         regexp = "^\\d{11}$",
         message = "Tax identifier must be a valid CPF (11 digits)"
     )
-    String taxIdentifier
+    @Schema(example = "12345678901") String taxIdentifier
 ) {
     /**
      * PATCH parcial: campo ausente (null) = mantém o atual. O construtor SÓ
