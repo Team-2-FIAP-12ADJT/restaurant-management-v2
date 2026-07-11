@@ -38,5 +38,9 @@
         file="changes/0007-create-menu-items.xml"
         relativeToChangelogFile="true"
     />
+    <include
+        file="seeds/0002-seed-owner-user.xml"
+        relativeToChangelogFile="true"
+    />
 
 </databaseChangeLog>

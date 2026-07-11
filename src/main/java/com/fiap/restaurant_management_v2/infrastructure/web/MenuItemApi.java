@@ -17,6 +17,7 @@ import java.util.UUID;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,6 +55,7 @@ public class MenuItemApi {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('DONO')")
     public ResponseEntity<MenuItemViewModel> create(
         @Valid @RequestBody CreateMenuItemRequest request
     ) {
@@ -102,6 +104,7 @@ public class MenuItemApi {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('DONO')")
     public ResponseEntity<MenuItemViewModel> update(
         @PathVariable UUID id,
         @Valid @RequestBody UpdateMenuItemRequest request
@@ -119,6 +122,7 @@ public class MenuItemApi {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('DONO')")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         menuItemController.delete(id);
         return ResponseEntity.noContent().build();

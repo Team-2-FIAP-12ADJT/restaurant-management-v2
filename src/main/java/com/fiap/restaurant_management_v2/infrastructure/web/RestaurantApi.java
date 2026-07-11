@@ -15,6 +15,7 @@ import java.util.UUID;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,6 +50,7 @@ public class RestaurantApi {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('DONO')")
     public ResponseEntity<RestaurantWithOwnerViewModel> create(
         @Valid @RequestBody CreateRestaurantRequest request
     ) {
@@ -90,6 +92,7 @@ public class RestaurantApi {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('DONO')")
     public ResponseEntity<RestaurantWithOwnerViewModel> update(
         @PathVariable UUID id,
         @Valid @RequestBody UpdateRestaurantRequest request
@@ -108,6 +111,7 @@ public class RestaurantApi {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('DONO')")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         restaurantController.delete(id);
         return ResponseEntity.noContent().build();
