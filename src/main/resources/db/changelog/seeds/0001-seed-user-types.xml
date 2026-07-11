@@ -21,4 +21,14 @@
             <column name="updated_at" valueComputed="NOW()"/>
         </insert>
     </changeSet>
+
+    <changeSet id="0004-seed-admin-user-type" author="ricardo">
+        <comment>Tipo Admin (admin do sistema) — distinto de Dono/Cliente (papéis de negócio)</comment>
+        <insert tableName="user_type">
+            <column name="id" value="a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"/>
+            <column name="user_type" value="Admin"/>
+            <column name="created_at" valueComputed="NOW()"/>
+            <column name="updated_at" valueComputed="NOW()"/>
+        </insert>
+    </changeSet>
 </databaseChangeLog>

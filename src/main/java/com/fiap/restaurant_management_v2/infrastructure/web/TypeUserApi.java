@@ -38,7 +38,7 @@ public class TypeUserApi {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('DONO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
     public ResponseEntity<PageViewModel<UserTypeViewModel>> getAll(
             @ParameterObject GetAllUsersTypeParams params
     ) {
@@ -48,7 +48,7 @@ public class TypeUserApi {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('DONO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
     public ResponseEntity<UserTypeViewModel> getById(@PathVariable String id) {
         userTypeController.getById(java.util.UUID.fromString(id));
         return ResponseEntity.ok(getUserTypeByIdPresenter.getViewModel());
@@ -57,7 +57,7 @@ public class TypeUserApi {
 
 
     @PostMapping
-    @PreAuthorize("hasRole('DONO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
     public ResponseEntity<UserTypeViewModel> create(
             @Valid @RequestBody CreateUserTypeRequest request
     ){
@@ -68,7 +68,7 @@ public class TypeUserApi {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('DONO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
     public ResponseEntity<UserTypeViewModel> update(
             @PathVariable UUID id ,
             @Valid @RequestBody CreateUserTypeRequest request
@@ -82,7 +82,7 @@ public class TypeUserApi {
 
 
     @PostMapping("/bind")
-    @PreAuthorize("hasRole('DONO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
     public ResponseEntity<Void> bind(
             @Valid @RequestBody BindUserTypeRequest request
     ){
@@ -91,7 +91,7 @@ public class TypeUserApi {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('DONO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
     public ResponseEntity<Void> deleteById(@PathVariable String id) {
         userTypeController.delete(UUID.fromString(id));
         return ResponseEntity.noContent().build();

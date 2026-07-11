@@ -34,8 +34,8 @@ class AuthSecurityIT extends IntegrationTestBase {
 
     private MockMvc mockMvc;
 
-    private static final String DONO_TYPE_ID = "ad854890-a521-46bb-9323-9ee4f03930cb";
-    private static final String OWNER_HASH = "$2y$10$o7zgsUSyRbF3EogmG2WNbuhPNLTgHVJJmCrd0bUz.dFy8I5/tJSsW";
+    private static final String ADMIN_TYPE_ID = "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d";
+    private static final String ADMIN_HASH = "$2y$10$o7zgsUSyRbF3EogmG2WNbuhPNLTgHVJJmCrd0bUz.dFy8I5/tJSsW";
 
     @BeforeEach
     void setUp() {
@@ -46,7 +46,7 @@ class AuthSecurityIT extends IntegrationTestBase {
     private void saveUser(String login, String hash, String typeId, boolean deleted) {
         var builder = UserEntity.builder()
             .id(UUID.randomUUID())
-            .name("Owner")
+            .name("Admin")
             .email(login + "-" + UUID.randomUUID() + "@ex.com")
             .login(login)
             .taxIdentifier(String.valueOf(System.nanoTime()).substring(0, 11))
@@ -65,12 +65,12 @@ class AuthSecurityIT extends IntegrationTestBase {
     }
 
     @Test
-    void loginSuccessReturnsTokenAndAuthorizesDonoRoute() throws Exception {
-        saveUser("owner", OWNER_HASH, DONO_TYPE_ID, false);
+    void loginSuccessReturnsTokenAndAuthorizesAdminRoute() throws Exception {
+        saveUser("admin", ADMIN_HASH, ADMIN_TYPE_ID, false);
         MvcResult res = mockMvc.perform(
             post(ApiPaths.AUTH_LOGIN)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(loginBody("owner", "Senh@1234"))
+                .content(loginBody("admin", "Senh@1234"))
         )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.accessToken").exists())
@@ -82,33 +82,33 @@ class AuthSecurityIT extends IntegrationTestBase {
 
     @Test
     void loginWrongPasswordReturns401() throws Exception {
-        saveUser("owner", OWNER_HASH, DONO_TYPE_ID, false);
+        saveUser("admin", ADMIN_HASH, ADMIN_TYPE_ID, false);
         mockMvc.perform(
             post(ApiPaths.AUTH_LOGIN)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(loginBody("owner", "errada"))
+                .content(loginBody("admin", "errada"))
         )
             .andExpect(status().isUnauthorized());
     }
 
     @Test
     void loginSoftDeletedReturns401() throws Exception {
-        saveUser("owner", OWNER_HASH, DONO_TYPE_ID, true);
+        saveUser("admin", ADMIN_HASH, ADMIN_TYPE_ID, true);
         mockMvc.perform(
             post(ApiPaths.AUTH_LOGIN)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(loginBody("owner", "Senh@1234"))
+                .content(loginBody("admin", "Senh@1234"))
         )
             .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void loginUserWithoutTypeGetsTokenForbiddenOnDonoRoute() throws Exception {
-        saveUser("owner", OWNER_HASH, null, false);
+    void loginUserWithoutTypeGetsTokenForbiddenOnAdminRoute() throws Exception {
+        saveUser("admin", ADMIN_HASH, null, false);
         MvcResult res = mockMvc.perform(
             post(ApiPaths.AUTH_LOGIN)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(loginBody("owner", "Senh@1234"))
+                .content(loginBody("admin", "Senh@1234"))
         )
             .andExpect(status().isOk())
             .andReturn();
@@ -124,7 +124,15 @@ class AuthSecurityIT extends IntegrationTestBase {
     }
 
     @Test
-    void clienteTokenForbiddenOnDonoRoute() throws Exception {
+    void donoTokenStillAuthorizedOnAdminRoute() throws Exception {
+        mockMvc.perform(
+            get(ApiPaths.USERS).with(jwt().authorities(new SimpleGrantedAuthority("ROLE_DONO")))
+        )
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void clienteTokenForbiddenOnAdminRoute() throws Exception {
         mockMvc.perform(
             get(ApiPaths.USERS).with(jwt().authorities(new SimpleGrantedAuthority("ROLE_CLIENTE")))
         )
