@@ -739,16 +739,16 @@
           "response": []
         },
         {
-          "name": "Atualização de item do cardápio",
+          "name": "Atualização parcial de item do cardápio (PATCH)",
           "request": {
             "auth": {
               "type": "noauth"
             },
-            "method": "PUT",
+            "method": "PATCH",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Arroz com Feijão Especial\",\n  \"description\": \"Arroz com feijão, carne-seca e couve\",\n  \"price\": 35.90,\n  \"onlyLocal\": false,\n  \"photoPath\": \"/images/arroz-feijao-especial.jpg\",\n  \"restaurantId\": \"{{restaurantId}}\"\n}",
+              "raw": "{\n  \"name\": \"Arroz com Feijão Especial\",\n  \"price\": 35.90\n}",
               "options": {
                 "raw": {
                   "language": "json"

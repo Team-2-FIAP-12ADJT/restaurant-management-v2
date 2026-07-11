@@ -10,6 +10,7 @@ import com.fiap.restaurant_management_v2.adapters.presenters.UpdateMenuItemPrese
 import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
+import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
 import com.fiap.restaurant_management_v2.application.usecases.menuitem.create.CreateMenuItemInputBoundary;
 import com.fiap.restaurant_management_v2.application.usecases.menuitem.create.CreateMenuItemInteractor;
 import com.fiap.restaurant_management_v2.application.usecases.menuitem.delete.DeleteMenuItemInputBoundary;
@@ -46,12 +47,14 @@ public class MenuItemConfiguration {
 
     @Bean
     public CreateMenuItemInputBoundary createMenuItemInputBoundary(
+        TransactionalExecutor transactionalExecutor,
         MenuItemDsGateway menuItemDsGateway,
         RestaurantDsGateway restaurantDsGateway,
         CreateMenuItemPresenter presenter,
         LoggerGateway loggerGateway
     ) {
         return new CreateMenuItemInteractor(
+            transactionalExecutor,
             menuItemDsGateway,
             restaurantDsGateway,
             presenter,
@@ -114,12 +117,14 @@ public class MenuItemConfiguration {
 
     @Bean
     public UpdateMenuItemInputBoundary updateMenuItemInputBoundary(
+        TransactionalExecutor transactionalExecutor,
         MenuItemDsGateway menuItemDsGateway,
         RestaurantDsGateway restaurantDsGateway,
         UpdateMenuItemPresenter presenter,
         LoggerGateway loggerGateway
     ) {
         return new UpdateMenuItemInteractor(
+            transactionalExecutor,
             menuItemDsGateway,
             restaurantDsGateway,
             presenter,

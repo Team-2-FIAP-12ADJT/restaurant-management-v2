@@ -24,18 +24,11 @@ git clone <repo-url>
 cd restaurant-management-v2
 
 # 2. Create your local environment file
+# The example ships with working defaults for local Docker —
+# adjust ports/credentials only if needed (see Configuration below)
 cp .env.example .env
 
-# 3. Fill in the required variables (see Configuration below)
-# Minimum viable .env for local Docker:
-#   SPRING_DATASOURCE_DATABASE=restaurant_db
-#   SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/restaurant_db
-#   SPRING_DATASOURCE_USERNAME=postgres
-#   SPRING_DATASOURCE_PASSWORD=postgres
-#   SPRING_DATASOURCE_PORT=5432
-#   APP_PORT=8080
-
-# 4. Start the full stack
+# 3. Start the full stack
 docker compose up --build
 ```
 
@@ -155,6 +148,52 @@ cp src/main/resources/liquibase.properties.example src/main/resources/liquibase.
 | OpenAPI spec | `GET /v3/api-docs` |
 | Swagger UI | `GET /swagger-ui.html` |
 | Authentication | JWT Bearer (HS256). Get a token via `POST /api/v1/auth/login`, then send `Authorization: Bearer <token>`. See [docs/authentication.md](docs/authentication.md) |
+
+### API Endpoints
+
+Base path: `/api/v1`. Full request/response schemas are available in the Swagger UI and in the [Postman collection](postman/Restaurant%20Management%20API%20-%20V2%20-%202.postman_collection.json).
+
+#### Users — `/api/v1/users`
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/users` | Create a user |
+| `GET` | `/users` | List users (paginated) |
+| `GET` | `/users/{id}` | Get a user by ID |
+| `PATCH` | `/users/{id}` | Update a user |
+| `DELETE` | `/users/{id}` | Delete a user |
+
+#### User Types — `/api/v1/users-type`
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/users-type` | Create a user type |
+| `GET` | `/users-type` | List user types (paginated) |
+| `GET` | `/users-type/{id}` | Get a user type by ID |
+| `PUT` | `/users-type/{id}` | Update a user type |
+| `POST` | `/users-type/bind` | Bind a user to a user type |
+| `DELETE` | `/users-type/{id}` | Delete a user type |
+
+#### Restaurants — `/api/v1/restaurants`
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/restaurants` | Create a restaurant (owner must be an existing user) |
+| `GET` | `/restaurants` | List restaurants (paginated) |
+| `GET` | `/restaurants/{id}` | Get a restaurant by ID |
+| `PUT` | `/restaurants/{id}` | Update a restaurant |
+| `DELETE` | `/restaurants/{id}` | Delete a restaurant |
+
+#### Menu Items — `/api/v1/menu-items`
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/menu-items` | Create a menu item |
+| `GET` | `/menu-items` | List menu items (paginated) |
+| `GET` | `/menu-items/{id}` | Get a menu item by ID |
+| `GET` | `/menu-items/restaurant/{restaurantId}` | List menu items of a restaurant |
+| `PATCH` | `/menu-items/{id}` | Partially update a menu item |
+| `DELETE` | `/menu-items/{id}` | Delete a menu item (soft delete) |
 
 ### Docker
 

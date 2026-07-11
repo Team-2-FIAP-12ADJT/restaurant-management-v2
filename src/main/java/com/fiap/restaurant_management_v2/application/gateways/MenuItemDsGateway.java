@@ -8,6 +8,8 @@ import java.util.UUID;
 public interface MenuItemDsGateway {
     MenuItemDsResponseModel save(MenuItemDsRequestModel menuItem);
 
+    MenuItemDsResponseModel update(MenuItemDsRequestModel menuItem);
+
     Optional<MenuItemDsResponseModel> findById(UUID id);
 
     PageResult<MenuItemDsResponseModel> findAll(SearchQuery query, int page, int size);

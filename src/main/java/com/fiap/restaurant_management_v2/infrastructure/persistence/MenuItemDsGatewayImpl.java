@@ -1,5 +1,6 @@
 package com.fiap.restaurant_management_v2.infrastructure.persistence;
 
+import com.fiap.restaurant_management_v2.application.exception.MenuItemNotFoundException;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsResponseModel;
@@ -23,15 +24,32 @@ public class MenuItemDsGatewayImpl implements MenuItemDsGateway {
 
     @Override
     public MenuItemDsResponseModel save(MenuItemDsRequestModel menuItem) {
-        Instant createdAt = jpaRepository
-            .findById(menuItem.id())
-            .map(MenuItemEntity::getCreatedAt)
-            .orElse(null);
-
         MenuItemEntity saved = jpaRepository.save(
-            MenuItemEntityMapper.toEntity(menuItem, createdAt)
+            MenuItemEntityMapper.toEntity(menuItem, null)
         );
         return MenuItemEntityMapper.toDsResponse(saved);
+    }
+
+    @Override
+    public MenuItemDsResponseModel update(MenuItemDsRequestModel menuItem) {
+        MenuItemEntity entity = jpaRepository
+            .findByIdAndDeletedAtIsNull(menuItem.id())
+            .orElseThrow(() ->
+                new MenuItemNotFoundException(
+                    "Item do cardápio não encontrado: " + menuItem.id()
+                )
+            );
+        entity.setName(menuItem.name());
+        entity.setDescription(menuItem.description());
+        entity.setPrice(menuItem.price());
+        entity.setOnlyLocal(menuItem.onlyLocal());
+        entity.setPhotoPath(menuItem.photoPath());
+        entity.setRestaurant(
+            RestaurantEntity.builder().id(menuItem.restaurantId()).build()
+        );
+        entity.setUpdatedAt(Instant.now());
+
+        return MenuItemEntityMapper.toDsResponse(jpaRepository.save(entity));
     }
 
     @Override
