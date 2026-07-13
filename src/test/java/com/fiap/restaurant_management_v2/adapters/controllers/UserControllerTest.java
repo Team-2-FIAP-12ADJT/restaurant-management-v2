@@ -13,6 +13,7 @@ import com.fiap.restaurant_management_v2.application.usecases.user.get_user_by_i
 import com.fiap.restaurant_management_v2.application.usecases.user.get_user_by_id.GetUserByIdRequestModel;
 import com.fiap.restaurant_management_v2.application.usecases.user.update.UpdateUserInputBoundary;
 import com.fiap.restaurant_management_v2.application.usecases.user.update.UpdateUserRequestModel;
+import com.fiap.restaurant_management_v2.application.usecases.user.updatepassword.UpdateUserPasswordInputBoundary;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,9 @@ class UserControllerTest {
     @Mock
     private UpdateUserInputBoundary updateUser;
 
+    @Mock
+    private UpdateUserPasswordInputBoundary updateUserPassword;
+
     private UserController controller;
 
     @BeforeEach
@@ -48,7 +52,8 @@ class UserControllerTest {
             getAllUsers,
             getUserById,
             deleteUserById,
-            updateUser
+            updateUser,
+            updateUserPassword
         );
     }
 
