@@ -10,6 +10,7 @@ import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.UserTypeV
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.BindUserTypeRequest;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.CreateUserTypeRequest;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.GetAllUsersTypeParams;
+import com.fiap.restaurant_management_v2.infrastructure.web.dto.UpdateUserTypeRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
@@ -73,7 +74,7 @@ public class TypeUserApi {
     @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
     public ResponseEntity<UserTypeViewModel> update(
             @PathVariable UUID id ,
-            @Valid @RequestBody CreateUserTypeRequest request
+            @Valid @RequestBody UpdateUserTypeRequest request
     ){
 
         userTypeController.update(id ,request.userType());
