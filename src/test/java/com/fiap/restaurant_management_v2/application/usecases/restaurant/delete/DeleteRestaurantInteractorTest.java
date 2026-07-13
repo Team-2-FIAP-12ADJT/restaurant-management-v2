@@ -5,8 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fiap.restaurant_management_v2.application.exception.RestaurantHasActiveMenuItemsException;
 import com.fiap.restaurant_management_v2.application.exception.RestaurantNotFoundException;
 import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
+import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +25,9 @@ class DeleteRestaurantInteractorTest {
     private RestaurantDsGateway restaurantDsGateway;
 
     @Mock
+    private MenuItemDsGateway menuItemDsGateway;
+
+    @Mock
     private LoggerGateway loggerGateway;
 
     private CapturingPresenter presenter;
@@ -33,6 +38,7 @@ class DeleteRestaurantInteractorTest {
         presenter = new CapturingPresenter();
         interactor = new DeleteRestaurantInteractor(
             restaurantDsGateway,
+            menuItemDsGateway,
             presenter,
             loggerGateway
         );
@@ -44,6 +50,7 @@ class DeleteRestaurantInteractorTest {
         var id = UUID.randomUUID();
 
         when(restaurantDsGateway.existsById(id)).thenReturn(true);
+        when(menuItemDsGateway.existsByRestaurantIdAndIsActive(id)).thenReturn(false);
 
         interactor.execute(new DeleteRestaurantRequestModel(id));
 
@@ -59,6 +66,19 @@ class DeleteRestaurantInteractorTest {
         when(restaurantDsGateway.existsById(id)).thenReturn(false);
 
         assertThrows(RestaurantNotFoundException.class, () ->
+            interactor.execute(new DeleteRestaurantRequestModel(id))
+        );
+    }
+
+    @Test
+    @DisplayName("Bloqueia delete de restaurante com menu items ativos")
+    void throwsWhenHasActiveMenuItems() {
+        var id = UUID.randomUUID();
+
+        when(restaurantDsGateway.existsById(id)).thenReturn(true);
+        when(menuItemDsGateway.existsByRestaurantIdAndIsActive(id)).thenReturn(true);
+
+        assertThrows(RestaurantHasActiveMenuItemsException.class, () ->
             interactor.execute(new DeleteRestaurantRequestModel(id))
         );
     }

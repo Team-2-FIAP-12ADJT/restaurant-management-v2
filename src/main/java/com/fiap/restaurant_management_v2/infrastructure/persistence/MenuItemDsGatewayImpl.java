@@ -106,6 +106,11 @@ public class MenuItemDsGatewayImpl implements MenuItemDsGateway {
         return jpaRepository.existsByIdAndDeletedAtIsNull(id);
     }
 
+    @Override
+    public boolean existsByRestaurantIdAndIsActive(UUID restaurantId) {
+        return jpaRepository.existsByRestaurantIdAndDeletedAtIsNull(restaurantId);
+    }
+
     private static PageRequest pageRequest(int page, int size) {
         return PageRequest.of(
             page - 1,

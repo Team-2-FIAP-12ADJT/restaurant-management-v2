@@ -8,10 +8,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fiap.restaurant_management_v2.IntegrationTestBase;
+import com.fiap.restaurant_management_v2.infrastructure.persistence.MenuItemEntity;
+import com.fiap.restaurant_management_v2.infrastructure.persistence.MenuItemJpaRepository;
 import com.fiap.restaurant_management_v2.infrastructure.persistence.RestaurantEntity;
 import com.fiap.restaurant_management_v2.infrastructure.persistence.RestaurantJpaRepository;
 import com.fiap.restaurant_management_v2.infrastructure.persistence.UserEntity;
 import com.fiap.restaurant_management_v2.infrastructure.persistence.UserJpaRepository;
+import com.fiap.restaurant_management_v2.infrastructure.persistence.UserTypeEntity;
+import com.fiap.restaurant_management_v2.infrastructure.persistence.UserTypeJpaRepository;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,8 +45,15 @@ class RestaurantApiIT extends IntegrationTestBase {
     @Autowired
     private UserJpaRepository userJpaRepository;
 
+    @Autowired
+    private UserTypeJpaRepository userTypeJpaRepository;
+
+    @Autowired
+    private MenuItemJpaRepository menuItemJpaRepository;
+
     private MockMvc mockMvc;
     private UUID ownerId;
+    private UUID donoTypeId = UUID.fromString("ad854890-a521-46bb-9323-9ee4f03930cb");
 
     @BeforeEach
     void setUp() {
@@ -51,7 +63,18 @@ class RestaurantApiIT extends IntegrationTestBase {
             .build();
         restaurantJpaRepository.deleteAll();
         userJpaRepository.deleteAll();
+        userTypeJpaRepository.deleteAll();
+
+        // Criar o UserType "Dono"
+        userTypeJpaRepository.save(
+            UserTypeEntity.builder()
+                .id(donoTypeId)
+                .userType("Dono")
+                .build()
+        );
+
         ownerId = UUID.randomUUID();
+        var donoType = userTypeJpaRepository.findById(donoTypeId).orElseThrow();
         userJpaRepository.save(
             UserEntity.builder()
                 .id(ownerId)
@@ -60,6 +83,7 @@ class RestaurantApiIT extends IntegrationTestBase {
                 .login("owner")
                 .taxIdentifier("12345678901")
                 .password("secret")
+                .userTypeEntity(donoType)
                 .build()
         );
     }
@@ -255,6 +279,161 @@ class RestaurantApiIT extends IntegrationTestBase {
     }
 
     @Test
+    @DisplayName("POST com owner tipo Cliente retorna 422")
+    void createWithClientOwnerReturns422() throws Exception {
+        // Criar user do tipo Cliente
+        UUID clientTypeId = UUID.fromString("bc652941-b632-47cc-8414-0ff5f14841da");
+        userTypeJpaRepository.save(
+            UserTypeEntity.builder()
+                .id(clientTypeId)
+                .userType("Cliente")
+                .build()
+        );
+        UUID clientId = UUID.randomUUID();
+        var clientType = userTypeJpaRepository.findById(clientTypeId).orElseThrow();
+        userJpaRepository.save(
+            UserEntity.builder()
+                .id(clientId)
+                .name("Client")
+                .email("client@mail.com")
+                .login("client")
+                .taxIdentifier("11111111111")
+                .password("secret")
+                .userTypeEntity(clientType)
+                .build()
+        );
+
+        var body = RESTAURANT_BODY_TEMPLATE.formatted(
+            "Pizza Place",
+            "Rua A, 123",
+            "12345678000199",
+            "Pizza",
+            "08:00-22:00",
+            clientId
+        );
+
+        mockMvc
+            .perform(
+                post(ApiPaths.RESTAURANTS)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body)
+            )
+            .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    @DisplayName("POST com owner sem userType retorna 422")
+    void createWithNullUserTypeReturns422() throws Exception {
+        UUID nullTypeOwnerId = UUID.randomUUID();
+        userJpaRepository.save(
+            UserEntity.builder()
+                .id(nullTypeOwnerId)
+                .name("No Type User")
+                .email("notype@mail.com")
+                .login("notype")
+                .taxIdentifier("99999999999")
+                .password("secret")
+                .userTypeEntity(null)
+                .build()
+        );
+
+        var body = RESTAURANT_BODY_TEMPLATE.formatted(
+            "Pizza Place",
+            "Rua A, 123",
+            "12345678000199",
+            "Pizza",
+            "08:00-22:00",
+            nullTypeOwnerId
+        );
+
+        mockMvc
+            .perform(
+                post(ApiPaths.RESTAURANTS)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body)
+            )
+            .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    @DisplayName("PUT com owner tipo Cliente retorna 422")
+    void updateWithClientOwnerReturns422() throws Exception {
+        var entity = restaurant("Pizza Place", "11111111000101").build();
+        restaurantJpaRepository.save(entity);
+
+        // Criar user do tipo Cliente
+        UUID clientTypeId = UUID.fromString("bc652941-b632-47cc-8414-0ff5f14841da");
+        UUID clientId = UUID.randomUUID();
+        var clientType = userTypeJpaRepository.findById(clientTypeId).orElse(
+            userTypeJpaRepository.save(
+                UserTypeEntity.builder()
+                    .id(clientTypeId)
+                    .userType("Cliente")
+                    .build()
+            )
+        );
+        userJpaRepository.save(
+            UserEntity.builder()
+                .id(clientId)
+                .name("Client")
+                .email("client2@mail.com")
+                .login("client2")
+                .taxIdentifier("22222222222")
+                .password("secret")
+                .userTypeEntity(clientType)
+                .build()
+        );
+
+        var updateBody = RESTAURANT_BODY_TEMPLATE.formatted(
+            "Pizza Place",
+            "Rua C, 789",
+            "12345678000199",
+            "Italiana",
+            "09:00-23:00",
+            clientId
+        );
+
+        mockMvc
+            .perform(
+                put(ApiPaths.RESTAURANTS + "/" + entity.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(updateBody)
+            )
+            .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    @DisplayName("DELETE com MenuItems ativos retorna 409")
+    void deleteWithActiveMenuItemsReturns409() throws Exception {
+        var entity = restaurant("Pizza Place", "11111111000101").build();
+        restaurantJpaRepository.save(entity);
+
+        // Criar MenuItem ativo
+        menuItemJpaRepository.save(
+            MenuItemEntity.builder()
+                .id(UUID.randomUUID())
+                .name("Margherita")
+                .description("Classic pizza")
+                .price(BigDecimal.valueOf(25.50))
+                .onlyLocal(false)
+                .photoPath("https://example.com/pizza.jpg")
+                .restaurant(entity)
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .build()
+        );
+
+        mockMvc
+            .perform(delete(ApiPaths.RESTAURANTS + "/" + entity.getId()))
+            .andExpect(status().isConflict());
+
+        // Verificar que restaurante NÃO foi deletado
+        mockMvc
+            .perform(get(ApiPaths.RESTAURANTS + "/" + entity.getId()))
+            .andExpect(status().isOk());
+    }
+
+    @Test
     @DisplayName("DELETE /api/v1/restaurants/{id} exclui logicamente (204)")
     void deleteSuccess() throws Exception {
         var entity = restaurant("Pizza Place", "11111111000101").build();
@@ -317,5 +496,37 @@ class RestaurantApiIT extends IntegrationTestBase {
         mockMvc
             .perform(get(ApiPaths.RESTAURANTS + "/" + entity.getId()))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("POST soft-delete restaurante; recriar mesmo CNPJ retorna 201")
+    void reuseDeletedRestaurantCnpj() throws Exception {
+        var entity = restaurant("Pizza Place", "11111111000101").build();
+        restaurantJpaRepository.save(entity);
+        UUID restaurantId = entity.getId();
+
+        // Deletar restaurante
+        mockMvc
+            .perform(delete(ApiPaths.RESTAURANTS + "/" + restaurantId))
+            .andExpect(status().isNoContent());
+
+        // Recriar com mesmo CNPJ → 201 (não 409)
+        var body = RESTAURANT_BODY_TEMPLATE.formatted(
+            "Pizza Place New",
+            "Rua A, 123",
+            "11111111000101",
+            "Pizza",
+            "08:00-22:00",
+            ownerId
+        );
+
+        mockMvc
+            .perform(
+                post(ApiPaths.RESTAURANTS)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body)
+            )
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").exists());
     }
 }

@@ -23,4 +23,6 @@ public interface MenuItemDsGateway {
     void deleteById(UUID id);
 
     boolean existsById(UUID id);
+
+    boolean existsByRestaurantIdAndIsActive(UUID restaurantId);
 }

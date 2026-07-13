@@ -211,7 +211,7 @@ class UpdateRestaurantInteractorTest {
             "novo",
             "98765432100",
             null,
-            null
+            "DONO"
         );
         when(restaurantDsGateway.findById(id)).thenReturn(Optional.of(current));
         when(userDsGateway.findById(newOwnerId)).thenReturn(
