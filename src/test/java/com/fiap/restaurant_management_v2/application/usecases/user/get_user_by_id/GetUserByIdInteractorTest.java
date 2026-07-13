@@ -6,8 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
+import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,28 +25,35 @@ class GetUserByIdInteractorTest {
     @Mock
     private UserDsGateway userDsGateway;
 
+    @Mock
+    private RestaurantDsGateway restaurantDsGateway;
+
     private CapturingPresenter presenter;
     private GetUserByIdInteractor interactor;
 
     @BeforeEach
     void setUp() {
         presenter = new CapturingPresenter();
-        interactor = new GetUserByIdInteractor(userDsGateway, presenter);
+        interactor = new GetUserByIdInteractor(userDsGateway, restaurantDsGateway, presenter);
     }
 
     @Test
     @DisplayName("Retorna usuário quando encontrado")
     void returnsUserWhenFound() {
         var id = UUID.randomUUID();
+        var userTypeId = UUID.randomUUID();
         var user = new UserDsResponseModel(
             id,
             "Foo",
             "foo@example.com",
             "foo",
-            "123456789"
+            "123456789",
+            userTypeId,
+            "DONO"
         );
 
         when(userDsGateway.findById(id)).thenReturn(Optional.of(user));
+        when(restaurantDsGateway.findAllByOwnerIds(List.of(id))).thenReturn(List.of());
 
         interactor.execute(new GetUserByIdRequestModel(id));
 
@@ -53,6 +62,8 @@ class GetUserByIdInteractorTest {
         assertEquals("Foo", presenter.response.name());
         assertEquals("foo@example.com", presenter.response.email());
         assertEquals("foo", presenter.response.login());
+        assertEquals("DONO", presenter.response.userTypeName());
+        assertEquals(List.of(), presenter.response.restaurants());
     }
 
     @Test

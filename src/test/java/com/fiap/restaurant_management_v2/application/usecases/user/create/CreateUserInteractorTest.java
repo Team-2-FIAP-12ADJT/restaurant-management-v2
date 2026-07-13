@@ -15,6 +15,7 @@ import com.fiap.restaurant_management_v2.application.gateways.PasswordEncoderGat
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -76,7 +77,9 @@ class CreateUserInteractorTest {
                     ds.name(),
                     ds.email(),
                     ds.login(),
-                    ds.taxIdentifier()
+                    ds.taxIdentifier(),
+                    UUID.randomUUID(),
+                    "DONO"
                 );
             }
         );

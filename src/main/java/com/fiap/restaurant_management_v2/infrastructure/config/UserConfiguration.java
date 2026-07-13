@@ -65,9 +65,10 @@ public class UserConfiguration {
     @Bean
     public GetAllUsersInputBoundary getAllUsersInputBoundary(
         UserDsGateway userDsGateway,
+        RestaurantDsGateway restaurantDsGateway,
         GetAllUsersPresenter getAllUsersPresenter
     ) {
-        return new GetAllUsersInteractor(getAllUsersPresenter, userDsGateway);
+        return new GetAllUsersInteractor(getAllUsersPresenter, userDsGateway, restaurantDsGateway);
     }
 
     @Bean
@@ -79,9 +80,10 @@ public class UserConfiguration {
     @Bean
     public GetUserByIdInputBoundary getUserByIdInputBoundary(
         UserDsGateway userDsGateway,
+        RestaurantDsGateway restaurantDsGateway,
         GetUserByIdPresenter getUserByIdPresenter
     ) {
-        return new GetUserByIdInteractor(userDsGateway, getUserByIdPresenter);
+        return new GetUserByIdInteractor(userDsGateway, restaurantDsGateway, getUserByIdPresenter);
     }
 
     @Bean

@@ -57,7 +57,9 @@ class UpdateUserInteractorTest {
             "Ada",
             "ada@example.com",
             "ada",
-            "12345678901"
+            "12345678901",
+            UUID.randomUUID(),
+            "DONO"
         );
     }
 
@@ -72,7 +74,9 @@ class UpdateUserInteractorTest {
             "Ada Lovelace",
             "ada@example.com",
             "ada",
-            "12345678901"
+            "12345678901",
+            current.userTypeId(),
+            current.userTypeName()
         );
         when(
             userDsGateway.update(
@@ -249,7 +253,9 @@ class UpdateUserInteractorTest {
             "Ada",
             "ada@example.com",
             "ada",
-            "98765432100"
+            "98765432100",
+            current.userTypeId(),
+            current.userTypeName()
         );
         when(
             userDsGateway.update(

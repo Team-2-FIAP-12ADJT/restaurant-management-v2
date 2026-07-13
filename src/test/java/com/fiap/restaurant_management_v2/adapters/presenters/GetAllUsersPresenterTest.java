@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.PageViewModel;
-import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.UserViewModel;
+import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.UserWithDetailsViewModel;
 import com.fiap.restaurant_management_v2.application.pagination.PageResult;
 import com.fiap.restaurant_management_v2.application.usecases.user.get_all.GetAllUsersResponseModel;
 import com.fiap.restaurant_management_v2.application.usecases.user.get_all.UserSummary;
@@ -25,13 +25,15 @@ class GetAllUsersPresenterTest {
             "Foo",
             "foo@example.com",
             "foo",
-            "12345678901"
+            "12345678901",
+            "DONO",
+            List.of()
         );
         var page = new PageResult<>(List.of(summary), 1L, 1, 10);
 
         presenter.present(new GetAllUsersResponseModel(page));
 
-        PageViewModel<UserViewModel> vm = presenter.getViewModel();
+        PageViewModel<UserWithDetailsViewModel> vm = presenter.getViewModel();
         assertEquals(1, vm.page());
         assertEquals(10, vm.size());
         assertEquals(1L, vm.totalElements());
@@ -43,6 +45,8 @@ class GetAllUsersPresenterTest {
         assertEquals("foo@example.com", first.email());
         assertEquals("foo", first.login());
         assertEquals("123.456.789-01", first.taxIdentifier());
+        assertEquals("DONO", first.userType());
+        assertEquals(List.of(), first.restaurants());
     }
 
     @Test

@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.search.FilterOperator;
@@ -32,31 +33,38 @@ class GetAllUsersInteractorTest {
     @Mock
     private UserDsGateway userDsGateway;
 
+    @Mock
+    private RestaurantDsGateway restaurantDsGateway;
+
     private CapturingPresenter presenter;
     private GetAllUsersInteractor interactor;
 
     @BeforeEach
     void setUp() {
         presenter = new CapturingPresenter();
-        interactor = new GetAllUsersInteractor(presenter, userDsGateway);
+        interactor = new GetAllUsersInteractor(presenter, userDsGateway, restaurantDsGateway);
     }
 
     @Test
     @DisplayName("Lista usuários paginados com sucesso")
     void listsUsers() {
         var id = UUID.randomUUID();
+        var userTypeId = UUID.randomUUID();
         var user = new UserDsResponseModel(
             id,
             "Foo",
             "foo@example.com",
             "foo",
-            "12345678900"
+            "12345678900",
+            userTypeId,
+            "DONO"
         );
         var pageResult = new PageResult<>(List.of(user), 1L, 1, 10);
 
         when(
             userDsGateway.findAll(any(SearchQuery.class), anyInt(), anyInt())
         ).thenReturn(pageResult);
+        when(restaurantDsGateway.findAllByOwnerIds(List.of(id))).thenReturn(List.of());
 
         interactor.execute(
             new GetAllUsersRequestModel(null, null, null, null, 1, 10)
@@ -83,6 +91,7 @@ class GetAllUsersInteractorTest {
         when(
             userDsGateway.findAll(any(SearchQuery.class), anyInt(), anyInt())
         ).thenReturn(pageResult);
+        when(restaurantDsGateway.findAllByOwnerIds(List.of())).thenReturn(List.of());
 
         interactor.execute(
             new GetAllUsersRequestModel(null, null, null, null, 1, 10)
@@ -96,12 +105,15 @@ class GetAllUsersInteractorTest {
     @DisplayName("Filtra por nome (monta LIKE name=valor) quando informado")
     void filtersByName() {
         var id = UUID.randomUUID();
+        var userTypeId = UUID.randomUUID();
         var user = new UserDsResponseModel(
             id,
             "Foo",
             "foo@example.com",
             "foo",
-            "12345678900"
+            "12345678900",
+            userTypeId,
+            "DONO"
         );
         var pageResult = new PageResult<>(List.of(user), 1L, 1, 10);
         var queryCaptor = ArgumentCaptor.forClass(SearchQuery.class);
@@ -109,6 +121,7 @@ class GetAllUsersInteractorTest {
         when(
             userDsGateway.findAll(any(SearchQuery.class), anyInt(), anyInt())
         ).thenReturn(pageResult);
+        when(restaurantDsGateway.findAllByOwnerIds(List.of(id))).thenReturn(List.of());
 
         interactor.execute(
             new GetAllUsersRequestModel("Foo", null, null, null, 1, 10)
@@ -142,6 +155,7 @@ class GetAllUsersInteractorTest {
         when(
             userDsGateway.findAll(any(SearchQuery.class), anyInt(), anyInt())
         ).thenReturn(pageResult);
+        when(restaurantDsGateway.findAllByOwnerIds(List.of())).thenReturn(List.of());
 
         interactor.execute(
             new GetAllUsersRequestModel(
@@ -177,6 +191,7 @@ class GetAllUsersInteractorTest {
         when(
             userDsGateway.findAll(any(SearchQuery.class), anyInt(), anyInt())
         ).thenReturn(pageResult);
+        when(restaurantDsGateway.findAllByOwnerIds(List.of())).thenReturn(List.of());
 
         interactor.execute(
             new GetAllUsersRequestModel(null, null, null, filter, 1, 10)
@@ -206,6 +221,7 @@ class GetAllUsersInteractorTest {
         when(
             userDsGateway.findAll(any(SearchQuery.class), anyInt(), anyInt())
         ).thenReturn(pageResult);
+        when(restaurantDsGateway.findAllByOwnerIds(List.of())).thenReturn(List.of());
 
         // Passa vários valores em branco para nome/email/login.
         interactor.execute(
@@ -230,6 +246,7 @@ class GetAllUsersInteractorTest {
         when(
             userDsGateway.findAll(any(SearchQuery.class), anyInt(), anyInt())
         ).thenReturn(pageResult);
+        when(restaurantDsGateway.findAllByOwnerIds(List.of())).thenReturn(List.of());
 
         interactor.execute(
             new GetAllUsersRequestModel(null, null, null, "  ", 1, 10)

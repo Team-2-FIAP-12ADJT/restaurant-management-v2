@@ -57,7 +57,9 @@ class DeleteUserByIdInteractorTest {
             "Foo",
             "foo@example.com",
             "foo",
-            "12345678900"
+            "12345678900",
+            UUID.randomUUID(),
+            "DONO"
         );
 
         when(userDsGateway.findById(id)).thenReturn(Optional.of(user));
@@ -96,7 +98,9 @@ class DeleteUserByIdInteractorTest {
             "Foo",
             "foo@example.com",
             "foo",
-            "12345678900"
+            "12345678900",
+            UUID.randomUUID(),
+            "DONO"
         );
 
         when(userDsGateway.findById(id)).thenReturn(Optional.of(user));

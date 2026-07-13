@@ -23,7 +23,7 @@ class GetAllModelsTest {
     @Test
     void userSummary_and_responseModel_work() {
         var id = UUID.randomUUID();
-        var summary = new UserSummary(id, "Name", "a@b", "login", "123");
+        var summary = new UserSummary(id, "Name", "a@b", "login", "123", "DONO", List.of());
 
         var page = new PageResult<>(List.of(summary), 1L, 1, 10);
         var resp = new GetAllUsersResponseModel(page);

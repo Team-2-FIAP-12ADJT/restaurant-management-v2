@@ -76,7 +76,9 @@ class UpdateRestaurantInteractorTest {
             "Dona Ada",
             "dona@example.com",
             "dona",
-            "12345678901"
+            "12345678901",
+            UUID.randomUUID(),
+            "DONO"
         );
     }
 
@@ -207,7 +209,9 @@ class UpdateRestaurantInteractorTest {
             "Novo Dono",
             "novo@example.com",
             "novo",
-            "98765432100"
+            "98765432100",
+            null,
+            null
         );
         when(restaurantDsGateway.findById(id)).thenReturn(Optional.of(current));
         when(userDsGateway.findById(newOwnerId)).thenReturn(
