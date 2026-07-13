@@ -1,7 +1,9 @@
 package com.fiap.restaurant_management_v2.adapters.presenters;
 
 import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.PageViewModel;
-import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.UserViewModel;
+import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.RestaurantViewModel;
+import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.UserWithDetailsViewModel;
+import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsResponseModel;
 import com.fiap.restaurant_management_v2.application.pagination.PageResult;
 import com.fiap.restaurant_management_v2.application.usecases.user.get_all.GetAllUsersOutputBoundary;
 import com.fiap.restaurant_management_v2.application.usecases.user.get_all.GetAllUsersResponseModel;
@@ -9,7 +11,7 @@ import com.fiap.restaurant_management_v2.application.usecases.user.get_all.UserS
 
 public class GetAllUsersPresenter implements GetAllUsersOutputBoundary {
 
-    private PageViewModel<UserViewModel> viewModel;
+    private PageViewModel<UserWithDetailsViewModel> viewModel;
 
     @Override
     public void present(GetAllUsersResponseModel response) {
@@ -24,17 +26,27 @@ public class GetAllUsersPresenter implements GetAllUsersOutputBoundary {
         );
     }
 
-    public PageViewModel<UserViewModel> getViewModel() {
+    public PageViewModel<UserWithDetailsViewModel> getViewModel() {
         return viewModel;
     }
 
-    private UserViewModel toViewModel(UserSummary summary) {
-        return new UserViewModel(
+    private UserWithDetailsViewModel toViewModel(UserSummary summary) {
+        return new UserWithDetailsViewModel(
             summary.id().toString(),
             summary.name(),
             summary.email(),
             summary.login(),
-            CpfFormatter.format(summary.taxIdentifier())
+            CpfFormatter.format(summary.taxIdentifier()),
+            summary.userTypeName(),
+            summary.restaurants().stream().map(this::toRestaurantViewModel).toList()
+        );
+    }
+
+    private RestaurantViewModel toRestaurantViewModel(RestaurantDsResponseModel r) {
+        return new RestaurantViewModel(
+            r.id().toString(), r.name(), r.address(),
+            CnpjFormatter.format(r.taxIdentifier()), r.cuisineType(), r.openingHours(),
+            r.ownerId().toString()
         );
     }
 }

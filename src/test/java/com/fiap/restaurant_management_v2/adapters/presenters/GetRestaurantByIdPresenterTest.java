@@ -23,7 +23,9 @@ class GetRestaurantByIdPresenterTest {
             "Dona Ada",
             "dona@example.com",
             "dona",
-            "12345678901"
+            "12345678901",
+            UUID.randomUUID(),
+            "DONO"
         );
 
         presenter.present(

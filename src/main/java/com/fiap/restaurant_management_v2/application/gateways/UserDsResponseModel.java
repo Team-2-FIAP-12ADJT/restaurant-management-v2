@@ -8,5 +8,7 @@ public record UserDsResponseModel(
     String name,
     String email,
     String login,
-    String taxIdentifier
+    String taxIdentifier,
+    UUID userTypeId,
+    String userTypeName
 ) {}

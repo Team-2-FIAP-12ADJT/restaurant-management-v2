@@ -21,12 +21,15 @@ final class UserEntityMapper {
     }
 
     static UserDsResponseModel toDsResponse(UserEntity entity) {
+        UserTypeEntity userType = entity.getUserTypeEntity();
         return new UserDsResponseModel(
             entity.getId(),
             entity.getName(),
             entity.getEmail(),
             entity.getLogin(),
-            entity.getTaxIdentifier()
+            entity.getTaxIdentifier(),
+            userType == null ? null : userType.getId(),
+            userType == null ? null : userType.getUserType()
         );
     }
 

@@ -1,5 +1,7 @@
 package com.fiap.restaurant_management_v2.application.usecases.user.get_all;
 
+import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
+import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.search.FilterCriteria;
@@ -8,18 +10,23 @@ import com.fiap.restaurant_management_v2.application.gateways.search.SearchQuery
 import com.fiap.restaurant_management_v2.application.pagination.PageResult;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class GetAllUsersInteractor implements GetAllUsersInputBoundary {
 
     private final GetAllUsersOutputBoundary outputBoundary;
     private final UserDsGateway userDsGateway;
+    private final RestaurantDsGateway restaurantDsGateway;
 
     public GetAllUsersInteractor(
         GetAllUsersOutputBoundary outputBoundary,
-        UserDsGateway userDsGateway
+        UserDsGateway userDsGateway,
+        RestaurantDsGateway restaurantDsGateway
     ) {
         this.outputBoundary = outputBoundary;
         this.userDsGateway = userDsGateway;
+        this.restaurantDsGateway = restaurantDsGateway;
     }
 
     @Override
@@ -37,8 +44,15 @@ public class GetAllUsersInteractor implements GetAllUsersInputBoundary {
                 request.size()
             );
 
+        var ownerIds = page.content().stream().map(UserDsResponseModel::id).toList();
+
+        var restaurantsByOwner = restaurantDsGateway.findAllByOwnerIds(ownerIds).stream()
+            .collect(Collectors.groupingBy(RestaurantDsResponseModel::ownerId));
+
         PageResult<UserSummary> summaryPage = new PageResult<>(
-            page.content().stream().map(this::toSummary).toList(),
+            page.content().stream()
+                .map(user -> toSummary(user, restaurantsByOwner.getOrDefault(user.id(), List.of())))
+                .toList(),
             page.totalElements(),
             page.page(),
             page.size()
@@ -47,13 +61,15 @@ public class GetAllUsersInteractor implements GetAllUsersInputBoundary {
         outputBoundary.present(new GetAllUsersResponseModel(summaryPage));
     }
 
-    private UserSummary toSummary(UserDsResponseModel user) {
+    private UserSummary toSummary(UserDsResponseModel user, List<RestaurantDsResponseModel> restaurants) {
         return new UserSummary(
             user.id(),
             user.name(),
             user.email(),
             user.login(),
-            user.taxIdentifier()
+            user.taxIdentifier(),
+            user.userTypeName(),
+            restaurants
         );
     }
 

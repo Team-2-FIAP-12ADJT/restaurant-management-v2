@@ -10,7 +10,8 @@ import com.fiap.restaurant_management_v2.adapters.presenters.GetAllUsersPresente
 import com.fiap.restaurant_management_v2.adapters.presenters.GetUserByIdPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.UpdateUserPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.PageViewModel;
-import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.UserViewModel;
+import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.RestaurantViewModel;
+import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.UserWithDetailsViewModel;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.GetAllUsersParams;
 import java.util.List;
 import java.util.UUID;
@@ -54,7 +55,7 @@ class UserApiTest {
 
     @Test
     void getAllDelegatesAndReturnsPresenterViewModel() {
-        var viewModel = new PageViewModel<UserViewModel>(1, 10, 0, 0, List.of());
+        var viewModel = new PageViewModel<UserWithDetailsViewModel>(1, 10, 0, 0, List.of());
         when(getAllUsersPresenter.getViewModel()).thenReturn(viewModel);
 
         var response = api.getAll(
@@ -69,12 +70,14 @@ class UserApiTest {
     @Test
     void getByIdDelegatesAndReturnsPresenterViewModel() {
         UUID id = UUID.randomUUID();
-        var viewModel = new UserViewModel(
+        var viewModel = new UserWithDetailsViewModel(
             id.toString(),
             "Ada",
             "ada@example.com",
             "ada",
-            "123.456.789-01"
+            "123.456.789-01",
+            "DONO",
+            List.of()
         );
         when(getUserByIdPresenter.getViewModel()).thenReturn(viewModel);
 

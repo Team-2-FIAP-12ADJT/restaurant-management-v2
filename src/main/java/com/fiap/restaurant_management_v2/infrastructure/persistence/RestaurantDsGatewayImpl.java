@@ -7,6 +7,8 @@ import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsRespon
 import com.fiap.restaurant_management_v2.application.gateways.search.SearchQuery;
 import com.fiap.restaurant_management_v2.application.pagination.PageResult;
 import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -144,5 +146,19 @@ public class RestaurantDsGatewayImpl implements RestaurantDsGateway {
         entity.setUpdatedAt(Instant.now());
 
         return RestaurantEntityMapper.toDsResponse(jpaRepository.save(entity));
+    }
+
+    @Override
+    public List<RestaurantDsResponseModel> findAllByOwnerIds(
+        Collection<UUID> ownerIds
+    ) {
+        if (ownerIds.isEmpty()) {
+            return List.of();
+        }
+        return jpaRepository
+            .findAllByOwnerIdInAndDeletedAtIsNull(ownerIds)
+            .stream()
+            .map(RestaurantEntityMapper::toDsResponse)
+            .toList();
     }
 }

@@ -7,6 +7,7 @@ import com.fiap.restaurant_management_v2.adapters.presenters.GetUserByIdPresente
 import com.fiap.restaurant_management_v2.adapters.presenters.UpdateUserPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.PageViewModel;
 import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.UserViewModel;
+import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.UserWithDetailsViewModel;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.CreateUserRequest;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.GetAllUsersParams;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.UpdateUserRequest;
@@ -52,7 +53,7 @@ public class UserApi {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
-    public ResponseEntity<PageViewModel<UserViewModel>> getAll(
+    public ResponseEntity<PageViewModel<UserWithDetailsViewModel>> getAll(
         @ParameterObject GetAllUsersParams params
     ) {
         userController.getAll(
@@ -69,7 +70,7 @@ public class UserApi {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
-    public ResponseEntity<UserViewModel> getById(@PathVariable String id) {
+    public ResponseEntity<UserWithDetailsViewModel> getById(@PathVariable String id) {
         userController.getById(java.util.UUID.fromString(id));
         return ResponseEntity.ok(getUserByIdPresenter.getViewModel());
     }
