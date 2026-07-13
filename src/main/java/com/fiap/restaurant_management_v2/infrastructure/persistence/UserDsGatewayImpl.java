@@ -185,4 +185,13 @@ public class UserDsGatewayImpl implements UserDsGateway {
                 jpaRepository.save(entity);
             });
     }
+
+    @Override
+    public List<UUID> findActiveIdsByUserTypeId(UUID typeId) {
+        return jpaRepository
+            .findAllByUserTypeEntityIdAndDeletedAtIsNull(typeId)
+            .stream()
+            .map(UserEntity::getId)
+            .toList();
+    }
 }

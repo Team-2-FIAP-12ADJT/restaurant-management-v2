@@ -2,6 +2,7 @@ package com.fiap.restaurant_management_v2.application.usecases.usertype.delete;
 
 import com.fiap.restaurant_management_v2.application.exception.UserTypeNotFoundException;
 import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
+import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsGateway;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,6 +31,9 @@ class DeleteUserTypeByIdInteractorTest {
     private UserDsGateway userDsGateway;
 
     @Mock
+    private RestaurantDsGateway restaurantDsGateway;
+
+    @Mock
     private TransactionalExecutor transactionalExecutor;
 
     @Mock
@@ -42,6 +47,7 @@ class DeleteUserTypeByIdInteractorTest {
         interactor = new DeleteUserTypeByIdInteractor(
                 userTypeDsGateway,
                 userDsGateway,
+                restaurantDsGateway,
                 transactionalExecutor,
                 presenter,
                 loggerGateway
@@ -55,6 +61,8 @@ class DeleteUserTypeByIdInteractorTest {
         var request = new DeleteUserTypeByIdRequestModel(id);
         when(userTypeDsGateway.findById(id))
                 .thenReturn(Optional.of(new UserTypeDsResponseModel(id, "admin")));
+        when(userDsGateway.findActiveIdsByUserTypeId(id))
+                .thenReturn(List.of());
         doAnswer(invocation -> {
             invocation.getArgument(0, Runnable.class).run();
             return null;

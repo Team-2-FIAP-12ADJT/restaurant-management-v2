@@ -3,6 +3,8 @@ package com.fiap.restaurant_management_v2.application.usecases.usertype.update;
 import com.fiap.restaurant_management_v2.application.exception.DuplicateUserTypeException;
 import com.fiap.restaurant_management_v2.application.exception.UserTypeNotFoundException;
 import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
+import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
+import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsResponseModel;
@@ -14,6 +16,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +31,12 @@ class UpdateUserTypeInteractorTest {
     private UserTypeDsGateway userTypeDsGateway;
 
     @Mock
+    private UserDsGateway userDsGateway;
+
+    @Mock
+    private RestaurantDsGateway restaurantDsGateway;
+
+    @Mock
     private LoggerGateway loggerGateway;
 
     private CapturingPresenter presenter;
@@ -36,7 +45,7 @@ class UpdateUserTypeInteractorTest {
     @BeforeEach
     void setUp() {
         presenter = new CapturingPresenter();
-        interactor = new UpdateUserTypeInteractor(userTypeDsGateway, presenter, loggerGateway);
+        interactor = new UpdateUserTypeInteractor(userTypeDsGateway, userDsGateway, restaurantDsGateway, presenter, loggerGateway);
     }
 
     @Test

@@ -56,4 +56,6 @@ public interface UserDsGateway {
     void bindUserType(UUID userId, UUID typeId);
 
     void unbindUserType(UUID typeId);
+
+    List<UUID> findActiveIdsByUserTypeId(UUID typeId);
 }
