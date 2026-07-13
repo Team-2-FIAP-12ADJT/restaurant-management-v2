@@ -194,4 +194,20 @@ public class UserDsGatewayImpl implements UserDsGateway {
             .map(UserEntity::getId)
             .toList();
     }
+
+    @Override
+    public Optional<UserCredentialDsResponseModel> findCredentialById(UUID id) {
+        return jpaRepository
+            .findByIdAndDeletedAtIsNull(id)
+            .map(UserEntityMapper::toCredentialDsResponse);
+    }
+
+    @Override
+    public void updatePassword(UUID id, String newEncodedPassword) {
+        jpaRepository.findByIdAndDeletedAtIsNull(id).ifPresent(entity -> {
+            entity.setPassword(newEncodedPassword);
+            entity.setUpdatedAt(Instant.now());
+            jpaRepository.save(entity);
+        });
+    }
 }

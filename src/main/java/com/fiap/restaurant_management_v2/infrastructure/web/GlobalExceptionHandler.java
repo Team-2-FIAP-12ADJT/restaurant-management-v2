@@ -153,6 +153,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return problem(HttpStatus.UNAUTHORIZED, ex.getMessage(), ex);
     }
 
+    @ExceptionHandler(IncorrectPasswordException.class)
+    public ProblemDetail handleIncorrectPassword(IncorrectPasswordException ex) {
+        return problem(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
+    }
+
+    @ExceptionHandler(SamePasswordException.class)
+    public ProblemDetail handleSamePassword(SamePasswordException ex) {
+        return problem(HttpStatus.CONFLICT, ex.getMessage(), ex);
+    }
+
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
     public ProblemDetail handleAccessDenied(org.springframework.security.access.AccessDeniedException ex) {
         return problem(HttpStatus.FORBIDDEN, "Acesso negado", ex);

@@ -58,4 +58,8 @@ public interface UserDsGateway {
     void unbindUserType(UUID typeId);
 
     List<UUID> findActiveIdsByUserTypeId(UUID typeId);
+
+    Optional<UserCredentialDsResponseModel> findCredentialById(UUID id);
+
+    void updatePassword(UUID id, String newEncodedPassword);
 }
