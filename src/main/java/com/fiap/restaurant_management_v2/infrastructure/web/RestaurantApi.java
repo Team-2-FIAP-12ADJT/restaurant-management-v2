@@ -10,6 +10,7 @@ import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.Restauran
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.CreateRestaurantRequest;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.GetAllRestaurantsParams;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.UpdateRestaurantRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springdoc.core.annotations.ParameterObject;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(ApiPaths.RESTAURANTS)
+@Tag(name = "Restaurants")
 public class RestaurantApi {
 
     private final RestaurantController restaurantController;

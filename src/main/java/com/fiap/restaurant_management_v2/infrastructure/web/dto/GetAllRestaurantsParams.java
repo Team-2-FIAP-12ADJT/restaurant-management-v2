@@ -1,11 +1,13 @@
 package com.fiap.restaurant_management_v2.infrastructure.web.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public record GetAllRestaurantsParams(
-    String name,
-    String taxIdentifier,
-    String cuisineType,
-    Integer page,
-    Integer size
+    @Schema(example = "Cantina") String name,
+    @Schema(example = "12345678000199") String taxIdentifier,
+    @Schema(example = "Italiana") String cuisineType,
+    @Schema(example = "1") Integer page,
+    @Schema(example = "20") Integer size
 ) {
     public GetAllRestaurantsParams {
         page = page == null || page < 1 ? 1 : page;

@@ -1,27 +1,28 @@
 package com.fiap.restaurant_management_v2.infrastructure.web.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record CreateUserRequest(
-    @NotBlank(message = "Name is required") String name,
-    @NotBlank(message = "Email is required") @Email String email,
-    @NotBlank(message = "Login is required") String login,
+    @NotBlank(message = "Name is required") @Schema(example = "João Silva") String name,
+    @NotBlank(message = "Email is required") @Email @Schema(example = "joao.silva@example.com") String email,
+    @NotBlank(message = "Login is required") @Schema(example = "joaosilva") String login,
     @NotBlank()
     @Pattern(
         regexp = "^\\d{11}$",
         message = "Tax identifier must be a valid CPF (11 digits)"
     )
-    String taxIdentifier,
+    @Schema(example = "12345678901") String taxIdentifier,
     @NotBlank(message = "Password is required")
     @Size(
         min = 6,
         max = 12,
         message = "Password must be between 6 and 12 characters long"
     )
-    String password
+    @Schema(example = "Senh@123") String password
 ) {
     /**
      * O construtor SÓ normaliza — nunca lança. Validação estrutural/formato fica

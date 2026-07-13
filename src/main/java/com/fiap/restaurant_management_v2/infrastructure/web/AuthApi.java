@@ -4,6 +4,8 @@ import com.fiap.restaurant_management_v2.adapters.controllers.AuthController;
 import com.fiap.restaurant_management_v2.adapters.presenters.AuthPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.TokenViewModel;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.LoginRequest;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(ApiPaths.AUTH)
+@Tag(name = "Authentication")
+@SecurityRequirements
 public class AuthApi {
 
     private final AuthController authController;

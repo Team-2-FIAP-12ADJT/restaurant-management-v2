@@ -1,6 +1,7 @@
 package com.fiap.restaurant_management_v2.infrastructure.web.dto;
 
 import com.fiap.restaurant_management_v2.domain.MenuItem;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
@@ -10,13 +11,12 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 public record CreateMenuItemRequest(
-    @NotBlank @Size(max = MenuItem.MAX_NAME_LENGTH) String name,
-    @NotBlank @Size(max = MenuItem.MAX_DESCRIPTION_LENGTH) String description,
-    @NotNull @DecimalMin("0.01") @Digits(integer = 8, fraction = 2)
-    BigDecimal price,
-    @NotNull Boolean onlyLocal,
-    @NotBlank @Size(max = MenuItem.MAX_PHOTO_PATH_LENGTH) String photoPath,
-    @NotNull UUID restaurantId
+    @NotBlank @Size(max = MenuItem.MAX_NAME_LENGTH) @Schema(example = "Pizza Margherita") String name,
+    @NotBlank @Size(max = MenuItem.MAX_DESCRIPTION_LENGTH) @Schema(example = "Molho de tomate, mozzarella e manjericão fresco") String description,
+    @NotNull @DecimalMin("0.01") @Digits(integer = 8, fraction = 2) @Schema(example = "49.90") BigDecimal price,
+    @NotNull @Schema(example = "false") Boolean onlyLocal,
+    @NotBlank @Size(max = MenuItem.MAX_PHOTO_PATH_LENGTH) @Schema(example = "/images/menu/pizza-margherita.jpg") String photoPath,
+    @NotNull @Schema(example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID restaurantId
 ) {
     // Normaliza na borda (trim), espelhando Create User/Restaurant. Campo em
     // branco vira "" → @NotBlank dispara → 400.
