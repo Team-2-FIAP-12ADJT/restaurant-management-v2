@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+>
+
+    <changeSet id="0008-replace-user-unique-with-partial-indexes" author="ricardo">
+        <dropUniqueConstraint
+            tableName="users"
+            constraintName="uk_users_email"
+        />
+        <sql>
+            CREATE UNIQUE INDEX IF NOT EXISTS ux_users_active_email
+            ON users (email)
+            WHERE deleted_at IS NULL;
+        </sql>
+        <rollback>
+            <sql>
+                DROP INDEX IF EXISTS ux_users_active_email;
+            </sql>
+            <addUniqueConstraint
+                tableName="users"
+                columnNames="email"
+                constraintName="uk_users_email"
+            />
+        </rollback>
+    </changeSet>
+
+    <changeSet id="0008-replace-user-login-unique-with-partial-index" author="ricardo">
+        <dropUniqueConstraint
+            tableName="users"
+            constraintName="uk_users_login"
+        />
+        <sql>
+            CREATE UNIQUE INDEX IF NOT EXISTS ux_users_active_login
+            ON users (login)
+            WHERE deleted_at IS NULL;
+        </sql>
+        <rollback>
+            <sql>
+                DROP INDEX IF EXISTS ux_users_active_login;
+            </sql>
+            <addUniqueConstraint
+                tableName="users"
+                columnNames="login"
+                constraintName="uk_users_login"
+            />
+        </rollback>
+    </changeSet>
+
+    <changeSet id="0008-replace-user-tax-identifier-unique-with-partial-index" author="ricardo">
+        <dropUniqueConstraint
+            tableName="users"
+            constraintName="uk_users_tax_identifier"
+        />
+        <sql>
+            CREATE UNIQUE INDEX IF NOT EXISTS ux_users_active_tax_identifier
+            ON users (tax_identifier)
+            WHERE deleted_at IS NULL;
+        </sql>
+        <rollback>
+            <sql>
+                DROP INDEX IF EXISTS ux_users_active_tax_identifier;
+            </sql>
+            <addUniqueConstraint
+                tableName="users"
+                columnNames="tax_identifier"
+                constraintName="uk_users_tax_identifier"
+            />
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

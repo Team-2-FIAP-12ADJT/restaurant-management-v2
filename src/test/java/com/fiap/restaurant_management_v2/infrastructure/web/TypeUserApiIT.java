@@ -9,6 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fiap.restaurant_management_v2.IntegrationTestBase;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsGateway;
+import com.fiap.restaurant_management_v2.infrastructure.persistence.RestaurantEntity;
+import com.fiap.restaurant_management_v2.infrastructure.persistence.RestaurantJpaRepository;
 import com.fiap.restaurant_management_v2.infrastructure.persistence.UserEntity;
 import com.fiap.restaurant_management_v2.infrastructure.persistence.UserJpaRepository;
 import com.fiap.restaurant_management_v2.infrastructure.persistence.UserTypeEntity;
@@ -43,12 +45,17 @@ class TypeUserApiIT extends IntegrationTestBase {
     private UserJpaRepository userJpaRepository;
 
     @Autowired
+    private RestaurantJpaRepository restaurantJpaRepository;
+
+    @Autowired
     private UserTypeDsGateway userTypeDsGateway;
 
     @Autowired
     private UserDsGateway userDsGateway;
 
     private MockMvc mockMvc;
+    private UUID donoTypeId;
+    private UUID clienteTypeId;
 
     @BeforeEach
     void setUp() {
@@ -58,6 +65,23 @@ class TypeUserApiIT extends IntegrationTestBase {
             .build();
         userJpaRepository.deleteAll();
         userTypeJpaRepository.deleteAll();
+    }
+
+    void createDonoAndClienteTypes() {
+        donoTypeId = UUID.randomUUID();
+        clienteTypeId = UUID.randomUUID();
+        userTypeJpaRepository.save(
+            UserTypeEntity.builder()
+                .id(donoTypeId)
+                .userType("Dono")
+                .build()
+        );
+        userTypeJpaRepository.save(
+            UserTypeEntity.builder()
+                .id(clienteTypeId)
+                .userType("Cliente")
+                .build()
+        );
     }
 
     @Test
@@ -292,6 +316,340 @@ class TypeUserApiIT extends IntegrationTestBase {
         mockMvc
             .perform(delete(ApiPaths.USERS_TYPE + "/invalido"))
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("POST com body {} retorna 400 com $.errors.userType (não 500 NPE)")
+    void postWithEmptyBodyReturns400WithFieldError() throws Exception {
+        mockMvc
+            .perform(
+                post(ApiPaths.USERS_TYPE)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{}")
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.detail").value("Falha de validação"))
+            .andExpect(jsonPath("$.errors.userType").exists());
+    }
+
+    @Test
+    @DisplayName("POST com {\"userType\":null} retorna 400 com $.errors.userType (não 500 NPE)")
+    void postWithNullUserTypeReturns400WithFieldError() throws Exception {
+        mockMvc
+            .perform(
+                post(ApiPaths.USERS_TYPE)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"userType\":null}")
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.detail").value("Falha de validação"))
+            .andExpect(jsonPath("$.errors.userType").exists());
+    }
+
+    @Test
+    @DisplayName("PUT com body {} retorna 400 com $.errors.userType (não 500 NPE)")
+    void putWithEmptyBodyReturns400WithFieldError() throws Exception {
+        var id = UUID.randomUUID();
+        userTypeJpaRepository.save(
+            UserTypeEntity.builder().id(id).userType("admin").build()
+        );
+
+        mockMvc
+            .perform(
+                put(ApiPaths.USERS_TYPE + "/" + id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{}")
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.detail").value("Falha de validação"))
+            .andExpect(jsonPath("$.errors.userType").exists());
+    }
+
+    @Test
+    @DisplayName("PUT com {\"userType\":null} retorna 400 com $.errors.userType (não 500 NPE)")
+    void putWithNullUserTypeReturns400WithFieldError() throws Exception {
+        var id = UUID.randomUUID();
+        userTypeJpaRepository.save(
+            UserTypeEntity.builder().id(id).userType("admin").build()
+        );
+
+        mockMvc
+            .perform(
+                put(ApiPaths.USERS_TYPE + "/" + id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"userType\":null}")
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.detail").value("Falha de validação"))
+            .andExpect(jsonPath("$.errors.userType").exists());
+    }
+
+    @Test
+    @DisplayName("POST bind: owner ativo de restaurante não pode rebaixar de Dono")
+    void bindOwnerToClientTypeReturns409() throws Exception {
+        createDonoAndClienteTypes();
+        // Criar Dono com restaurante ativo
+        UUID ownerId = UUID.randomUUID();
+        UserTypeEntity donoType = userTypeJpaRepository.findById(donoTypeId).orElseThrow();
+        userJpaRepository.save(
+            UserEntity.builder()
+                .id(ownerId)
+                .name("Ada")
+                .email("ada@example.com")
+                .login("ada")
+                .taxIdentifier("12345678901")
+                .password("hash")
+                .userTypeEntity(donoType)
+                .build()
+        );
+
+        restaurantJpaRepository.save(
+            RestaurantEntity.builder()
+                .id(UUID.randomUUID())
+                .name("Pizza Place")
+                .address("Rua A")
+                .taxIdentifier("12345678000195")
+                .cuisineType("Italiana")
+                .openingHours("11h-23h")
+                .owner(userJpaRepository.findById(ownerId).orElseThrow())
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .build()
+        );
+
+        // Tentar bind para Cliente → 409
+        mockMvc
+            .perform(
+                post(ApiPaths.USERS_TYPE + "/bind")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"userId\":\"" + ownerId + "\",\"typeId\":\"" + clienteTypeId + "\"}")
+            )
+            .andExpect(status().isConflict());
+    }
+
+    @Test
+    @DisplayName("POST bind: owner ativo pode rebaixar para Dono (no-op)")
+    void bindOwnerToDonoReturns204() throws Exception {
+        createDonoAndClienteTypes();
+        // Criar Dono com restaurante ativo
+        UUID ownerId = UUID.randomUUID();
+        UserTypeEntity donoType = userTypeJpaRepository.findById(donoTypeId).orElseThrow();
+        userJpaRepository.save(
+            UserEntity.builder()
+                .id(ownerId)
+                .name("Ada")
+                .email("ada@example.com")
+                .login("ada")
+                .taxIdentifier("12345678901")
+                .password("hash")
+                .userTypeEntity(donoType)
+                .build()
+        );
+
+        restaurantJpaRepository.save(
+            RestaurantEntity.builder()
+                .id(UUID.randomUUID())
+                .name("Pizza Place")
+                .address("Rua A")
+                .taxIdentifier("12345678000195")
+                .cuisineType("Italiana")
+                .openingHours("11h-23h")
+                .owner(userJpaRepository.findById(ownerId).orElseThrow())
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .build()
+        );
+
+        // Bind para Dono → 204 (permitido)
+        mockMvc
+            .perform(
+                post(ApiPaths.USERS_TYPE + "/bind")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"userId\":\"" + ownerId + "\",\"typeId\":\"" + donoTypeId + "\"}")
+            )
+            .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("POST bind: user sem restaurante pode rebaixar para Cliente")
+    void bindNonOwnerToClientReturns204() throws Exception {
+        createDonoAndClienteTypes();
+        UUID userId = UUID.randomUUID();
+        userJpaRepository.save(
+            UserEntity.builder()
+                .id(userId)
+                .name("Bob")
+                .email("bob@example.com")
+                .login("bob")
+                .taxIdentifier("98765432100")
+                .password("hash")
+                .build()
+        );
+
+        // Bind para Cliente → 204 (permitido)
+        mockMvc
+            .perform(
+                post(ApiPaths.USERS_TYPE + "/bind")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"userId\":\"" + userId + "\",\"typeId\":\"" + clienteTypeId + "\"}")
+            )
+            .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("DELETE tipo: com owner ativo vinculado retorna 409")
+    void deleteTypeWithActiveOwnerReturns409() throws Exception {
+        createDonoAndClienteTypes();
+        // Criar Dono com restaurante ativo
+        UUID ownerId = UUID.randomUUID();
+        UserTypeEntity donoType = userTypeJpaRepository.findById(donoTypeId).orElseThrow();
+        userJpaRepository.save(
+            UserEntity.builder()
+                .id(ownerId)
+                .name("Ada")
+                .email("ada@example.com")
+                .login("ada")
+                .taxIdentifier("12345678901")
+                .password("hash")
+                .userTypeEntity(donoType)
+                .build()
+        );
+
+        restaurantJpaRepository.save(
+            RestaurantEntity.builder()
+                .id(UUID.randomUUID())
+                .name("Pizza Place")
+                .address("Rua A")
+                .taxIdentifier("12345678000195")
+                .cuisineType("Italiana")
+                .openingHours("11h-23h")
+                .owner(userJpaRepository.findById(ownerId).orElseThrow())
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .build()
+        );
+
+        // Tentar deletar tipo Dono → 409
+        mockMvc
+            .perform(delete(ApiPaths.USERS_TYPE + "/" + donoTypeId))
+            .andExpect(status().isConflict());
+    }
+
+    @Test
+    @DisplayName("DELETE tipo: sem owners ativos retorna 204")
+    void deleteTypeWithoutActiveOwnersReturns204() throws Exception {
+        createDonoAndClienteTypes();
+        // Tipo Cliente sem owners → ok deletar
+        mockMvc
+            .perform(delete(ApiPaths.USERS_TYPE + "/" + clienteTypeId))
+            .andExpect(status().isNoContent());
+
+        // Verificar que foi deletado
+        mockMvc
+            .perform(get(ApiPaths.USERS_TYPE + "/" + clienteTypeId))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("PUT renomeando tipo 'Dono' com owner ativo retorna 409")
+    void renamingDonoTypeWithActiveOwnerReturns409() throws Exception {
+        createDonoAndClienteTypes();
+        // Criar Dono com restaurante ativo
+        UUID ownerId = UUID.randomUUID();
+        UserTypeEntity donoType = userTypeJpaRepository.findById(donoTypeId).orElseThrow();
+        userJpaRepository.save(
+            UserEntity.builder()
+                .id(ownerId)
+                .name("Ada")
+                .email("ada@example.com")
+                .login("ada")
+                .taxIdentifier("12345678901")
+                .password("hash")
+                .userTypeEntity(donoType)
+                .build()
+        );
+
+        restaurantJpaRepository.save(
+            RestaurantEntity.builder()
+                .id(UUID.randomUUID())
+                .name("Pizza Place")
+                .address("Rua A")
+                .taxIdentifier("12345678000195")
+                .cuisineType("Italiana")
+                .openingHours("11h-23h")
+                .owner(userJpaRepository.findById(ownerId).orElseThrow())
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .build()
+        );
+
+        // Tentar renomear Dono → Cliente → 409
+        mockMvc
+            .perform(
+                put(ApiPaths.USERS_TYPE + "/" + donoTypeId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"userType\":\"Cliente\"}")
+            )
+            .andExpect(status().isConflict());
+    }
+
+    @Test
+    @DisplayName("PUT renomeando tipo Cliente sem owners retorna 200")
+    void renamingClienteTypeWithoutOwnersReturns200() throws Exception {
+        createDonoAndClienteTypes();
+        // Renomear tipo Cliente (que tem 0 users) → 200
+        mockMvc
+            .perform(
+                put(ApiPaths.USERS_TYPE + "/" + clienteTypeId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"userType\":\"Vendedor\"}")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.nameType").value("Vendedor"));
+    }
+
+    @Test
+    @DisplayName("PUT renomeando tipo Dono para 'Dono' (idempotente) retorna 200")
+    void renamingDonoToSameNameReturns200() throws Exception {
+        createDonoAndClienteTypes();
+        // Criar Dono com restaurante ativo
+        UUID ownerId = UUID.randomUUID();
+        UserTypeEntity donoType = userTypeJpaRepository.findById(donoTypeId).orElseThrow();
+        userJpaRepository.save(
+            UserEntity.builder()
+                .id(ownerId)
+                .name("Ada")
+                .email("ada@example.com")
+                .login("ada")
+                .taxIdentifier("12345678901")
+                .password("hash")
+                .userTypeEntity(donoType)
+                .build()
+        );
+
+        restaurantJpaRepository.save(
+            RestaurantEntity.builder()
+                .id(UUID.randomUUID())
+                .name("Pizza Place")
+                .address("Rua A")
+                .taxIdentifier("12345678000195")
+                .cuisineType("Italiana")
+                .openingHours("11h-23h")
+                .owner(userJpaRepository.findById(ownerId).orElseThrow())
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .build()
+        );
+
+        // Renomear Dono → Dono (mesmo nome) → 200 (permitido)
+        mockMvc
+            .perform(
+                put(ApiPaths.USERS_TYPE + "/" + donoTypeId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"userType\":\"Dono\"}")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.nameType").value("Dono"));
     }
 
     @Test

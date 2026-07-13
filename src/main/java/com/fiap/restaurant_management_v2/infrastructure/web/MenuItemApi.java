@@ -106,6 +106,7 @@ public class MenuItemApi {
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DONO')")
     public ResponseEntity<MenuItemViewModel> update(
         @PathVariable UUID id,
         @Valid @RequestBody UpdateMenuItemRequest request

@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -317,6 +318,57 @@ class MenuItemApiIT extends IntegrationTestBase {
                     .content(createBody(UUID.randomUUID()))
             )
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("PATCH sem token retorna 401")
+    void patchWithoutTokenReturns401() throws Exception {
+        MvcResult createResult = mockMvc
+            .perform(
+                post(ApiPaths.MENU_ITEMS)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(createBody(restaurantId))
+            )
+            .andExpect(status().isCreated())
+            .andReturn();
+        UUID id = UUID.fromString(
+            JsonPath.read(createResult.getResponse().getContentAsString(), "$.id")
+        );
+
+        mockMvc
+            .perform(
+                patch(ApiPaths.MENU_ITEMS + "/" + id)
+                    .with(anonymous())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"name\": \"Updated\"}")
+            )
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("PATCH com role CLIENTE retorna 403")
+    void patchWithClientRoleReturns403() throws Exception {
+        MvcResult createResult = mockMvc
+            .perform(
+                post(ApiPaths.MENU_ITEMS)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(createBody(restaurantId))
+            )
+            .andExpect(status().isCreated())
+            .andReturn();
+        UUID id = UUID.fromString(
+            JsonPath.read(createResult.getResponse().getContentAsString(), "$.id")
+        );
+
+        // PATCH com role CLIENTE
+        mockMvc
+            .perform(
+                patch(ApiPaths.MENU_ITEMS + "/" + id)
+                    .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_CLIENTE")))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"name\": \"Updated\"}")
+            )
+            .andExpect(status().isForbidden());
     }
 
     private static String createBody(UUID restaurantId) {

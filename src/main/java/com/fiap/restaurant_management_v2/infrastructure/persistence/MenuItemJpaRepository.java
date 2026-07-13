@@ -20,4 +20,6 @@ public interface MenuItemJpaRepository
         UUID restaurantId,
         Pageable pageable
     );
+
+    boolean existsByRestaurantIdAndDeletedAtIsNull(UUID restaurantId);
 }

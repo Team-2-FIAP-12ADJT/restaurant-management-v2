@@ -7,6 +7,7 @@ import com.fiap.restaurant_management_v2.adapters.presenters.GetAllRestaurantsPr
 import com.fiap.restaurant_management_v2.adapters.presenters.GetRestaurantByIdPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.UpdateRestaurantPresenter;
 import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
+import com.fiap.restaurant_management_v2.application.gateways.MenuItemDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
@@ -129,11 +130,13 @@ public class RestaurantConfiguration {
     @Bean
     public DeleteRestaurantInputBoundary deleteRestaurantInputBoundary(
         RestaurantDsGateway restaurantDsGateway,
+        MenuItemDsGateway menuItemDsGateway,
         DeleteRestaurantPresenter deleteRestaurantPresenter,
         LoggerGateway loggerGateway
     ) {
         return new DeleteRestaurantInteractor(
             restaurantDsGateway,
+            menuItemDsGateway,
             deleteRestaurantPresenter,
             loggerGateway
         );

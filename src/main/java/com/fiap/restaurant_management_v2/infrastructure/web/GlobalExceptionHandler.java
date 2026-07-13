@@ -62,6 +62,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return problem(HttpStatus.CONFLICT, ex.getMessage(), ex);
     }
 
+    @ExceptionHandler(RestaurantHasActiveMenuItemsException.class)
+    public ProblemDetail handleRestaurantHasMenuItems(
+        RestaurantHasActiveMenuItemsException ex
+    ) {
+        return problem(HttpStatus.CONFLICT, ex.getMessage(), ex);
+    }
+
+    @ExceptionHandler(UserTypeInUseByActiveOwnerException.class)
+    public ProblemDetail handleUserTypeInUseByActiveOwner(
+        UserTypeInUseByActiveOwnerException ex
+    ) {
+        return problem(HttpStatus.CONFLICT, ex.getMessage(), ex);
+    }
+
     @ExceptionHandler(
         org.springframework.dao.DataIntegrityViolationException.class
     )
@@ -90,6 +104,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         InvalidRestaurantException ex
     ) {
         return problem(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
+    }
+
+    @ExceptionHandler(InvalidRestaurantOwnerException.class)
+    public ProblemDetail handleInvalidRestaurantOwner(
+        InvalidRestaurantOwnerException ex
+    ) {
+        return problem(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), ex);
     }
 
     @ExceptionHandler(InvalidUserTypeUuidException.class)

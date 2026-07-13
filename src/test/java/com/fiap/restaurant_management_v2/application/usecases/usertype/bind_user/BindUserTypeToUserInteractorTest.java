@@ -3,6 +3,7 @@ package com.fiap.restaurant_management_v2.application.usecases.usertype.bind_use
 import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
 import com.fiap.restaurant_management_v2.application.exception.UserTypeNotFoundException;
 import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
+import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserBindDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsGateway;
@@ -30,13 +31,16 @@ class BindUserTypeToUserInteractorTest {
     private UserDsGateway userDsGateway;
 
     @Mock
+    private RestaurantDsGateway restaurantDsGateway;
+
+    @Mock
     private LoggerGateway loggerGateway;
 
     private BindUserTypeToUserInteractor interactor;
 
     @BeforeEach
     void setUp() {
-        interactor = new BindUserTypeToUserInteractor(userTypeDsGateway, userDsGateway, loggerGateway);
+        interactor = new BindUserTypeToUserInteractor(userTypeDsGateway, userDsGateway, restaurantDsGateway, loggerGateway);
     }
 
     @Test

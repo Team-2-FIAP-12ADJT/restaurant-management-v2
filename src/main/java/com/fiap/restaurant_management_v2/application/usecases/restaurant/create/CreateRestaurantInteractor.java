@@ -1,6 +1,7 @@
 package com.fiap.restaurant_management_v2.application.usecases.restaurant.create;
 
 import com.fiap.restaurant_management_v2.application.exception.DuplicateRestaurantException;
+import com.fiap.restaurant_management_v2.application.exception.InvalidRestaurantOwnerException;
 import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
 import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
@@ -53,6 +54,12 @@ public class CreateRestaurantInteractor
                         "User not found with id: " + request.ownerId()
                     )
                 );
+
+            if (owner.userTypeName() == null || !"Dono".equalsIgnoreCase(owner.userTypeName())) {
+                throw new InvalidRestaurantOwnerException(
+                    "Owner deve ser do tipo Dono"
+                );
+            }
 
             createRestaurant(request, owner);
         });

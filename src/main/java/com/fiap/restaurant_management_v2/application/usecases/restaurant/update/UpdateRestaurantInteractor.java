@@ -1,6 +1,7 @@
 package com.fiap.restaurant_management_v2.application.usecases.restaurant.update;
 
 import com.fiap.restaurant_management_v2.application.exception.DuplicateRestaurantException;
+import com.fiap.restaurant_management_v2.application.exception.InvalidRestaurantOwnerException;
 import com.fiap.restaurant_management_v2.application.exception.RestaurantNotFoundException;
 import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
 import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
@@ -80,6 +81,12 @@ public class UpdateRestaurantInteractor
                         "Owner not found with id: " + ownerId
                     )
                 );
+
+            if (owner.userTypeName() == null || !"Dono".equalsIgnoreCase(owner.userTypeName())) {
+                throw new InvalidRestaurantOwnerException(
+                    "Owner deve ser do tipo Dono"
+                );
+            }
 
             if (
                 !taxIdentifier.equals(current.taxIdentifier()) &&

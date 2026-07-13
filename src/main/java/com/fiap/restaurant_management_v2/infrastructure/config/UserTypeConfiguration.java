@@ -7,6 +7,7 @@ import com.fiap.restaurant_management_v2.adapters.presenters.GetAllUsersTypePres
 import com.fiap.restaurant_management_v2.adapters.presenters.GetUserTypeByIdPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.UpdateUserTypePresenter;
 import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
+import com.fiap.restaurant_management_v2.application.gateways.RestaurantDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecutor;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserTypeDsGateway;
@@ -96,10 +97,12 @@ public class UserTypeConfiguration {
     @Bean
     public UpdateUserTypeInputBoundary updateUserTypeInputBoundary(
             UserTypeDsGateway userTypeDsGateway,
+            UserDsGateway userDsGateway,
+            RestaurantDsGateway restaurantDsGateway,
             UpdateUserTypePresenter updateUserTypePresenter,
             LoggerGateway loggerGateway
     ) {
-        return new UpdateUserTypeInteractor(userTypeDsGateway, updateUserTypePresenter, loggerGateway);
+        return new UpdateUserTypeInteractor(userTypeDsGateway, userDsGateway, restaurantDsGateway, updateUserTypePresenter, loggerGateway);
     }
 
     @Bean
@@ -112,6 +115,7 @@ public class UserTypeConfiguration {
     public DeleteUserTypeByIdInputBoundary deleteUserTypeByIdInputBoundary(
             UserTypeDsGateway userTypeDsGateway,
             UserDsGateway userDsGateway,
+            RestaurantDsGateway restaurantDsGateway,
             TransactionalExecutor transactionalExecutor,
             DeleteUserTypeByIdOutputBoundary deleteUserTypeByIdPresenter,
             LoggerGateway loggerGateway
@@ -119,6 +123,7 @@ public class UserTypeConfiguration {
         return new DeleteUserTypeByIdInteractor(
                 userTypeDsGateway,
                 userDsGateway,
+                restaurantDsGateway,
                 transactionalExecutor,
                 deleteUserTypeByIdPresenter,
                 loggerGateway
@@ -129,9 +134,10 @@ public class UserTypeConfiguration {
     public BindUserTypeToUserInputBoundary bindUserTypeToUserInputBoundary(
             UserTypeDsGateway userTypeDsGateway,
             UserDsGateway userDsGateway,
+            RestaurantDsGateway restaurantDsGateway,
             LoggerGateway loggerGateway
     ) {
-        return new BindUserTypeToUserInteractor(userTypeDsGateway, userDsGateway, loggerGateway);
+        return new BindUserTypeToUserInteractor(userTypeDsGateway, userDsGateway, restaurantDsGateway, loggerGateway);
     }
 
 
