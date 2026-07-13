@@ -11,6 +11,7 @@ import com.fiap.restaurant_management_v2.IntegrationTestBase;
 import com.fiap.restaurant_management_v2.infrastructure.persistence.UserEntity;
 import com.fiap.restaurant_management_v2.infrastructure.persistence.UserJpaRepository;
 import com.fiap.restaurant_management_v2.infrastructure.persistence.UserTypeEntity;
+import com.fiap.restaurant_management_v2.infrastructure.persistence.UserTypeJpaRepository;
 import com.jayway.jsonpath.JsonPath;
 import java.time.Instant;
 import java.util.UUID;
@@ -32,6 +33,9 @@ class AuthSecurityIT extends IntegrationTestBase {
     @Autowired
     private UserJpaRepository userJpaRepository;
 
+    @Autowired
+    private UserTypeJpaRepository userTypeJpaRepository;
+
     private MockMvc mockMvc;
 
     private static final String ADMIN_TYPE_ID = "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d";
@@ -41,6 +45,13 @@ class AuthSecurityIT extends IntegrationTestBase {
     void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
         userJpaRepository.deleteAll();
+        userTypeJpaRepository.deleteAll();
+        userTypeJpaRepository.save(
+            UserTypeEntity.builder()
+                .id(UUID.fromString(ADMIN_TYPE_ID))
+                .userType("ADMIN")
+                .build()
+        );
     }
 
     private void saveUser(String login, String hash, String typeId, boolean deleted) {

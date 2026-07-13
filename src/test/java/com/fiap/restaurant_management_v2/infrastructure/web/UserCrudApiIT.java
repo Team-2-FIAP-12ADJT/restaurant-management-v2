@@ -17,6 +17,8 @@ import com.fiap.restaurant_management_v2.infrastructure.persistence.RestaurantEn
 import com.fiap.restaurant_management_v2.infrastructure.persistence.RestaurantJpaRepository;
 import com.fiap.restaurant_management_v2.infrastructure.persistence.UserEntity;
 import com.fiap.restaurant_management_v2.infrastructure.persistence.UserJpaRepository;
+import com.fiap.restaurant_management_v2.infrastructure.persistence.UserTypeEntity;
+import com.fiap.restaurant_management_v2.infrastructure.persistence.UserTypeJpaRepository;
 import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +47,11 @@ class UserCrudApiIT extends IntegrationTestBase {
     @Autowired
     private RestaurantJpaRepository restaurantJpaRepository;
 
+    @Autowired
+    private UserTypeJpaRepository userTypeJpaRepository;
+
     private MockMvc mockMvc;
+    private UserTypeEntity donoUserType;
 
     @BeforeEach
     void setUp() {
@@ -55,6 +61,13 @@ class UserCrudApiIT extends IntegrationTestBase {
             .build();
         restaurantJpaRepository.deleteAll();
         userJpaRepository.deleteAll();
+        userTypeJpaRepository.deleteAll();
+        donoUserType = userTypeJpaRepository.save(
+            UserTypeEntity.builder()
+                .id(UUID.randomUUID())
+                .userType("DONO")
+                .build()
+        );
     }
 
     @Test
@@ -312,5 +325,74 @@ class UserCrudApiIT extends IntegrationTestBase {
                 .updatedAt(Instant.now())
                 .build()
         );
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/users/{id} retorna userType e restaurantes aninhados")
+    void getByIdReturnsUserTypeAndRestaurants() throws Exception {
+        UUID userId = createUser(ADA_BODY, "ada");
+        // Vincula userType DONO
+        UserEntity user = userJpaRepository.findById(userId).orElseThrow();
+        user.setUserTypeEntity(donoUserType);
+        userJpaRepository.save(user);
+        // Cria restaurante com esse user como owner
+        createActiveRestaurantForOwner(userId);
+
+        mockMvc
+            .perform(get(ApiPaths.USERS + "/" + userId))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value(userId.toString()))
+            .andExpect(jsonPath("$.name").value("Ada"))
+            .andExpect(jsonPath("$.userType").value("DONO"))
+            .andExpect(jsonPath("$.restaurants").isArray())
+            .andExpect(jsonPath("$.restaurants.length()").value(1))
+            .andExpect(jsonPath("$.restaurants[0].name").value("Pizza Place"));
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/users retorna mesmo shape com userType e restaurantes")
+    void listReturnsUserTypeAndRestaurants() throws Exception {
+        UUID userId = createUser(ADA_BODY, "ada");
+        UserEntity user = userJpaRepository.findById(userId).orElseThrow();
+        user.setUserTypeEntity(donoUserType);
+        userJpaRepository.save(user);
+        createActiveRestaurantForOwner(userId);
+
+        mockMvc
+            .perform(get(ApiPaths.USERS))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content.length()").value(1))
+            .andExpect(jsonPath("$.content[0].userType").value("DONO"))
+            .andExpect(jsonPath("$.content[0].restaurants").isArray())
+            .andExpect(jsonPath("$.content[0].restaurants.length()").value(1));
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/users/{id} retorna restaurantes vazio para user sem restaurante")
+    void getByIdReturnsEmptyRestaurants() throws Exception {
+        UUID userId = createUser(ADA_BODY, "ada");
+        UserEntity user = userJpaRepository.findById(userId).orElseThrow();
+        user.setUserTypeEntity(donoUserType);
+        userJpaRepository.save(user);
+
+        mockMvc
+            .perform(get(ApiPaths.USERS + "/" + userId))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.userType").value("DONO"))
+            .andExpect(jsonPath("$.restaurants").isArray())
+            .andExpect(jsonPath("$.restaurants.length()").value(0));
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/users com página vazia não estoura SQLGrammarException")
+    void listEmptyPageNoCrash() throws Exception {
+        // Cria user mas com filtro que não casa ninguém
+        createUser(ADA_BODY, "ada");
+
+        mockMvc
+            .perform(get(ApiPaths.USERS).param("login", "nonexistent"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content").isEmpty())
+            .andExpect(jsonPath("$.totalElements").value(0));
     }
 }
