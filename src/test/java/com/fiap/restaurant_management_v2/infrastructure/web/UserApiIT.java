@@ -381,6 +381,42 @@ class UserApiIT extends IntegrationTestBase {
         assertEquals("98765432100", after.getTaxIdentifier());
     }
 
+    @Test
+    @DisplayName("POST soft-delete user; recriar mesmo email/login/CPF retorna 201")
+    void reuseDeletedUserEmailLoginCpf() throws Exception {
+        // Criar Ada
+        mockMvc
+            .perform(
+                post(ApiPaths.USERS)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(VALID_BODY)
+            )
+            .andExpect(status().isCreated());
+
+        UUID adaId = userJpaRepository
+            .findAll()
+            .stream()
+            .filter(e -> "ada".equals(e.getLogin()))
+            .findFirst()
+            .orElseThrow()
+            .getId();
+
+        // Deletar Ada
+        mockMvc
+            .perform(delete(ApiPaths.USERS + "/" + adaId))
+            .andExpect(status().isNoContent());
+
+        // Recriar com mesmo email/login/CPF → 201 (não 409)
+        mockMvc
+            .perform(
+                post(ApiPaths.USERS)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(VALID_BODY)
+            )
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").exists());
+    }
+
     private UUID createAda() throws Exception {
         mockMvc
             .perform(

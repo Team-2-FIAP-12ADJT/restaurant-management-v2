@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+>
+
+    <changeSet id="0009-replace-restaurant-unique-with-partial-index" author="ricardo">
+        <dropUniqueConstraint
+            tableName="restaurants"
+            constraintName="uk_restaurants_tax_identifier"
+        />
+        <sql>
+            CREATE UNIQUE INDEX IF NOT EXISTS ux_restaurants_active_tax_identifier
+            ON restaurants (tax_identifier)
+            WHERE deleted_at IS NULL;
+        </sql>
+        <rollback>
+            <sql>
+                DROP INDEX IF EXISTS ux_restaurants_active_tax_identifier;
+            </sql>
+            <addUniqueConstraint
+                tableName="restaurants"
+                columnNames="tax_identifier"
+                constraintName="uk_restaurants_tax_identifier"
+            />
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

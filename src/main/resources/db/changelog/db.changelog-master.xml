@@ -39,6 +39,14 @@
         relativeToChangelogFile="true"
     />
     <include
+        file="changes/0008-replace-user-unique-with-partial-indexes.xml"
+        relativeToChangelogFile="true"
+    />
+    <include
+        file="changes/0009-replace-restaurant-unique-with-partial-index.xml"
+        relativeToChangelogFile="true"
+    />
+    <include
         file="seeds/0002-seed-admin-user.xml"
         relativeToChangelogFile="true"
     />
