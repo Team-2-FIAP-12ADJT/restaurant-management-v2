@@ -4,12 +4,14 @@ import com.fiap.restaurant_management_v2.adapters.controllers.UserController;
 import com.fiap.restaurant_management_v2.adapters.presenters.CreateUserPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.GetAllUsersPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.GetUserByIdPresenter;
+import com.fiap.restaurant_management_v2.adapters.presenters.UpdateUserPasswordPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.UpdateUserPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.PageViewModel;
 import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.UserViewModel;
 import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.UserWithDetailsViewModel;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.CreateUserRequest;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.GetAllUsersParams;
+import com.fiap.restaurant_management_v2.infrastructure.web.dto.UpdateUserPasswordRequest;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.UpdateUserRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -36,19 +38,22 @@ public class UserApi {
     private final GetAllUsersPresenter getAllUsersPresenter;
     private final GetUserByIdPresenter getUserByIdPresenter;
     private final UpdateUserPresenter updateUserPresenter;
+    private final UpdateUserPasswordPresenter updateUserPasswordPresenter;
 
     public UserApi(
         UserController userController,
         CreateUserPresenter createUserPresenter,
         GetAllUsersPresenter getAllUsersPresenter,
         GetUserByIdPresenter getUserByIdPresenter,
-        UpdateUserPresenter updateUserPresenter
+        UpdateUserPresenter updateUserPresenter,
+        UpdateUserPasswordPresenter updateUserPasswordPresenter
     ) {
         this.userController = userController;
         this.createUserPresenter = createUserPresenter;
         this.getAllUsersPresenter = getAllUsersPresenter;
         this.getUserByIdPresenter = getUserByIdPresenter;
         this.updateUserPresenter = updateUserPresenter;
+        this.updateUserPasswordPresenter = updateUserPasswordPresenter;
     }
 
     @GetMapping
@@ -115,5 +120,20 @@ public class UserApi {
         );
 
         return ResponseEntity.ok(updateUserPresenter.getViewModel());
+    }
+
+    @PatchMapping("/{id}/password")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DONO') or #id == authentication.name")
+    public ResponseEntity<Void> updatePassword(
+        @PathVariable String id,
+        @Valid @RequestBody UpdateUserPasswordRequest request
+    ) {
+        userController.updatePassword(
+            java.util.UUID.fromString(id),
+            request.oldPassword(),
+            request.newPassword()
+        );
+
+        return ResponseEntity.noContent().build();
     }
 }

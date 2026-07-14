@@ -87,4 +87,77 @@ class SensitiveDataMaskerTest {
         assertEquals("flagOnly", masker.maskQueryString("flagOnly"));
         assertNull(masker.maskQueryString(null));
     }
+
+    @Test
+    @DisplayName("Mascara oldPassword e newPassword por substring matching")
+    void masksPasswordVariants() {
+        String masked = masker.mask(
+            "{\"oldPassword\":\"SeNh@1\",\"newPassword\":\"SeNh@2\",\"name\":\"Ada\"}"
+        );
+
+        assertFalse(masked.contains("SeNh@1"));
+        assertFalse(masked.contains("SeNh@2"));
+        assertTrue(masked.contains("\"oldPassword\":\"***\""));
+        assertTrue(masked.contains("\"newPassword\":\"***\""));
+        assertTrue(masked.contains("\"name\":\"Ada\""));
+    }
+
+    @Test
+    @DisplayName("Substring matching: currentPassword, confirmPassword também mascaram")
+    void masksOtherPasswordVariants() {
+        String masked = masker.mask(
+            "{\"currentPassword\":\"pw123\",\"confirmPassword\":\"pw456\"}"
+        );
+
+        assertFalse(masked.contains("pw123"));
+        assertFalse(masked.contains("pw456"));
+        assertTrue(masked.contains("\"currentPassword\":\"***\""));
+        assertTrue(masked.contains("\"confirmPassword\":\"***\""));
+    }
+
+    @Test
+    @DisplayName("Substring matching: userTaxIdentifier, systemTaxIdentifier mascaram")
+    void masksTaxIdentifierVariants() {
+        String masked = masker.mask(
+            "{\"userTaxIdentifier\":\"12345678901\",\"systemTaxIdentifier\":\"98765432100\"}"
+        );
+
+        assertFalse(masked.contains("12345678901"));
+        assertFalse(masked.contains("98765432100"));
+        assertTrue(masked.contains("\"userTaxIdentifier\":\"***\""));
+        assertTrue(masked.contains("\"systemTaxIdentifier\":\"***\""));
+    }
+
+    @Test
+    @DisplayName("Query string: oldPassword e newPassword mascaram por substring")
+    void masksPasswordQueryParamsBySubstring() {
+        assertEquals(
+            "oldPassword=***&newPassword=***&id=123",
+            masker.maskQueryString("oldPassword=Senh@1&newPassword=Senh@2&id=123")
+        );
+    }
+
+    @Test
+    @DisplayName("Campo benigno (sem token sensível) não mascara")
+    void benignFieldsNotMasked() {
+        String masked = masker.mask("{\"name\":\"Ada\",\"email\":\"ada@example.com\",\"age\":30}");
+
+        assertTrue(masked.contains("\"name\":\"Ada\""));
+        assertTrue(masked.contains("\"email\":\"ada@example.com\""));
+        assertTrue(masked.contains("\"age\":30"));
+    }
+
+    @Test
+    @DisplayName("Aninhado: campo com *password dentro de objeto mascara recursivamente")
+    void masksPasswordInNestedObject() {
+        String masked = masker.mask(
+            "{\"user\":{\"name\":\"Bob\",\"oldPassword\":\"pw123\",\"details\":{\"newPassword\":\"pw456\"}}}"
+        );
+
+        assertFalse(masked.contains("pw123"));
+        assertFalse(masked.contains("pw456"));
+        assertTrue(masked.contains("\"name\":\"Bob\""));
+        assertTrue(masked.contains("\"oldPassword\":\"***\""));
+        assertTrue(masked.contains("\"newPassword\":\"***\""));
+    }
 }

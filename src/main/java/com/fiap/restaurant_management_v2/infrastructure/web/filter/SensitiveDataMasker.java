@@ -10,8 +10,10 @@ import tools.jackson.databind.node.ObjectNode;
 
 public class SensitiveDataMasker {
 
-    // Comparação sempre em lowercase — "Password"/"TAXIDENTIFIER" também mascaram.
-    private static final Set<String> SENSITIVE_FIELDS = Set.of(
+    // Tokens sensíveis para substring matching. isSensitive() retorna true se
+    // field.toLowerCase().contains(token), assim oldPassword, newPassword, etc.
+    // mascaram automaticamente (futuro-proof). Comparação sempre em lowercase.
+    private static final Set<String> SENSITIVE_TOKENS = Set.of(
         "password",
         "taxidentifier"
     );
@@ -71,6 +73,7 @@ public class SensitiveDataMasker {
     }
 
     private boolean isSensitive(String field) {
-        return SENSITIVE_FIELDS.contains(field.toLowerCase(Locale.ROOT));
+        String fieldLower = field.toLowerCase(Locale.ROOT);
+        return SENSITIVE_TOKENS.stream().anyMatch(fieldLower::contains);
     }
 }

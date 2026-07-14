@@ -10,6 +10,8 @@ import com.fiap.restaurant_management_v2.application.usecases.user.get_user_by_i
 import com.fiap.restaurant_management_v2.application.usecases.user.get_user_by_id.GetUserByIdRequestModel;
 import com.fiap.restaurant_management_v2.application.usecases.user.update.UpdateUserInputBoundary;
 import com.fiap.restaurant_management_v2.application.usecases.user.update.UpdateUserRequestModel;
+import com.fiap.restaurant_management_v2.application.usecases.user.updatepassword.UpdateUserPasswordInputBoundary;
+import com.fiap.restaurant_management_v2.application.usecases.user.updatepassword.UpdateUserPasswordRequestModel;
 import java.util.UUID;
 
 /**
@@ -24,19 +26,22 @@ public class UserController {
     private final GetUserByIdInputBoundary getUserById;
     private final DeleteUserByIdInputBoundary deleteUserById;
     private final UpdateUserInputBoundary updateUser;
+    private final UpdateUserPasswordInputBoundary updateUserPassword;
 
     public UserController(
         CreateUserInputBoundary createUser,
         GetAllUsersInputBoundary getAllUsers,
         GetUserByIdInputBoundary getUserById,
         DeleteUserByIdInputBoundary deleteUserById,
-        UpdateUserInputBoundary updateUser
+        UpdateUserInputBoundary updateUser,
+        UpdateUserPasswordInputBoundary updateUserPassword
     ) {
         this.createUser = createUser;
         this.getAllUsers = getAllUsers;
         this.getUserById = getUserById;
         this.deleteUserById = deleteUserById;
         this.updateUser = updateUser;
+        this.updateUserPassword = updateUserPassword;
     }
 
     public void create(
@@ -94,6 +99,12 @@ public class UserController {
     ) {
         updateUser.execute(
             new UpdateUserRequestModel(id, name, email, login, taxIdentifier)
+        );
+    }
+
+    public void updatePassword(UUID id, String oldPassword, String newPassword) {
+        updateUserPassword.execute(
+            new UpdateUserPasswordRequestModel(id, oldPassword, newPassword)
         );
     }
 }

@@ -5,6 +5,7 @@ import com.fiap.restaurant_management_v2.adapters.presenters.CreateUserPresenter
 import com.fiap.restaurant_management_v2.adapters.presenters.DeleteUserByIdPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.GetAllUsersPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.GetUserByIdPresenter;
+import com.fiap.restaurant_management_v2.adapters.presenters.UpdateUserPasswordPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.UpdateUserPresenter;
 import com.fiap.restaurant_management_v2.application.gateways.LoggerGateway;
 import com.fiap.restaurant_management_v2.application.gateways.PasswordEncoderGateway;
@@ -21,6 +22,8 @@ import com.fiap.restaurant_management_v2.application.usecases.user.get_user_by_i
 import com.fiap.restaurant_management_v2.application.usecases.user.get_user_by_id.GetUserByIdInteractor;
 import com.fiap.restaurant_management_v2.application.usecases.user.update.UpdateUserInputBoundary;
 import com.fiap.restaurant_management_v2.application.usecases.user.update.UpdateUserInteractor;
+import com.fiap.restaurant_management_v2.application.usecases.user.updatepassword.UpdateUserPasswordInputBoundary;
+import com.fiap.restaurant_management_v2.application.usecases.user.updatepassword.UpdateUserPasswordInteractor;
 import com.fiap.restaurant_management_v2.infrastructure.persistence.UserDsGatewayImpl;
 import com.fiap.restaurant_management_v2.infrastructure.persistence.UserJpaRepository;
 import org.springframework.context.annotation.Bean;
@@ -129,19 +132,44 @@ public class UserConfiguration {
     }
 
     @Bean
+    @RequestScope
+    public UpdateUserPasswordPresenter updateUserPasswordPresenter() {
+        return new UpdateUserPasswordPresenter();
+    }
+
+    @Bean
+    public UpdateUserPasswordInputBoundary updateUserPasswordInputBoundary(
+        UserDsGateway userDsGateway,
+        PasswordEncoderGateway passwordEncoderGateway,
+        TransactionalExecutor transactionalExecutor,
+        UpdateUserPasswordPresenter updateUserPasswordPresenter,
+        LoggerGateway loggerGateway
+    ) {
+        return new UpdateUserPasswordInteractor(
+            userDsGateway,
+            passwordEncoderGateway,
+            transactionalExecutor,
+            updateUserPasswordPresenter,
+            loggerGateway
+        );
+    }
+
+    @Bean
     public UserController userController(
         CreateUserInputBoundary createUserInputBoundary,
         GetAllUsersInputBoundary getAllUsersInputBoundary,
         GetUserByIdInputBoundary getUserByIdInputBoundary,
         DeleteUserByIdInputBoundary deleteUserByIdInputBoundary,
-        UpdateUserInputBoundary updateUserInputBoundary
+        UpdateUserInputBoundary updateUserInputBoundary,
+        UpdateUserPasswordInputBoundary updateUserPasswordInputBoundary
     ) {
         return new UserController(
             createUserInputBoundary,
             getAllUsersInputBoundary,
             getUserByIdInputBoundary,
             deleteUserByIdInputBoundary,
-            updateUserInputBoundary
+            updateUserInputBoundary,
+            updateUserPasswordInputBoundary
         );
     }
 }
