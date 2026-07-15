@@ -238,7 +238,7 @@ class RestaurantApiIT extends IntegrationTestBase {
     }
 
     @Test
-    @DisplayName("PUT /api/v1/restaurants/{id} atualiza restaurante (200)")
+    @DisplayName("PATCH /api/v1/restaurants/{id} atualiza restaurante (200)")
     void updateSuccess() throws Exception {
         var entity = restaurant("Pizza Place", "11111111000101").build();
         restaurantJpaRepository.save(entity);
@@ -254,7 +254,7 @@ class RestaurantApiIT extends IntegrationTestBase {
 
         mockMvc
             .perform(
-                put(ApiPaths.RESTAURANTS + "/" + entity.getId())
+                patch(ApiPaths.RESTAURANTS + "/" + entity.getId())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(updateBody)
             )
@@ -267,11 +267,11 @@ class RestaurantApiIT extends IntegrationTestBase {
     }
 
     @Test
-    @DisplayName("PUT /api/v1/restaurants/{id} retorna 404 quando não encontrado")
+    @DisplayName("PATCH /api/v1/restaurants/{id} retorna 404 quando não encontrado")
     void updateNotFound() throws Exception {
         mockMvc
             .perform(
-                put(ApiPaths.RESTAURANTS + "/" + UUID.randomUUID())
+                patch(ApiPaths.RESTAURANTS + "/" + UUID.randomUUID())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(validBody())
             )
@@ -356,7 +356,7 @@ class RestaurantApiIT extends IntegrationTestBase {
     }
 
     @Test
-    @DisplayName("PUT com owner tipo Cliente retorna 422")
+    @DisplayName("PATCH com owner tipo Cliente retorna 422")
     void updateWithClientOwnerReturns422() throws Exception {
         var entity = restaurant("Pizza Place", "11111111000101").build();
         restaurantJpaRepository.save(entity);
@@ -395,7 +395,7 @@ class RestaurantApiIT extends IntegrationTestBase {
 
         mockMvc
             .perform(
-                put(ApiPaths.RESTAURANTS + "/" + entity.getId())
+                patch(ApiPaths.RESTAURANTS + "/" + entity.getId())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(updateBody)
             )
