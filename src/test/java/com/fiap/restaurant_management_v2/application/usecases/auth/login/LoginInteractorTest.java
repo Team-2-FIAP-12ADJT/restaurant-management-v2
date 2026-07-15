@@ -3,7 +3,6 @@ package com.fiap.restaurant_management_v2.application.usecases.auth.login;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,7 +19,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -106,46 +106,39 @@ class LoginInteractorTest {
         verify(tokenGateway, never()).generate(any(), any(), any());
     }
 
-    @Test
-    void nullUserTypeReturnsNullAuthority() {
+    @ParameterizedTest(name = "userType \"{0}\" -> authority {1}")
+    @CsvSource(
+        nullValues = "NULL",
+        value = {
+            "NULL, NULL",
+            "Dono, DONO",
+            "Gerente Ção, GERENTE_CAO",
+            "...Dono!!!, DONO",
+            "!!!---!!!, NULL",
+        }
+    )
+    void userTypeIsSanitizedIntoAuthority(
+        String userTypeName,
+        String expectedAuthority
+    ) {
         UUID userId = UUID.randomUUID();
         var credential = new UserCredentialDsResponseModel(
             userId,
             "user",
             "HASH",
-            null
+            userTypeName
         );
         Instant expiresAt = Instant.now().plusSeconds(900);
         var generatedToken = new GeneratedToken("jwt", expiresAt);
 
         when(userDsGateway.findByLogin("user")).thenReturn(Optional.of(credential));
         when(passwordEncoder.matches("password", "HASH")).thenReturn(true);
-        when(tokenGateway.generate(userId, "user", null)).thenReturn(generatedToken);
+        when(tokenGateway.generate(userId, "user", expectedAuthority))
+            .thenReturn(generatedToken);
 
         interactor.execute(new LoginRequestModel("user", "password"));
 
-        verify(tokenGateway).generate(userId, "user", null);
-    }
-
-    @Test
-    void userTypeWithAccentsSanitized() {
-        UUID userId = UUID.randomUUID();
-        var credential = new UserCredentialDsResponseModel(
-            userId,
-            "user",
-            "HASH",
-            "Gerente Ção"
-        );
-        Instant expiresAt = Instant.now().plusSeconds(900);
-        var generatedToken = new GeneratedToken("jwt", expiresAt);
-
-        when(userDsGateway.findByLogin("user")).thenReturn(Optional.of(credential));
-        when(passwordEncoder.matches("password", "HASH")).thenReturn(true);
-        when(tokenGateway.generate(userId, "user", "GERENTE_CAO")).thenReturn(generatedToken);
-
-        interactor.execute(new LoginRequestModel("user", "password"));
-
-        verify(tokenGateway).generate(userId, "user", "GERENTE_CAO");
+        verify(tokenGateway).generate(userId, "user", expectedAuthority);
     }
 
     private static final class CapturingPresenter implements LoginOutputBoundary {

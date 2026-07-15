@@ -251,7 +251,7 @@ class RestaurantTest {
             "Seg-Sex 11h-23h",
             UUID.randomUUID()
         );
-        assertNotEquals(r, "not a restaurant");
+        assertNotEquals("not a restaurant", r);
     }
 
     @Test

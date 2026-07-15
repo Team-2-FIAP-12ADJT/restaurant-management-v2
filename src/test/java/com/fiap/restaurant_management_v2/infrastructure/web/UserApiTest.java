@@ -8,10 +8,8 @@ import com.fiap.restaurant_management_v2.adapters.controllers.UserController;
 import com.fiap.restaurant_management_v2.adapters.presenters.CreateUserPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.GetAllUsersPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.GetUserByIdPresenter;
-import com.fiap.restaurant_management_v2.adapters.presenters.UpdateUserPasswordPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.UpdateUserPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.PageViewModel;
-import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.RestaurantViewModel;
 import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.UserWithDetailsViewModel;
 import com.fiap.restaurant_management_v2.infrastructure.web.dto.GetAllUsersParams;
 import java.util.List;
@@ -41,9 +39,6 @@ class UserApiTest {
     @Mock
     private UpdateUserPresenter updateUserPresenter;
 
-    @Mock
-    private UpdateUserPasswordPresenter updateUserPasswordPresenter;
-
     private UserApi api;
 
     @BeforeEach
@@ -53,8 +48,7 @@ class UserApiTest {
             createUserPresenter,
             getAllUsersPresenter,
             getUserByIdPresenter,
-            updateUserPresenter,
-            updateUserPasswordPresenter
+            updateUserPresenter
         );
     }
 

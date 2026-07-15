@@ -30,7 +30,7 @@ public class SensitiveDataMasker {
             JsonNode root = mapper.readTree(body);
             maskNode(root);
             return mapper.writeValueAsString(root);
-        } catch (Exception ex) {
+        } catch (Exception _) {
             return UNPARSEABLE;
         }
     }

@@ -181,7 +181,7 @@ Base path: `/api/v1`. Full request/response schemas are available in the Swagger
 | `POST` | `/restaurants` | Create a restaurant (owner must be an existing user) |
 | `GET` | `/restaurants` | List restaurants (paginated) |
 | `GET` | `/restaurants/{id}` | Get a restaurant by ID |
-| `PUT` | `/restaurants/{id}` | Update a restaurant |
+| `PATCH` | `/restaurants/{id}` | Partially update a restaurant |
 | `DELETE` | `/restaurants/{id}` | Delete a restaurant |
 
 #### Menu Items — `/api/v1/menu-items`

@@ -42,7 +42,21 @@ public class LoginInteractor implements LoginInputBoundary {
         if (userTypeName == null || userTypeName.isBlank()) return null;
         String noAccents = Normalizer.normalize(userTypeName, Normalizer.Form.NFD).replaceAll("\\p{M}+", "");
         String upper = noAccents.toUpperCase(Locale.ROOT);
-        String collapsed = upper.replaceAll("[^A-Z0-9]+", "_").replaceAll("^_+|_+$", "");
+        String collapsed = stripUnderscores(upper.replaceAll("[^A-Z0-9]+", "_"));
         return collapsed.isEmpty() ? null : collapsed;
+    }
+
+    // Varredura linear em vez de replaceAll("^_+|_+$"): o regex reescaneia a
+    // cada posição inicial, o que dá tempo super-linear na entrada.
+    private static String stripUnderscores(String value) {
+        int start = 0;
+        int end = value.length();
+        while (start < end && value.charAt(start) == '_') {
+            start++;
+        }
+        while (end > start && value.charAt(end - 1) == '_') {
+            end--;
+        }
+        return value.substring(start, end);
     }
 }

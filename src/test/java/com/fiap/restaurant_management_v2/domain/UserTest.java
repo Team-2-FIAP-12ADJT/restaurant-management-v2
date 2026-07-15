@@ -180,7 +180,7 @@ class UserTest {
     @DisplayName("equals: not equal to object of different type")
     void equalsWithDifferentType() {
         User user = User.create("Ada", "ada@example.com", "ada", VALID_CPF, "secret123");
-        assertNotEquals(user, "not a user");
+        assertNotEquals("not a user", user);
     }
 
     @Test
