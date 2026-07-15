@@ -151,7 +151,7 @@ cp src/main/resources/liquibase.properties.example src/main/resources/liquibase.
 
 ### API Endpoints
 
-Base path: `/api/v1`. Full request/response schemas are available in the Swagger UI and in the [Postman collection](postman/Restaurant%20Management%20API%20-%20V2%20-%202.postman_collection.json).
+Base path: `/api/v1`. Full request/response schemas are available in the Swagger UI and in the [Postman collection](postman/restaurant-management.postman_collection.json).
 
 #### Users — `/api/v1/users`
 

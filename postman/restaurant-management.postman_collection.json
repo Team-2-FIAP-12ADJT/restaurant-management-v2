@@ -58,7 +58,7 @@
                 "login"
               ]
             },
-            "description": "Public. Returns { accessToken, expiresAt } and stores the token in the collection variable accessToken."
+            "description": "Public. Returns { accessToken, expiresAt } and stores the token in the environment variable accessToken."
           },
           "response": [
             {
@@ -4890,9 +4890,6 @@
         {
           "name": "Exclusão de item do cardápio",
           "request": {
-            "auth": {
-              "type": "noauth"
-            },
             "method": "DELETE",
             "header": [],
             "url": {
