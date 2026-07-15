@@ -34,7 +34,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(
         HttpSecurity http,
         JwtAuthenticationConverter jwtAuthenticationConverter
-    ) throws Exception {
+    ) {
         http
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

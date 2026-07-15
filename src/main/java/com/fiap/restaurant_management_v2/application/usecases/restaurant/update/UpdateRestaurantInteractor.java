@@ -48,55 +48,25 @@ public class UpdateRestaurantInteractor
                     )
                 );
 
-            String name =
-                request.name() != null ? request.name() : current.name();
-            String address =
-                request.address() != null
-                    ? request.address()
-                    : current.address();
-            String taxIdentifier =
-                request.taxIdentifier() != null
-                    ? request.taxIdentifier()
-                    : current.taxIdentifier();
-            String cuisineType =
-                request.cuisineType() != null
-                    ? request.cuisineType()
-                    : current.cuisineType();
-            String openingHours =
-                request.openingHours() != null
-                    ? request.openingHours()
-                    : current.openingHours();
-            UUID ownerId =
-                request.ownerId() != null
-                    ? request.ownerId()
-                    : current.ownerId();
+            String name = merge(request.name(), current.name());
+            String address = merge(request.address(), current.address());
+            String taxIdentifier = merge(
+                request.taxIdentifier(),
+                current.taxIdentifier()
+            );
+            String cuisineType = merge(
+                request.cuisineType(),
+                current.cuisineType()
+            );
+            String openingHours = merge(
+                request.openingHours(),
+                current.openingHours()
+            );
+            UUID ownerId = merge(request.ownerId(), current.ownerId());
 
-            // Busca o owner efetivo: valida existência (404 se não existir) e
-            // fornece o objeto completo para a resposta — inclusive quando o
-            // owner não muda no PATCH.
-            UserDsResponseModel owner = userDsGateway
-                .findById(ownerId)
-                .orElseThrow(() ->
-                    new UserNotFoundException(
-                        "Owner not found with id: " + ownerId
-                    )
-                );
+            UserDsResponseModel owner = resolveDonoOwner(ownerId);
 
-            if (owner.userTypeName() == null || !"Dono".equalsIgnoreCase(owner.userTypeName())) {
-                throw new InvalidRestaurantOwnerException(
-                    "Owner deve ser do tipo Dono"
-                );
-            }
-
-            if (
-                !taxIdentifier.equals(current.taxIdentifier()) &&
-                restaurantDsGateway.existsByCnpjExcludingId(
-                    taxIdentifier,
-                    request.id()
-                )
-            ) {
-                throw new DuplicateRestaurantException("CNPJ já cadastrado");
-            }
+            ensureCnpjNotTaken(taxIdentifier, current, request.id());
 
             // Invariante de domínio sobre o estado MESCLADO (não o request cru):
             // campo omitido = current (mantém); presente-blank/ inválido → 400.
@@ -132,5 +102,44 @@ public class UpdateRestaurantInteractor
                 )
             );
         });
+    }
+
+    // PATCH parcial: campo ausente (null) = mantém o valor atual.
+    private static <T> T merge(T incoming, T currentValue) {
+        return incoming != null ? incoming : currentValue;
+    }
+
+    // Busca o owner efetivo: valida existência (404 se não existir) e fornece o
+    // objeto completo para a resposta — inclusive quando o owner não muda no
+    // PATCH. Guarda a invariante: owner precisa ser do tipo Dono.
+    private UserDsResponseModel resolveDonoOwner(UUID ownerId) {
+        UserDsResponseModel owner = userDsGateway
+            .findById(ownerId)
+            .orElseThrow(() ->
+                new UserNotFoundException("Owner not found with id: " + ownerId)
+            );
+
+        if (
+            owner.userTypeName() == null ||
+            !"Dono".equalsIgnoreCase(owner.userTypeName())
+        ) {
+            throw new InvalidRestaurantOwnerException(
+                "Owner deve ser do tipo Dono"
+            );
+        }
+        return owner;
+    }
+
+    private void ensureCnpjNotTaken(
+        String taxIdentifier,
+        RestaurantDsResponseModel current,
+        UUID id
+    ) {
+        if (
+            !taxIdentifier.equals(current.taxIdentifier()) &&
+            restaurantDsGateway.existsByCnpjExcludingId(taxIdentifier, id)
+        ) {
+            throw new DuplicateRestaurantException("CNPJ já cadastrado");
+        }
     }
 }

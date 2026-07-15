@@ -10,7 +10,6 @@ import com.fiap.restaurant_management_v2.application.gateways.search.SearchQuery
 import com.fiap.restaurant_management_v2.application.pagination.PageResult;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class GetAllUsersInteractor implements GetAllUsersInputBoundary {

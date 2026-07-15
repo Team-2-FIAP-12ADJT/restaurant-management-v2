@@ -54,13 +54,15 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
             try {
                 long durationMs = (System.nanoTime() - start) / 1_000_000;
                 logRequestBody(requestWrapper);
-                LOGGER.info(
-                    "{} {} -> {} ({} ms)",
-                    requestWrapper.getMethod(),
-                    requestPath(requestWrapper),
-                    responseWrapper.getStatus(),
-                    durationMs
-                );
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info(
+                        "{} {} -> {} ({} ms)",
+                        requestWrapper.getMethod(),
+                        requestPath(requestWrapper),
+                        responseWrapper.getStatus(),
+                        durationMs
+                    );
+                }
                 responseWrapper.copyBodyToResponse();
             } finally {
                 MDC.clear();

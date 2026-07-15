@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  */
 public final class User {
 
-    private static final Pattern EMAIL = Pattern.compile(
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(
         "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
     );
 
@@ -123,7 +123,7 @@ public final class User {
         if (isBlank(login)) {
             throw new InvalidUserException("Login inválido");
         }
-        if (email == null || !EMAIL.matcher(email).matches()) {
+        if (email == null || !EMAIL_PATTERN.matcher(email).matches()) {
             throw new InvalidUserException("Email inválido");
         }
 

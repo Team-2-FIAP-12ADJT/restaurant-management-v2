@@ -14,7 +14,7 @@ public final class CnpjFormatter {
             return value;
         }
         return value.replaceFirst(
-            "([A-Z0-9]{2})([A-Z0-9]{3})([A-Z0-9]{3})([A-Z0-9]{4})([0-9]{2})",
+            "([A-Z0-9]{2})([A-Z0-9]{3})([A-Z0-9]{3})([A-Z0-9]{4})(\\d{2})",
             "$1.$2.$3/$4-$5"
         );
     }

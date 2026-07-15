@@ -1,8 +1,7 @@
 package com.fiap.restaurant_management_v2.application.usecases.user.updatepassword;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -158,6 +157,7 @@ class UpdateUserPasswordInteractorTest {
 
         verify(userDsGateway).updatePassword(userId, newHashedPassword);
         verify(loggerGateway).info("password updated for user id={}", userId);
+        assertTrue(presenter.hasPresented());
     }
 
     private static final class CapturingPresenter
@@ -169,6 +169,10 @@ class UpdateUserPasswordInteractorTest {
         @Override
         public void present() {
             this.presented = true;
+        }
+
+        boolean hasPresented() {
+            return presented;
         }
     }
 }

@@ -9,7 +9,7 @@ public final class Restaurant {
 
     // Regex pattern to validate Brazilian CNPJ Alphanumeric (Cadastro Nacional da Pessoa Jurídica) format
     private static final Pattern TAX_IDENTIFIER_PATTERN = Pattern.compile(
-        "^([A-Z0-9]{12}[0-9]{2}|[A-Z0-9]{2}\\.[A-Z0-9]{3}\\.[A-Z0-9]{3}/[A-Z0-9]{4}-[0-9]{2})$"
+        "^(?:[A-Z0-9]{12}\\d{2}|[A-Z0-9]{2}\\.[A-Z0-9]{3}\\.[A-Z0-9]{3}/[A-Z0-9]{4}-\\d{2})$"
     );
 
     private final UUID id;

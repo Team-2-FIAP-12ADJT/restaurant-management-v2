@@ -7,6 +7,7 @@ import com.fiap.restaurant_management_v2.application.gateways.TransactionalExecu
 import com.fiap.restaurant_management_v2.application.gateways.UserDsGateway;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsResponseModel;
 import com.fiap.restaurant_management_v2.domain.User;
+import java.util.UUID;
 
 public class UpdateUserInteractor implements UpdateUserInputBoundary {
 
@@ -38,38 +39,15 @@ public class UpdateUserInteractor implements UpdateUserInputBoundary {
                     )
                 );
 
-            String name =
-                request.name() != null ? request.name() : current.name();
-            String email =
-                request.email() != null ? request.email() : current.email();
-            String login =
-                request.login() != null ? request.login() : current.login();
-            String taxIdentifier =
-                request.taxIdentifier() != null
-                    ? request.taxIdentifier()
-                    : current.taxIdentifier();
+            String name = merge(request.name(), current.name());
+            String email = merge(request.email(), current.email());
+            String login = merge(request.login(), current.login());
+            String taxIdentifier = merge(
+                request.taxIdentifier(),
+                current.taxIdentifier()
+            );
 
-            if (
-                !email.equals(current.email()) &&
-                userDsGateway.existsByEmailExcludingId(email, request.id())
-            ) {
-                throw new DuplicateUserException("Email já cadastrado");
-            }
-            if (
-                !login.equals(current.login()) &&
-                userDsGateway.existsByLoginExcludingId(login, request.id())
-            ) {
-                throw new DuplicateUserException("Login já cadastrado");
-            }
-            if (
-                !taxIdentifier.equals(current.taxIdentifier()) &&
-                userDsGateway.existsByTaxIdentifierExcludingId(
-                    taxIdentifier,
-                    request.id()
-                )
-            ) {
-                throw new DuplicateUserException("CPF já cadastrado");
-            }
+            ensureNoDuplicates(request.id(), current, email, login, taxIdentifier);
 
             User.validateDetails(name, email, login, taxIdentifier);
 
@@ -93,5 +71,37 @@ public class UpdateUserInteractor implements UpdateUserInputBoundary {
                 )
             );
         });
+    }
+
+    // PATCH parcial: campo ausente (null) = mantém o valor atual.
+    private static String merge(String incoming, String currentValue) {
+        return incoming != null ? incoming : currentValue;
+    }
+
+    private void ensureNoDuplicates(
+        UUID id,
+        UserDsResponseModel current,
+        String email,
+        String login,
+        String taxIdentifier
+    ) {
+        if (
+            !email.equals(current.email()) &&
+            userDsGateway.existsByEmailExcludingId(email, id)
+        ) {
+            throw new DuplicateUserException("Email já cadastrado");
+        }
+        if (
+            !login.equals(current.login()) &&
+            userDsGateway.existsByLoginExcludingId(login, id)
+        ) {
+            throw new DuplicateUserException("Login já cadastrado");
+        }
+        if (
+            !taxIdentifier.equals(current.taxIdentifier()) &&
+            userDsGateway.existsByTaxIdentifierExcludingId(taxIdentifier, id)
+        ) {
+            throw new DuplicateUserException("CPF já cadastrado");
+        }
     }
 }

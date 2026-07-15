@@ -22,7 +22,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(
+    private static final Logger LOG = LoggerFactory.getLogger(
         GlobalExceptionHandler.class
     );
 
@@ -31,7 +31,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         String detail,
         Exception ex
     ) {
-        LOGGER.warn(
+        LOG.warn(
             "{} -> {}: {}",
             ex.getClass().getSimpleName(),
             status.value(),
@@ -191,7 +191,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ) {
             throw ex;
         }
-        LOGGER.error("unhandled exception -> 500", ex);
+        LOG.error("unhandled exception -> 500", ex);
         return ProblemDetail.forStatusAndDetail(
             HttpStatus.INTERNAL_SERVER_ERROR,
             "Erro interno inesperado"
@@ -215,7 +215,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             .forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage())
             );
-        LOGGER.warn(
+        LOG.warn(
             "MethodArgumentNotValidException -> {}: {}",
             status.value(),
             errors
@@ -233,7 +233,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatusCode status,
         WebRequest request
     ) {
-        LOGGER.warn(
+        LOG.warn(
             "HttpMessageNotReadableException -> {}: corpo inválido ou malformado",
             status.value()
         );

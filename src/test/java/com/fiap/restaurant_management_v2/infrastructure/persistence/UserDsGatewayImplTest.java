@@ -12,7 +12,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fiap.restaurant_management_v2.application.exception.UserNotFoundException;
-import com.fiap.restaurant_management_v2.application.gateways.UserCredentialDsResponseModel;
 import com.fiap.restaurant_management_v2.application.gateways.UserDsRequestModel;
 import com.fiap.restaurant_management_v2.application.gateways.search.SearchQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;

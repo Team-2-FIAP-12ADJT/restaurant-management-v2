@@ -4,7 +4,6 @@ import com.fiap.restaurant_management_v2.adapters.controllers.UserController;
 import com.fiap.restaurant_management_v2.adapters.presenters.CreateUserPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.GetAllUsersPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.GetUserByIdPresenter;
-import com.fiap.restaurant_management_v2.adapters.presenters.UpdateUserPasswordPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.UpdateUserPresenter;
 import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.PageViewModel;
 import com.fiap.restaurant_management_v2.adapters.presenters.viewmodel.UserViewModel;
@@ -38,22 +37,19 @@ public class UserApi {
     private final GetAllUsersPresenter getAllUsersPresenter;
     private final GetUserByIdPresenter getUserByIdPresenter;
     private final UpdateUserPresenter updateUserPresenter;
-    private final UpdateUserPasswordPresenter updateUserPasswordPresenter;
 
     public UserApi(
         UserController userController,
         CreateUserPresenter createUserPresenter,
         GetAllUsersPresenter getAllUsersPresenter,
         GetUserByIdPresenter getUserByIdPresenter,
-        UpdateUserPresenter updateUserPresenter,
-        UpdateUserPasswordPresenter updateUserPasswordPresenter
+        UpdateUserPresenter updateUserPresenter
     ) {
         this.userController = userController;
         this.createUserPresenter = createUserPresenter;
         this.getAllUsersPresenter = getAllUsersPresenter;
         this.getUserByIdPresenter = getUserByIdPresenter;
         this.updateUserPresenter = updateUserPresenter;
-        this.updateUserPasswordPresenter = updateUserPasswordPresenter;
     }
 
     @GetMapping

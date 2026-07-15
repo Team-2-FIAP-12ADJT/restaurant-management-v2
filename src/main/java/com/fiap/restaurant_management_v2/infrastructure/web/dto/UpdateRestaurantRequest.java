@@ -10,7 +10,7 @@ public record UpdateRestaurantRequest(
     @Nullable @Schema(example = "Rua das Flores, 123 - São Paulo, SP") String address,
     @Nullable
     @Pattern(
-        regexp = "^([A-Z0-9]{12}[0-9]{2}|[A-Z0-9]{2}\\.[A-Z0-9]{3}\\.[A-Z0-9]{3}/[A-Z0-9]{4}-[0-9]{2})$",
+        regexp = "^(?:[A-Z0-9]{12}\\d{2}|[A-Z0-9]{2}\\.[A-Z0-9]{3}\\.[A-Z0-9]{3}/[A-Z0-9]{4}-\\d{2})$",
         message = "Tax identifier must be a valid CNPJ (14 digits, with or without formatting)"
     )
     @Schema(example = "12345678000199") String taxIdentifier,
